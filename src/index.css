@@ -1,0 +1,200 @@
+/* General root and body styling */
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: normal;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #000000; /* Black background */
+  margin: 0;
+  padding: 0;
+  height: 100vh; /* Full height */
+  display: flex;
+  justify-content: center; /* Align items to the center horizontally */
+  align-items: center; /* Align items to the center vertically */
+  color: #fff; /* White text color */
+}
+
+/* Ensure container takes full width and height */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 95vw; /* Full screen width */
+  height: 100%; /* Full screen height */
+  flex-direction: column; /* Stack the form vertically */
+  box-sizing: border-box; /* Make sure padding is included in width/height */
+}
+
+
+/* Form styling */
+form {
+  width: 40vw; /* Form takes full width */
+  background-color: lab(86.29% 1.37 0.47 / 0.671); /* Light background */
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(172, 171, 171, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0.8;
+}
+/* Form inputs should take full width */
+input,
+select,
+textarea {
+  width: 100%; /* Full width for inputs */
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 14px;
+  margin-bottom: 16px;
+  background-color: #1e1e1e; /* Dark background for inputs */
+  color: #fff; /* White text */
+  transition: border-color 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #4CAF50; /* Focus border color */
+  outline: none;
+}
+
+/* Button styling */
+button {
+  background-color: #1a73e8;
+  color: rgb(8, 2, 2);
+  padding: 14px 28px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: auto; /* Ensure the button does not stretch to full width */
+}
+
+button:hover {
+  background-color: #1669c1;
+}
+
+button:focus {
+  outline: none;
+}
+
+/* Table styling */
+.table-responsive {
+   /* Table takes full width */
+  /* Full height minus the button height */
+  overflow-y: auto;
+  margin-top: 50px; /* Space between button and table */
+  display: block;
+  box-sizing: border-box; /* Include padding and borders in width calculation */
+  opacity: 0.9;
+  
+}
+
+/* Fixed button at top-right */
+.btn-success {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  padding: 12px 28px;
+  background-color: #1a73e8;
+  color: rgb(8, 2, 2);
+  border-radius: 10px;
+}
+
+.patient-list-background {
+  background-image: url('/images/reception.png'); /* Replace with actual path */
+  background-size: cover; /* Ensure the image covers the entire container */
+  background-position: center; /* Center the background image */
+  height: 100vh; /* Make sure it covers the full viewport height */
+  display: flex;
+  width: 100vw;
+  flex-direction: column;
+  justify-content: flex-start; /* Align items at the top */
+  /* Optional padding for spacing */
+}
+
+.gradient-receptionist {
+  background:  #8315f1;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  display: inline-block;
+
+}
+.register-background {
+  background-image: url('/images/registrationpatient.png'); /* Path to the background image */
+  background-size: cover; /* Ensures the image covers the entire container */
+  background-position: center; /* Centers the background image */
+  height: 100vh; /* Ensures the container takes full height of the viewport */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100vw;
+}
+
+.home-login-background {
+  background-image: url('/images/homeloginmain.png'); /* Replace with your image path */
+  background-size: cover; /* Ensure the image covers the entire background */
+  background-position: center; /* Center the image */
+  height: 100vh; /* Full height of the screen */
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Vertically and horizontally center the form */
+}
+
+.book-appointment {
+  background-image: url('/images/appointmet-calender.png'); /* Replace with your image path */
+  background-size: cover; /* Ensure the image covers the entire background */
+  background-position: center; /* Center the image */
+  height: 100vh; /* Full height of the screen */
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Vertically and horizontally center the form */
+}
+
+.doctordashboard-background {
+  background-image: url('/images/doctorlog.png'); /* Replace with your image path */
+  background-size: cover; /* Ensure the image covers the entire background */
+  background-position: center; /* Center the image */
+  height: 100vh; /* Full height of the screen */
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center; /* Vertically and horizontally center the form */
+}
+
+.btn-circle {
+  border-radius: 50%; /* Round the button */
+  width: 40px; /* Set width */
+  height: 40px; /* Set height */
+  padding: 0; /* Remove extra padding */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px; /* Set font size */
+  line-height: 1; /* Align symbol properly */
+  min-width: 40px; /* Ensure it stays circular even on smaller screens */
+}
+
+.custom-green-btn {
+  background-color: #28a745 !important;  /* Bootstrap's green */
+  color: white !important;
+  border-color: #28a745 !important;
+}
