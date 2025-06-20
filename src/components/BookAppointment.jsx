@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
+import "../css/Bookappointment.css";
 
 const BookAppointment = () => {
   const [patients, setPatients] = useState([]);
@@ -80,11 +81,13 @@ const BookAppointment = () => {
 
   return (
     <div className='book-appointment'>
-    <div className="container mt-5">
-      <h2>{id ? 'Edit Appointment' : 'Book Appointment'}</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="container-five">
+     
+    <form className="appointmentform" onSubmit={handleSubmit}>
+      <div className="heading-2"> <h2>{id ? 'Edit Appointment' : 'Book an Appointment'}</h2> </div>
         {/* Patient Dropdown */}
-        <div >
+        <div className="field-one">
+        <div className='patient' >
           <label>Patient</label>
         <select
           value={String(patientId)}  // ensure it's not an object or undefined
@@ -117,7 +120,7 @@ const BookAppointment = () => {
             ))}
           </select>
         </div>
-
+         </div>
         {/* Date */}
         <div className="mb-3">
           <label>Appointment Date</label>
@@ -125,7 +128,8 @@ const BookAppointment = () => {
         </div>
 
         {/* Time */}
-        <div className="mb-3">
+        <div className='time'>
+        <div className="patient">
           <label>Start Time</label>
           <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
         </div>
@@ -133,8 +137,8 @@ const BookAppointment = () => {
           <label>End Time</label>
           <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
         </div>
-
-        <button type="submit">{id ? 'Update Appointment' : 'Book Appointment'}</button>
+        </div>
+        <button className="btn-blue" type="submit">{id ? 'Update Appointment' : 'Book Appointment'}</button>
       </form>
     </div></div>
   );

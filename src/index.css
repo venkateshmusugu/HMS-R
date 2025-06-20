@@ -25,29 +25,10 @@ body {
 }
 
 /* Ensure container takes full width and height */
-.container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 95vw; /* Full screen width */
-  height: 100%; /* Full screen height */
-  flex-direction: column; /* Stack the form vertically */
-  box-sizing: border-box; /* Make sure padding is included in width/height */
-}
 
 
 /* Form styling */
-form {
-  width: 40vw; /* Form takes full width */
-  background-color: lab(86.29% 1.37 0.47 / 0.671); /* Light background */
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(172, 171, 171, 0.1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  opacity: 0.8;
-}
+
 /* Form inputs should take full width */
 input,
 select,
@@ -71,53 +52,26 @@ textarea:focus {
   outline: none;
 }
 
-/* Button styling */
-button {
-  background-color: #1a73e8;
-  color: rgb(8, 2, 2);
-  padding: 14px 28px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: auto; /* Ensure the button does not stretch to full width */
-}
-
-button:hover {
-  background-color: #1669c1;
-}
-
-button:focus {
-  outline: none;
-}
 
 /* Table styling */
 .table-responsive {
-   /* Table takes full width */
-  /* Full height minus the button height */
   overflow-y: auto;
-  margin-top: 50px; /* Space between button and table */
+  margin-top: 50px;
   display: block;
-  box-sizing: border-box; /* Include padding and borders in width calculation */
+  box-sizing: border-box;
   opacity: 0.9;
-  
+  max-width: 90%;  /* Limit width to 90% of page */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 20px;  /* Optional: extra gap inside */
+  padding-right: 20px; /* Optional: extra gap inside */
 }
+
 
 /* Fixed button at top-right */
-.btn-success {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 10;
-  padding: 12px 28px;
-  background-color: #1a73e8;
-  color: rgb(8, 2, 2);
-  border-radius: 10px;
-}
 
 .patient-list-background {
-  background-image: url('/images/reception.png'); /* Replace with actual path */
+  background-image: url('/images/patient_list.png'); /* Replace with actual path */
   background-size: cover; /* Ensure the image covers the entire container */
   background-position: center; /* Center the background image */
   height: 100vh; /* Make sure it covers the full viewport height */
@@ -128,14 +82,7 @@ button:focus {
   /* Optional padding for spacing */
 }
 
-.gradient-receptionist {
-  background:  #8315f1;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  display: inline-block;
 
-}
 .register-background {
   background-image: url('/images/registrationpatient.png'); /* Path to the background image */
   background-size: cover; /* Ensures the image covers the entire container */
@@ -145,40 +92,11 @@ button:focus {
   justify-content: center;
   align-items: center;
   width: 100vw;
+  /* overflow: hidden; */
 }
 
-.home-login-background {
-  background-image: url('/images/homeloginmain.png'); /* Replace with your image path */
-  background-size: cover; /* Ensure the image covers the entire background */
-  background-position: center; /* Center the image */
-  height: 100vh; /* Full height of the screen */
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Vertically and horizontally center the form */
-}
 
-.book-appointment {
-  background-image: url('/images/appointmet-calender.png'); /* Replace with your image path */
-  background-size: cover; /* Ensure the image covers the entire background */
-  background-position: center; /* Center the image */
-  height: 100vh; /* Full height of the screen */
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Vertically and horizontally center the form */
-}
 
-.doctordashboard-background {
-  background-image: url('/images/doctorlog.png'); /* Replace with your image path */
-  background-size: cover; /* Ensure the image covers the entire background */
-  background-position: center; /* Center the image */
-  height: 100vh; /* Full height of the screen */
-  width: 100vw;
-  display: flex;
-  justify-content: center;
-  align-items: center; /* Vertically and horizontally center the form */
-}
 
 .btn-circle {
   border-radius: 50%; /* Round the button */
@@ -198,3 +116,4 @@ button:focus {
   color: white !important;
   border-color: #28a745 !important;
 }
+

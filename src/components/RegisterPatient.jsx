@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
+import '../css/registerpatient.css';
 
 const RegisterPatient = () => {
   const [patientName, setPatientName] = useState('');
@@ -62,24 +63,28 @@ const RegisterPatient = () => {
 
   return (
     <div className="register-background">
-      <div className="container mt-5">
-        <h2>Register New Patient</h2>
-        <form onSubmit={handleSubmit}>
-
-          <div className="mb-3">
+      <div className="container-one">
+        
+        
+        <form className='patient-form' onSubmit={handleSubmit}>
+          <div className="heading-one"><h2 >Register New Patient</h2></div>
+          <div className="form-one">
+            
+          <div className="f-one">
             <label>Patient Name</label>
             <input  type="text" value={patientName} onChange={e => setPatientName(e.target.value)} required />
-          </div>
-
-          <div className="mb-3">
-            <label>Phone Number</label>
-            <input  type="text" maxLength={10} value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required />
           </div>
           <div className='mb-3'>
             <label>Age</label>
             <input type='number' value={age} onChange={e=>setAge(e.target.value)} required />
           </div>
-
+          </div>
+          <div className="form-one">
+          <div className="f-one">
+            <label>Phone Number</label>
+            <input  type="text" maxLength={10} value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required />
+          </div>
+          
 
           <div className="mb-3">
             <label>Gender</label>
@@ -90,8 +95,9 @@ const RegisterPatient = () => {
               <option>Other</option>
             </select>
           </div>
-
-          <div className="mb-3">
+          </div>
+          <div className="form-one">
+          <div className="f-one">
             <label>Date of Birth</label>
             <input  type="date" value={dob} onChange={e => setDob(e.target.value)} required />
           </div>
@@ -105,37 +111,31 @@ const RegisterPatient = () => {
               <option>Divorced</option>
             </select>
           </div>
-
-          <div className="mb-3">
+          </div>
+          <div className="f-two">
             <label>Case Description</label>
             <textarea value={caseDescription} onChange={e => setCaseDescription(e.target.value)} required />
           </div>
-
-          <div className="form-check mb-3">
+          <div className="checks">
+          <div className="box">
             <input
               type="checkbox"
               checked={isAppointment}
               onChange={e => setIsAppointment(e.target.checked)}
             />
-            <label className="form-check-label">Book an Appointment</label>
+            </div>
+            <label className="form-check-labels">Book an Appointment</label>
           </div>
 
           {isAppointment && <>
-            <div className="mb-3">
+          <div className="form-one">
+            <div className="f-one">
               <label>Appointment Date</label>
               <input  type="date" value={appointmentDate} onChange={e => setAppointmentDate(e.target.value)} required />
             </div>
-            <div className="mb-3">
-              <label>Start Time</label>
-              <input className="form-control" type="time" value={startTime} onChange={e => setStartTime(e.target.value)} required />
-            </div>
-            <div className="mb-3">
-              <label>End Time</label>
-              <input className="form-control" type="time" value={endTime} onChange={e => setEndTime(e.target.value)} required />
-            </div>
-            <div className="mb-3">
+           <div className="f-three">
               <label>Doctor</label>
-              <select className="form-select" value={doctorId} onChange={e => setDoctorId(e.target.value)} required>
+              <select  value={doctorId} onChange={e => setDoctorId(e.target.value)} required>
                 <option value="">Select Doctor</option>
                 {doctors.map(doc => (
                   <option key={doc.doctorId} value={doc.doctorId}>
@@ -144,9 +144,21 @@ const RegisterPatient = () => {
                 ))}
               </select>
             </div>
+            </div>
+            <div className='form-one'>
+             <div className="f-4">
+              <label>Start Time</label>
+              <input  type="time" value={startTime} onChange={e => setStartTime(e.target.value)} required />
+            </div>
+            <div className="mb-3">
+              <label>End Time</label>
+              <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} required />
+            </div>
+            </div>
+            
           </>}
 
-          <button className="btn btn-primary" type="submit">
+          <button className="btn-end" type="submit">
             Save Patient{isAppointment && ' & Appointment'}
           </button>
         </form>

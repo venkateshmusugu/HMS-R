@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
+import "../css/doctordashboard.css";
 
 const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState([]);
@@ -31,25 +32,45 @@ const DoctorDashboard = () => {
 
   return (
     <div className="doctordashboard-background">
-      <div className="container mt-5">
+      <div className="container-3">
         {/* Header */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4 className="gradient-receptionist">{role === 'DOCTOR' ? `Docto: ${username}` : ''}</h4>
-          <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
+        <div className="header-4">
+          <h4 className="doctor">{role === 'DOCTOR' ? `Doctor: ${username}` : ''}</h4>
+         </div>
+          
+            <button
+              className="btn-blue1"
+              onClick={() => navigate('/register-patient')}
+            >
+              Add New Patient
+            </button>
+          
+            
+            <button
+              className="btn-blue1"
+              onClick={() => navigate('/book-appointment')}
+            >
+              Add New Appointment
+            </button>
+          
+          <button className="btn-red1" onClick={handleLogout}>Logout</button>
+        
+         </div>
+        <div className='heading-app'>
+        <h2 className="content">Today's Appointments</h2>
         </div>
-
-        <h2 className="text-light mb-4">Today's Appointments</h2>
-
         {/* Controls */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div className="d-flex gap-3 w-50">
-            <input
+       <div className="search">
+        <div className="search-by-name">
+            <input 
               type="text"
               className="form-control"
               placeholder="Search by Name or Phone"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
+            </div>
+             <div className="search-by-date">
             <input
               type="date"
               className="form-control"
@@ -57,24 +78,11 @@ const DoctorDashboard = () => {
               onChange={e => setSelectedDate(e.target.value)}
             />
           </div>
-          <div>
-            <button
-              className="btn btn-success me-2"
-              onClick={() => navigate('/register-patient')}
-            >
-              Add New Patient
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate('/book-appointment')}
-            >
-              Add New Appointment
-            </button>
-          </div>
+          
         </div>
 
         {/* Table */}
-        <table className="table table-bordered bg-dark text-light">
+        <table className="table-custom">
           <thead className="table-light text-dark">
             <tr>
               <th>Name</th>
@@ -95,11 +103,11 @@ const DoctorDashboard = () => {
 
               return (
                 <tr key={a.visitId}>
-                  <td>{a.patient?.patientName}</td>
-                  <td>{a.doctor?.doctorName}</td>
-                  <td>{a.visitDate}</td>
-                  <td>{a.startTime}</td>
-                  <td>{a.endTime}</td>
+                  <td style={{ color: 'black' }}>{a.patient?.patientName}</td>
+                  <td style={{ color: 'black' }}>{a.doctor?.doctorName}</td>
+                  <td style={{ color: 'black' }}>{a.visitDate}</td>
+                  <td style={{ color: 'black' }}>{a.startTime}</td>
+                  <td style={{ color: 'black' }}>{a.endTime}</td>
                   <td>
                     <button
                       className="btn btn-info btn-sm"
@@ -135,7 +143,7 @@ const DoctorDashboard = () => {
             )}
           </tbody>
         </table>
-      </div>
+     
     </div>
   );
 };

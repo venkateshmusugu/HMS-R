@@ -1,0 +1,104 @@
+.register-background {
+  background-image: url('/images/registrationpatient.png'); /* Path to the background image */
+  background-size: cover; /* Ensures the image covers the entire container */
+  background-position: center; /* Centers the background image */
+  height: 100vh; /* Ensures the container takes full height of the viewport */
+  display: flex;
+ 
+  width: 100vw;
+  overflow: hidden; 
+}
+.patient-form {
+  width: 40vw; /* Form takes full width */
+  background-color: lab(86.29% 1.37 0.47 / 0.671); /* Light background */
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(172, 171, 171, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content:center;
+  opacity: 0.8;
+  height:fit-content;
+}
+.form-one{
+    display: flex;
+}
+.heading-one{
+  width:60%;
+  height:25%;
+  margin-bottom: 2%;
+  background-color: #2674daaf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-one{
+   width:60%;
+   margin-right:2%;
+}
+label{
+    color:#000000af;
+}
+textarea{
+    margin-top: 0%;
+    height:45%;
+    margin-bottom: 0%;
+}
+.f-two{
+  width:70%;  
+  height:15%;
+  margin-top: 0%;
+  margin-bottom: 0%;
+}
+.checks{
+    display:flex;
+    width:100%;
+    margin-top:0%;
+}
+.box{
+    margin-left: 30%;
+    margin-right: 3%;
+    margin-top: -2%;
+}
+.form-check-labels{
+    color:black;
+    width:fit-content;
+    margin-top: -2%;
+}
+.f-4{
+    margin-right: 2%;
+}
+.btn-end {
+  background-color: #1a73e8;
+  color: #ffffff;
+  padding: 14px 28px;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn-end:hover {
+  background-color: #0a498d;
+}
+
+.btn-end:focus {
+  outline: none;
+}
+
+.container-one {
+  display: flex;
+  
+  margin-top: 0%;
+  margin-left:5%;
+  width: 95vw; /* Full screen width */
+   /* Full screen height */
+  flex-direction: column; /* Stack the form vertically */
+  box-sizing: border-box; /* Make sure padding is included in width/height */
+}

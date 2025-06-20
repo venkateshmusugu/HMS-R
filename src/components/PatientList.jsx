@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
+import "../css/Patientlist.css";
+
 
 const PatientList = () => {
   const [appointments, setAppointments] = useState([]);
@@ -14,26 +16,26 @@ const PatientList = () => {
   const role = localStorage.getItem('role');
   const receptionist = localStorage.getItem('username') || '—';
 
- // const receptionist = localStorage.getItem('username') || '—';
+  // const receptionist = localStorage.getItem('username') || '—';
 
- const fetchAppointments = async () => {
-  try {
-    const params = {};
-    if (selectedDate && selectedDate.trim() !== '') {
-      params.date = selectedDate;
-    }
-    if (searchTerm) {
-      params.searchTerm = searchTerm;
-    }
+  const fetchAppointments = async () => {
+    try {
+      const params = {};
+      if (selectedDate && selectedDate.trim() !== '') {
+        params.date = selectedDate;
+      }
+      if (searchTerm) {
+        params.searchTerm = searchTerm;
+      }
 
-    const response = await axiosInstance.get('/api/appointments/upcoming', { params });
-    const sorted = response.data.sort((a, b) => new Date(a.visitDate) - new Date(b.visitDate));
-    setAppointments(sorted);
-  } catch (err) {
-    console.error('❌ Failed to fetch appointments:', err);
-    alert('❌ Failed to fetch appointments.');
-  }
-};
+      const response = await axiosInstance.get('/api/appointments/upcoming', { params });
+      const sorted = response.data.sort((a, b) => new Date(a.visitDate) - new Date(b.visitDate));
+      setAppointments(sorted);
+    } catch (err) {
+      console.error('❌ Failed to fetch appointments:', err);
+      alert('❌ Failed to fetch appointments.');
+    }
+  };
 
   useEffect(() => {
     fetchAppointments();
@@ -48,22 +50,39 @@ const PatientList = () => {
 
   return (
     <div className="patient-list-background">
-      <div className="container mt-5">
-        {/* Header with Receptionist name and Logout */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4 className="gradient-receptionist">
-  {role === 'RECEPTIONIST' ? `Receptionist: ${receptionist}` : ''}
-</h4>
-          <button className="btn btn-danger" onClick={handleLogout}>
-            Logout
-          </button>
+      <div className="container-1">
+        <div className="header-name">
+          <h4 className="receptionist">
+            {role === 'RECEPTIONIST' ? (
+              <>
+                Receptionist:<br />
+                {receptionist}
+              </>
+            ) : ''}
+          </h4>
         </div>
 
-        <h2 className="text-light mb-4">Appointments</h2>
+        <button className="btn-blue" onClick={() => navigate('/register-patient')}>
+          Add New Patient
+        </button>
+        <button className="btn-blue" onClick={() => navigate('/book-appointment')}>
+          Add New Appointment
+        </button>
+        <button className="btn-red" onClick={handleLogout}>
+          Logout
+        </button>
+      </div>
+      {/* Header with Receptionist name and Logout */}
+      <div className="container-two">
 
+
+
+        <div className="heading-1">
+          <h2 className="heading-content">Appointments</h2>
+        </div>
         {/* Controls */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div className="d-flex gap-3 w-50">
+        <div className="search-options">
+          <div className="search-name">
             <input
               type="text"
               className="form-control"
@@ -71,21 +90,17 @@ const PatientList = () => {
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
-           <input
-            type="date"
-            className="form-control"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value || '')}
-          />
           </div>
-          <div>
-            <button className="btn btn-success me-2" onClick={() => navigate('/register-patient')}>
-              Add New Patient
-            </button>
-            <button className="btn btn-primary" onClick={() => navigate('/book-appointment')}>
-              Add New Appointment
-            </button>
+          <div className="search-date">
+            <input
+              type="date"
+              className="form-control"
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value || '')}
+            />
           </div>
+
+
         </div>
 
         {/* Appointment Table */}
@@ -100,7 +115,7 @@ const PatientList = () => {
               <th>Actions</th>
             </tr>
           </thead>
-         <tbody>
+          <tbody>
             {appointments.length > 0 ? (
               appointments.map(appt => {
                 const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
@@ -141,6 +156,7 @@ const PatientList = () => {
         </table>
       </div>
     </div>
+
   );
 };
 
