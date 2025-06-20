@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import axiosInstance from '../axiosInstance';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import "../css/Registerform.css";
 // ✅ Helper to extract CSRF token from cookies
 const getCookie = (cookieName) => {
   const name = cookieName + "=";
@@ -78,28 +78,28 @@ function RegisterForm() {
     }
   };
 
-  return (
-    <div className="container mt-5" style={{ maxWidth: '400px' }}>
-      <h2 className="text-center mb-4">
-        Register as {titleCase(role)}
-      </h2>
+return (
+  <div className="background-container">
+    <div className="login-form-one">
+      <h2>Register as {titleCase(role)}</h2>
       <form onSubmit={handleRegister}>
-        <div className="mb-3">
+        <div className="form-group">
           <label>Username</label>
-          <input type="text" name="username" value={form.username} onChange={handleChange} className="form-control" required />
+          <input type="text" name="username" value={form.username} onChange={handleChange} required />
         </div>
-        <div className="mb-3">
+        <div className="form-group">
           <label>Password</label>
-          <input type="password" name="password" value={form.password} onChange={handleChange} className="form-control" required />
+          <input type="password" name="password" value={form.password} onChange={handleChange} required />
         </div>
-        <div className="mb-3">
+        <div className="form-group">
           <label>Role</label>
-          <input type="text" name="role" value={form.role} readOnly className="form-control" />
+          <input type="text" name="role" value={form.role} readOnly />
         </div>
-        <button type="submit" className="btn btn-primary w-100">Register</button>
+        <button className='registerbtn' type="submit">Register</button>
       </form>
     </div>
-  );
+  </div>
+);
 }
 
 export default RegisterForm;

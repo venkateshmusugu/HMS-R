@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
+import '../css/registerpatient.css';
 
 const RegisterPatient = () => {
   const [patientName, setPatientName] = useState('');
@@ -94,60 +95,70 @@ const RegisterPatient = () => {
 
   return (
     <div className="register-background">
-      <div className="container mt-5">
-        <h2 className="text-primary mb-4">Register New Patient</h2>
-        <form onSubmit={handleSubmit}>
-          {/* Basic Patient Details */}
-          <div className="mb-3">
-            <label>Patient Name</label>
-            <input type="text" value={patientName} onChange={e => setPatientName(e.target.value)} required className="form-control" />
-          </div>
-          <div className="mb-3">
-            <label>Phone Number</label>
-            <input type="text" maxLength={10} value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required className="form-control" />
-          </div>
-          <div className="mb-3">
-            <label>Age</label>
-            <input type="number" value={age} onChange={e => setAge(e.target.value)} required className="form-control" />
-          </div>
-          <div className="mb-3">
-            <label>Gender</label>
-            <select value={gender} onChange={e => setGender(e.target.value)} required className="form-select">
-              <option value="">Select Gender</option>
-              <option>Male</option>
-              <option>Female</option>
-              <option>Other</option>
-            </select>
-          </div>
-          <div className="mb-3">
-            <label>Date of Birth</label>
-            <input type="date" value={dob} onChange={e => setDob(e.target.value)} required className="form-control" />
-          </div>
-          <div className="mb-3">
-            <label>Marital Status</label>
-            <select value={maritalStatus} onChange={e => setMaritalStatus(e.target.value)} required className="form-select">
-              <option value="">Select Status</option>
-              <option>Single</option>
-              <option>Married</option>
-              <option>Divorced</option>
-            </select>
-          </div>
-          <div className="mb-3">
-            <label>Case Description</label>
-            <textarea value={caseDescription} onChange={e => setCaseDescription(e.target.value)} required className="form-control" />
+      <div className="container-one">
+        <form className="patient-form" onSubmit={handleSubmit}>
+          <div className="heading-one"><h2>Register New Patient</h2></div>
+
+          <div className="form-one">
+            <div className="f-one">
+              <label>Patient Name</label>
+              <input type="text" value={patientName} onChange={e => setPatientName(e.target.value)} required />
+            </div>
+            <div className="f-one">
+              <label>Age</label>
+              <input type="number" value={age} onChange={e => setAge(e.target.value)} required />
+            </div>
           </div>
 
-          {/* Booking Checkbox */}
+          <div className="form-one">
+            <div className="f-one">
+              <label>Phone Number</label>
+              <input type="text" maxLength={10} value={phoneNumber} onChange={e => setPhoneNumber(e.target.value)} required />
+            </div>
+            <div className="f-one">
+              <label>Gender</label>
+              <select value={gender} onChange={e => setGender(e.target.value)} required>
+                <option value="">Select Gender</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="form-one">
+            <div className="f-one">
+              <label>Date of Birth</label>
+              <input type="date" value={dob} onChange={e => setDob(e.target.value)} required />
+            </div>
+            <div className="f-one">
+              <label>Marital Status</label>
+              <select value={maritalStatus} onChange={e => setMaritalStatus(e.target.value)} required>
+                <option value="">Select Status</option>
+                <option>Single</option>
+                <option>Married</option>
+                <option>Divorced</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="f-two">
+            <label>Case Description</label>
+            <textarea value={caseDescription} onChange={e => setCaseDescription(e.target.value)} required />
+          </div>
+
+          {/* Book Flag */}
           {context && (
-            <div className="form-check mb-3">
-              <input
-                type="checkbox"
-                className="form-check-input"
-                checked={bookFlag}
-                onChange={e => setBookFlag(e.target.checked)}
-                id="bookFlagCheck"
-              />
-              <label htmlFor="bookFlagCheck" className="form-check-label">
+            <div className="checks">
+              <div className="box">
+                <input
+                  type="checkbox"
+                  checked={bookFlag}
+                  onChange={e => setBookFlag(e.target.checked)}
+                  id="bookFlagCheck"
+                />
+              </div>
+              <label className="form-check-labels" htmlFor="bookFlagCheck">
                 {context === 'surgery' ? 'Book a Surgery' : 'Book an Appointment'}
               </label>
             </div>
@@ -156,21 +167,25 @@ const RegisterPatient = () => {
           {/* Surgery Fields */}
           {bookFlag && context === 'surgery' && (
             <>
-              <div className="mb-3">
-                <label>Surgery Date</label>
-                <input type="date" value={surgeryDate} onChange={e => setSurgeryDate(e.target.value)} required className="form-control" />
+              <div className="form-one">
+                <div className="f-one">
+                  <label>Surgery Date</label>
+                  <input type="date" value={surgeryDate} onChange={e => setSurgeryDate(e.target.value)} required />
+                </div>
+                <div className="f-one">
+                  <label>Medication</label>
+                  <input type="text" value={medication} onChange={e => setMedication(e.target.value)} required />
+                </div>
               </div>
-              <div className="mb-3">
-                <label>Medication</label>
-                <input type="text" value={medication} onChange={e => setMedication(e.target.value)} required className="form-control" />
-              </div>
-              <div className="mb-3">
-                <label>Reason</label>
-                <input type="text" value={reason} onChange={e => setReason(e.target.value)} required className="form-control" />
-              </div>
-              <div className="mb-3">
-                <label>Remarks</label>
-                <textarea value={remarks} onChange={e => setRemarks(e.target.value)} className="form-control" />
+              <div className="form-one">
+                <div className="f-one">
+                  <label>Reason</label>
+                  <input type="text" value={reason} onChange={e => setReason(e.target.value)} required />
+                </div>
+                <div className="f-one">
+                  <label>Remarks</label>
+                  <textarea value={remarks} onChange={e => setRemarks(e.target.value)} />
+                </div>
               </div>
             </>
           )}
@@ -178,25 +193,29 @@ const RegisterPatient = () => {
           {/* Appointment Fields */}
           {bookFlag && context === 'appointment' && (
             <>
-              <div className="mb-3">
-                <label>Appointment Date</label>
-                <input type="date" value={appointmentDate} onChange={e => setAppointmentDate(e.target.value)} required className="form-control" />
+              <div className="form-one">
+                <div className="f-one">
+                  <label>Appointment Date</label>
+                  <input type="date" value={appointmentDate} onChange={e => setAppointmentDate(e.target.value)} required />
+                </div>
+                <div className="f-one">
+                  <label>Reason for Visit</label>
+                  <input type="text" value={reason} onChange={e => setReason(e.target.value)} required />
+                </div>
               </div>
-              <div className="mb-3">
-                <label>Start Time</label>
-                <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} required className="form-control" />
+              <div className="form-one">
+                <div className="f-one">
+                  <label>Start Time</label>
+                  <input type="time" value={startTime} onChange={e => setStartTime(e.target.value)} required />
+                </div>
+                <div className="f-one">
+                  <label>End Time</label>
+                  <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} required />
+                </div>
               </div>
-              <div className="mb-3">
-                <label>End Time</label>
-                <input type="time" value={endTime} onChange={e => setEndTime(e.target.value)} required className="form-control" />
-              </div>
-              <div className="mb-3">
-                <label>Reason for Visit</label>
-                <input type="text" value={reason} onChange={e => setReason(e.target.value)} required className="form-control" />
-              </div>
-              <div className="mb-3">
+              <div className="f-three">
                 <label>Select Doctor</label>
-                <select value={doctorId} onChange={e => setDoctorId(e.target.value)} required className="form-select">
+                <select value={doctorId} onChange={e => setDoctorId(e.target.value)} required>
                   <option value="">Select Doctor</option>
                   {doctors.map(doc => (
                     <option key={doc.doctorId} value={doc.doctorId}>
@@ -208,7 +227,7 @@ const RegisterPatient = () => {
             </>
           )}
 
-           <button className="btn btn-success px-4 py-2" type="submit">
+          <button className="btn-end" type="submit">
             Register{bookFlag && (context === 'surgery' ? ' & Book Surgery' : ' & Book Appointment')}
           </button>
         </form>

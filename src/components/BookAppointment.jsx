@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
+import "../css/Bookappointment.css";
 
 const BookSurgery = () => {
   const [patients, setPatients] = useState([]);
@@ -13,7 +14,7 @@ const BookSurgery = () => {
   });
 
   const navigate = useNavigate();
-  const { id } = useParams(); // for editing if needed later
+  const { id } = useParams(); // Optional: for editing in future
 
   // Fetch patients
   useEffect(() => {
@@ -65,7 +66,7 @@ const BookSurgery = () => {
   };
 
   return (
-    <div className='book-appointment'>
+    <div className="container-five">
       <div className="container mt-5">
         <h2>Book Surgery Appointment</h2>
         <form onSubmit={handleSubmit}>

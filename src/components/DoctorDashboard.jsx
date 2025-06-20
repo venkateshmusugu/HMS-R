@@ -1,34 +1,34 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
+import "../css/doctordashboard.css";
 
 const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const navigate = useNavigate();
-   const role = localStorage.getItem('role');
+
+  const role = localStorage.getItem('role');
   const username = localStorage.getItem('username') || '—';
 
-  useEffect(() => { fetchAppointments(); }, [searchTerm, selectedDate]);
+  useEffect(() => {
+    fetchAppointments();
+  }, [searchTerm, selectedDate]);
 
- const fetchAppointments = async () => {
-  try {
-    const params = { date: selectedDate };
-    if (searchTerm) params.searchTerm = searchTerm;
+  const fetchAppointments = async () => {
+    try {
+      const params = { date: selectedDate };
+      if (searchTerm) params.searchTerm = searchTerm;
 
-    const res = await axiosInstance.get('/api/appointments/upcoming', { params });
-
-    console.log("Fetched Appointments:", res.data);
-
-    // ✅ Ensure it's an array before setting state
-    const fetched = Array.isArray(res.data) ? res.data : [];
-    setAppointments(fetched);
-  } catch (err) {
-    console.error('Error fetching appointments:', err);
-    setAppointments([]); // Fallback to empty array on error
-  }
-};
+      const res = await axiosInstance.get('/api/appointments/upcoming', { params });
+      const fetched = Array.isArray(res.data) ? res.data : [];
+      setAppointments(fetched);
+    } catch (err) {
+      console.error('Error fetching appointments:', err);
+      setAppointments([]);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.clear();
@@ -37,25 +37,37 @@ const DoctorDashboard = () => {
 
   return (
     <div className="doctordashboard-background">
-      <div className="container mt-5">
+      <div className="container-3">
         {/* Header */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
+        <div className="header-4 d-flex justify-content-between align-items-center mb-4">
           <h4 className="gradient-receptionist">{role === 'DOCTOR' ? `Doctor: ${username}` : ''}</h4>
-          <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
+          <div>
+            <button className="btn-blue1 me-2" onClick={() => navigate('/register-patient')}>
+              Add New Patient
+            </button>
+            <button className="btn-blue1 me-2" onClick={() => navigate('/book-appointment')}>
+              Add New Appointment
+            </button>
+            <button className="btn-red1" onClick={handleLogout}>Logout</button>
+          </div>
         </div>
 
-        <h2 className="text-light mb-4">Today's Appointments</h2>
+        <div className='heading-app'>
+          <h2 className="content">Today's Appointments</h2>
+        </div>
 
         {/* Controls */}
-        <div className="d-flex justify-content-between align-items-center mb-4">
-          <div className="d-flex gap-3 w-50">
-            <input
+        <div className="search mb-3">
+          <div className="search-by-name me-3">
+            <input 
               type="text"
               className="form-control"
               placeholder="Search by Name or Phone"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
+          </div>
+          <div className="search-by-date">
             <input
               type="date"
               className="form-control"
@@ -63,24 +75,10 @@ const DoctorDashboard = () => {
               onChange={e => setSelectedDate(e.target.value)}
             />
           </div>
-          <div>
-            <button
-              className="btn btn-success me-2"
-              onClick={() => navigate('/register-patient')}
-            >
-              Add New Patient
-            </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate('/book-appointment')}
-            >
-              Add New Appointment
-            </button>
-          </div>
         </div>
 
-        {/* Table */}
-        <table className="table table-bordered bg-dark text-light">
+        {/* Appointments Table */}
+        <table className="table-custom">
           <thead className="table-light text-dark">
             <tr>
               <th>Name</th>
@@ -101,11 +99,11 @@ const DoctorDashboard = () => {
 
               return (
                 <tr key={a.visitId}>
-                  <td>{a.patient?.patientName}</td>
-                  <td>{a.doctor?.doctorName}</td>
-                  <td>{a.visitDate}</td>
-                  <td>{a.startTime}</td>
-                  <td>{a.endTime}</td>
+                  <td style={{ color: 'black' }}>{a.patient?.patientName}</td>
+                  <td style={{ color: 'black' }}>{a.doctor?.doctorName}</td>
+                  <td style={{ color: 'black' }}>{a.visitDate}</td>
+                  <td style={{ color: 'black' }}>{a.startTime}</td>
+                  <td style={{ color: 'black' }}>{a.endTime}</td>
                   <td>
                     <button
                       className="btn btn-info btn-sm"
@@ -115,8 +113,12 @@ const DoctorDashboard = () => {
                     </button>
                   </td>
                   <td>
-                    <button className="btn btn-info btn-sm" onClick={() => navigate(`/medications/${a.patient.patientId}/${a.visitId}`)}>
-                     View Medications</button>
+                    <button
+                      className="btn btn-info btn-sm"
+                      onClick={() => navigate(`/medications/${a.patient.patientId}/${a.visitId}`)}
+                    >
+                      View Medications
+                    </button>
                   </td>
                   <td>
                     {isPast ? (
