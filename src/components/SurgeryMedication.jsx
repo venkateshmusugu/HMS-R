@@ -2,112 +2,99 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
 
-const Medications = () => {
-  const { patientId, apptId } = useParams();
+const SurgeryMedication = () => {
+  const { patientId, surgeryId } = useParams();
   const navigate = useNavigate();
 
   const [logs, setLogs] = useState([]);
   const [expandedDate, setExpandedDate] = useState(null);
-
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     diagnosis: '',
-    reasonForVisit: '',
+    reasonForSurgery: '',
     followUpDate: '',
-    medicines: [
-      {
-        medicineName: '',
-        dosage: '',
-        duration: '',
-        comments: '',
-      },
-    ],
+    medicines: [{ medicineName: '', dosage: '', duration: '', comments: '' }],
   });
 
   useEffect(() => {
-    axiosInstance.get(`/api/doctor-logs/by-patient/${patientId}`)
-      .then(res => setLogs(res.data))
-      .catch(err => console.error("❌ Failed to fetch logs:", err));
-
-    if (apptId) {
-      axiosInstance.get(`/api/appointments/${apptId}`)
-        .then(res => {
-          const appt = res.data;
-          setFormData(prev => ({
-            ...prev,
-            reasonForVisit: appt.reasonForVisit || '',
-            followUpDate: appt.visitDate ? appt.visitDate.split('T')[0] : ''
-          }));
-        })
-        .catch(err => {
-          console.error("❌ Failed to fetch appointment:", err);
-          alert("Error loading appointment details.");
-        });
+    if (!patientId || !surgeryId) {
+      alert('❌ Missing patient or surgery ID.');
+      navigate('/surgery');
+      return;
     }
-  }, [patientId, apptId]);
+
+    const fetchData = async () => {
+      try {
+        const [logsRes, surgeryRes] = await Promise.all([
+          axiosInstance.get(`/api/surgery-logs/by-patient/${patientId}`),
+          axiosInstance.get(`/api/surgeries/${surgeryId}`),
+        ]);
+
+        setLogs(logsRes.data || []);
+        const surgery = surgeryRes.data;
+
+        setFormData(prev => ({
+          ...prev,
+          reasonForSurgery: surgery.reason || '',
+          followUpDate: surgery.surgeryDate?.split('T')[0] || '',
+        }));
+      } catch (err) {
+        console.error('❌ Failed to fetch surgery data:', err);
+        alert('Error loading surgery information.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [patientId, surgeryId, navigate]);
 
   const toggleLogs = (date) => {
     setExpandedDate(expandedDate === date ? null : date);
   };
 
   const handleChange = (e, index, field) => {
-    const updatedMedicines = [...formData.medicines];
-    updatedMedicines[index][field] = e.target.value;
-    setFormData({ ...formData, medicines: updatedMedicines });
+    const updated = [...formData.medicines];
+    updated[index][field] = e.target.value;
+    setFormData({ ...formData, medicines: updated });
   };
 
   const handleAddMedicine = () => {
     setFormData({
       ...formData,
-      medicines: [
-        ...formData.medicines,
-        { medicineName: '', dosage: '', duration: '', comments: '' },
-      ],
+      medicines: [...formData.medicines, { medicineName: '', dosage: '', duration: '', comments: '' }],
     });
   };
 
   const handleRemoveMedicine = (index) => {
-    const updatedMedicines = formData.medicines.filter((_, i) => i !== index);
-    setFormData({ ...formData, medicines: updatedMedicines });
+    const updated = formData.medicines.filter((_, i) => i !== index);
+    setFormData({ ...formData, medicines: updated });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log("🚀 handleSubmit triggered");
-  try {
-    const formattedPayload = {
-      diagnosis: formData.diagnosis,
-      reasonForVisit: formData.reasonForVisit,
-      followUpDate: formData.followUpDate,
-      medicines: formData.medicines.map((med) => ({
-        name: med.medicineName,
-        dosage: med.dosage,
-        durationInDays: parseInt(med.duration, 10) || 0,
-        frequency: med.comments,
-      })),
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = { ...formData, patientId, surgeryId };
+      await axiosInstance.post(`/api/surgery-logs/by-surgery/${surgeryId}`, payload);
+      alert('✅ Surgery medication saved!');
+      navigate(-1);
+    } catch (err) {
+      console.error('❌ Error saving medication:', err);
+      alert('❌ Failed to save medication.');
+    }
+  };
 
-    console.log("🟢 Submitting payload:", JSON.stringify(formattedPayload, null, 2));
-
-    await axiosInstance.post(`/api/doctor-logs/by-appointment/${apptId}`, formattedPayload);
-    alert("Medications saved successfully!");
-    navigate(-1);
-  } catch (err) {
-    console.error("❌ Error saving medications:", err);
-    alert("Failed to save medications");
-  }
-};
-
+  if (loading) return <p className="text-center mt-5">Loading surgery details...</p>;
 
   return (
-    <div className='medication-background'>
     <div className="container mt-4">
-      <h2>Medication Prescription</h2>
+      <h2>Surgery Medication Prescription</h2>
 
       <form onSubmit={handleSubmit} className="mb-4">
         <input
           className="form-control mb-2"
-          placeholder="Reason for Visit"
-          value={formData.reasonForVisit}
+          placeholder="Reason for Surgery"
+          value={formData.reasonForSurgery}
           disabled
         />
         <input
@@ -126,7 +113,7 @@ const Medications = () => {
 
         {formData.medicines.map((medicine, index) => (
           <div key={index} className="border rounded p-3 mb-3">
-            <div className="row g-2 align-items-center">
+            <div className="row g-2">
               <div className="col-md-3">
                 <input
                   className="form-control"
@@ -183,15 +170,15 @@ const Medications = () => {
         <button type="submit" className="btn btn-primary">Submit</button>
       </form>
 
-      <h3>Past Medication Logs</h3>
+      <h3>Past Surgery Medication Logs</h3>
       {logs.length === 0 ? (
-        <p>No prescriptions available.</p>
+        <p>No past prescriptions available.</p>
       ) : (
         <table className="table table-bordered">
           <thead className="table-light">
             <tr>
               <th>Date</th>
-              <th>Reason for Visit</th>
+              <th>Reason for Surgery</th>
               <th>Diagnosis</th>
               <th>Prescription</th>
             </tr>
@@ -201,14 +188,14 @@ const Medications = () => {
               <React.Fragment key={index}>
                 <tr>
                   <td>{log.date || 'N/A'}</td>
-                  <td>{log.reasonForVisit || 'N/A'}</td>
+                  <td>{log.reasonForSurgery || 'N/A'}</td>
                   <td>{log.diagnosis || 'N/A'}</td>
                   <td>
                     <button
                       className="btn btn-sm btn-outline-primary"
                       onClick={() => toggleLogs(log.date)}
                     >
-                      {expandedDate === log.date ? 'Hide' : 'View Prescription'}
+                      {expandedDate === log.date ? 'Hide' : 'View'}
                     </button>
                   </td>
                 </tr>
@@ -224,16 +211,16 @@ const Medications = () => {
                             <th>Comments</th>
                           </tr>
                         </thead>
-                      <tbody>
-                        {log.medicines.map((med, medIndex) => (
-                          <tr key={medIndex}>
-                            <td>{med.name?.trim() || '-'}</td>
-                            <td>{med.dosage?.trim() || '-'}</td>
-                            <td>{med.durationInDays?.toString() || '-'}</td>
-                            <td>{med.frequency?.trim() || '-'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
+                        <tbody>
+                          {log.medicines.map((med, idx) => (
+                            <tr key={idx}>
+                              <td>{med.medicineName}</td>
+                              <td>{med.dosage}</td>
+                              <td>{med.duration}</td>
+                              <td>{med.comments}</td>
+                            </tr>
+                          ))}
+                        </tbody>
                       </table>
                     </td>
                   </tr>
@@ -243,8 +230,8 @@ const Medications = () => {
           </tbody>
         </table>
       )}
-    </div></div>
+    </div>
   );
 };
 
-export default Medications;
+export default SurgeryMedication;

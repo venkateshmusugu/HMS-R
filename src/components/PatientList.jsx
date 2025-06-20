@@ -5,11 +5,9 @@ import axiosInstance from '../axiosInstance';
 const PatientList = () => {
   const [appointments, setAppointments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  // const [selectedDate, setSelectedDate] = useState(
-  //   new Date().toISOString().split('T')[0]
-  // );
-  const [selectedDate, setSelectedDate] = useState('');
-
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split('T')[0]
+  );
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
   const receptionist = localStorage.getItem('username') || '—';
@@ -36,8 +34,11 @@ const PatientList = () => {
 };
 
   useEffect(() => {
+  const role = localStorage.getItem('role');
+  if (role === 'RECEPTIONIST' || role === 'DOCTOR') {
     fetchAppointments();
-  }, [searchTerm, selectedDate]);
+  }
+}, [searchTerm, selectedDate]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -71,17 +72,20 @@ const PatientList = () => {
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
-           <input
-            type="date"
-            className="form-control"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value || '')}
-          />
+            <input
+              type="date"
+              className="form-control"
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value)}
+            />
           </div>
           <div>
-            <button className="btn btn-success me-2" onClick={() => navigate('/register-patient')}>
+            <button
+              className="btn btn-success me-2"
+              onClick={() => navigate('/register-patient?context=appointment')}>
               Add New Patient
             </button>
+
             <button className="btn btn-primary" onClick={() => navigate('/book-appointment')}>
               Add New Appointment
             </button>
@@ -101,42 +105,42 @@ const PatientList = () => {
             </tr>
           </thead>
          <tbody>
-            {appointments.length > 0 ? (
-              appointments.map(appt => {
-                const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
-                const now = new Date();
-                const isPast = now > appointmentEnd;
+        {appointments.length > 0 ? (
+          appointments.map(appt => {
+            const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
+            const now = new Date();
+            const isPast = now > appointmentEnd;
 
-                return (
-                  <tr key={appt.visitId}>
-                    <td>{appt.patient?.patientName || 'N/A'}</td>
-                    <td>{appt.doctor?.doctorName || 'N/A'}</td>
-                    <td>{appt.visitDate}</td>
-                    <td>{appt.startTime}</td>
-                    <td>{appt.endTime}</td>
-                    <td>
-                      {isPast ? (
-                        <button className="btn btn-secondary btn-sm" disabled>
-                          Done
-                        </button>
-                      ) : (
-                        <button
-                          className="btn btn-warning btn-sm"
-                          onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center">No appointments found.</td>
+            return (
+              <tr key={appt.visitId}>
+                <td>{appt.patient?.patientName || 'N/A'}</td>
+                <td>{appt.doctor?.doctorName || 'N/A'}</td>
+                <td>{appt.visitDate}</td>
+                <td>{appt.startTime}</td>
+                <td>{appt.endTime}</td>
+                <td>
+                  {isPast ? (
+                    <button className="btn btn-secondary btn-sm" disabled>
+                      Done
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-warning btn-sm"
+                      onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
+                    >
+                      Edit
+                    </button>
+                  )}
+                </td>
               </tr>
-            )}
-          </tbody>
+            );
+          })
+        ) : (
+          <tr>
+            <td colSpan="6" className="text-center">No appointments found.</td>
+          </tr>
+        )}
+      </tbody>
 
         </table>
       </div>

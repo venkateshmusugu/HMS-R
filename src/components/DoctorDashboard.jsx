@@ -12,17 +12,23 @@ const DoctorDashboard = () => {
 
   useEffect(() => { fetchAppointments(); }, [searchTerm, selectedDate]);
 
-  const fetchAppointments = async () => {
-    try {
-      const params = { date: selectedDate };
-      if (searchTerm) params.searchTerm = searchTerm;
-      const res = await axiosInstance.get('/api/appointments/upcoming', { params});
-      console.log("Fetched Appointments:", res.data);
-      setAppointments(res.data);
-    } catch (err) {
-      console.error('Error fetching appointments:', err);
-    }
-  };
+ const fetchAppointments = async () => {
+  try {
+    const params = { date: selectedDate };
+    if (searchTerm) params.searchTerm = searchTerm;
+
+    const res = await axiosInstance.get('/api/appointments/upcoming', { params });
+
+    console.log("Fetched Appointments:", res.data);
+
+    // ✅ Ensure it's an array before setting state
+    const fetched = Array.isArray(res.data) ? res.data : [];
+    setAppointments(fetched);
+  } catch (err) {
+    console.error('Error fetching appointments:', err);
+    setAppointments([]); // Fallback to empty array on error
+  }
+};
 
   const handleLogout = () => {
     localStorage.clear();
@@ -34,7 +40,7 @@ const DoctorDashboard = () => {
       <div className="container mt-5">
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-4">
-          <h4 className="gradient-receptionist">{role === 'DOCTOR' ? `Docto: ${username}` : ''}</h4>
+          <h4 className="gradient-receptionist">{role === 'DOCTOR' ? `Doctor: ${username}` : ''}</h4>
           <button className="btn btn-danger" onClick={handleLogout}>Logout</button>
         </div>
 
@@ -105,7 +111,7 @@ const DoctorDashboard = () => {
                       className="btn btn-info btn-sm"
                       onClick={() => navigate(`/surgeries/${a.visitId}`)}
                     >
-                      View History
+                      View Surgery History
                     </button>
                   </td>
                   <td>

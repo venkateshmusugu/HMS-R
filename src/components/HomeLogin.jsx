@@ -14,7 +14,7 @@ const HomeLogin = () => {
       case 'reception': return 'RECEPTIONIST';
       case 'doctor': return 'DOCTOR';
       case 'billing': return 'BILLING';
-      case 'surgery': return 'SURGEON';
+      case 'surgery': return 'SURGERY';
       default: return raw.toUpperCase();
     }
   };
@@ -37,10 +37,16 @@ const HomeLogin = () => {
 
     // ✅ Redirect based on role
     if (respRole === 'DOCTOR') {
-      navigate('/doctor-dashboard');
-    } else {
-      navigate('/patients');
-    }
+  navigate('/doctor-dashboard');
+} else if (respRole === 'RECEPTIONIST') {
+  navigate('/patients');
+} else if (respRole === 'SURGERY') {
+  navigate('/surgery');
+} else if (respRole === 'BILLING') {
+  navigate('/billing');
+} else {
+  navigate('/'); // fallback
+}
   } catch (err) {
     console.error("❌ Login failed:", err.response?.data || err.message);
     setError("❌ Login failed. Check credentials.");

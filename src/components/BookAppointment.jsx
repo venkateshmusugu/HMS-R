@@ -1,143 +1,140 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
 
-const BookAppointment = () => {
+const BookSurgery = () => {
   const [patients, setPatients] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [appointmentDate, setAppointmentDate] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [doctorId, setDoctorId] = useState('');
-  const [patientId, setPatientId] = useState('');
+  const [formData, setFormData] = useState({
+    patientId: '',
+    surgeryDate: '',
+    surgeryTime: '',
+    surgeryType: '',
+    status: 'Scheduled',
+  });
 
   const navigate = useNavigate();
-  const { id } = useParams(); // If editing, this will exist
+  const { id } = useParams(); // for editing if needed later
 
-  // Fetch patients, doctors, and appointment (if edit)
+  // Fetch patients
   useEffect(() => {
-   const fetchData = async () => {
-  try {
-    const [patientsRes, doctorsRes] = await Promise.all([
-      axiosInstance.get('/api/patients'),
-      axiosInstance.get('/api/doctors'),
-    ]);
-    console.log("👥 Patients Response:", patientsRes.data);
-    console.log("🩺 Doctors Response:", doctorsRes.data);
+    const fetchPatients = async () => {
+      try {
+        const response = await axiosInstance.get('/api/patients');
+        const data = Array.isArray(response.data) ? response.data : [];
+        setPatients(data);
+      } catch (err) {
+        console.error("❌ Error fetching patients:", err);
+        alert("❌ Could not load patient list");
+      }
+    };
+    fetchPatients();
+  }, []);
 
-    // ✅ Ensure responses are arrays
-    const patientList = Array.isArray(patientsRes.data) ? patientsRes.data : [];
-    const doctorList = Array.isArray(doctorsRes.data) ? doctorsRes.data : [];
-
-    setPatients(patientList);
-    setDoctors(doctorList);
-
-    if (id) {
-      const apptRes = await axiosInstance.get(`/api/appointments/${id}`);
-      const appt = apptRes.data;
-      setAppointmentDate(appt.visitDate);
-      setStartTime(appt.startTime);
-      setEndTime(appt.endTime);
-      setDoctorId(appt.doctor?.doctorId || '');
-      setPatientId(appt.patient?.patientId || '');
-    }
-  } catch (err) {
-    console.error('❌ Failed to fetch:', err);
-  }
-};
-
-    fetchData();
-  }, [id]);
+  const handleChange = (e) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const appointmentData = {
-      visitDate: appointmentDate,
-      startTime,
-      endTime,
-      doctor: { doctorId },
-      patient: { patientId },
-    };
-
     try {
-      if (id) {
-        // Update existing
-        await axiosInstance.put(`/api/appointments/${id}`, appointmentData);
-        alert("✅ Appointment updated!");
-      } else {
-        // Create new
-        await axiosInstance.post('/api/appointments', appointmentData);
-        alert("✅ Appointment booked!");
-      }
+      await axiosInstance.post(
+        `/api/surgery-appointments/book/${formData.patientId}`,
+        {
+          surgeryDate: formData.surgeryDate,
+          surgeryTime: formData.surgeryTime,
+          surgeryType: formData.surgeryType,
+          status: formData.status
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
 
-      navigate('/patients');
+      alert("✅ Surgery appointment booked");
+      navigate('/surgery');
     } catch (err) {
-      console.error("❌ Error submitting:", err);
-      alert("❌ Failed to save appointment");
+      console.error("❌ Booking failed:", err);
+      alert("❌ Failed to book surgery");
     }
   };
 
   return (
     <div className='book-appointment'>
-    <div className="container mt-5">
-      <h2>{id ? 'Edit Appointment' : 'Book Appointment'}</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Patient Dropdown */}
-        <div >
-          <label>Patient</label>
-        <select
-          value={String(patientId)}  // ensure it's not an object or undefined
-          onChange={(e) => setPatientId(e.target.value)}
-          required
-        >
-          <option value="">Select Patient</option>
-          {patients.map((patient) => (
-            <option key={patient.patientId} value={String(patient.patientId)}>
-              {patient.patientName}
-            </option>
-          ))}
-        </select>
-        <ul>
-  {patients.map(p => (
-    <li key={p.patientId}>{p.patientId} - {p.patientName}</li>
-  ))}
-</ul>
-        </div>
+      <div className="container mt-5">
+        <h2>Book Surgery Appointment</h2>
+        <form onSubmit={handleSubmit}>
+          {/* Patient Dropdown */}
+          <div className="mb-3">
+            <label>Patient</label>
+            <select
+              name="patientId"
+              value={formData.patientId}
+              onChange={handleChange}
+              required
+              className="form-select"
+            >
+              <option value="">-- Select Patient --</option>
+              {patients.map((p) => (
+                <option key={p.patientId} value={p.patientId}>
+                  {p.patientName} - Age: {p.age}, Phone: {p.phoneNumber}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        {/* Doctor Dropdown */}
-        <div >
-          <label>Doctor</label>
-          <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)} required>
-            <option value="">Select Doctor</option>
-            {doctors.map((doctor) => (
-              <option key={doctor.doctorId} value={doctor.doctorId}>
-                {doctor.doctorName} ({doctor.departmentName})
-              </option>
-            ))}
-          </select>
-        </div>
+          {/* Surgery Date */}
+          <div className="mb-3">
+            <label>Surgery Date</label>
+            <input
+              type="date"
+              name="surgeryDate"
+              value={formData.surgeryDate}
+              onChange={handleChange}
+              required
+              className="form-control"
+            />
+          </div>
 
-        {/* Date */}
-        <div className="mb-3">
-          <label>Appointment Date</label>
-          <input type="date" value={appointmentDate} onChange={(e) => setAppointmentDate(e.target.value)} required />
-        </div>
+          {/* Surgery Time */}
+          <div className="mb-3">
+            <label>Surgery Time</label>
+            <input
+              type="time"
+              name="surgeryTime"
+              value={formData.surgeryTime}
+              onChange={handleChange}
+              required
+              className="form-control"
+            />
+          </div>
 
-        {/* Time */}
-        <div className="mb-3">
-          <label>Start Time</label>
-          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
-        </div>
-        <div className="mb-3">
-          <label>End Time</label>
-          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
-        </div>
+          {/* Surgery Type */}
+          <div className="mb-3">
+            <label>Surgery Type</label>
+            <input
+              type="text"
+              name="surgeryType"
+              value={formData.surgeryType}
+              onChange={handleChange}
+              required
+              className="form-control"
+              placeholder="e.g. Appendectomy, Fracture Repair"
+            />
+          </div>
 
-        <button type="submit">{id ? 'Update Appointment' : 'Book Appointment'}</button>
-      </form>
-    </div></div>
+          <button type="submit" className="btn btn-success">
+            Book Surgery
+          </button>
+        </form>
+      </div>
+    </div>
   );
 };
 
-export default BookAppointment;
+export default BookSurgery;
