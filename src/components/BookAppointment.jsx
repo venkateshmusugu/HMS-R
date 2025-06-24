@@ -1,146 +1,117 @@
-import React, { useState, useEffect } from 'react';
+// BookAppointment.jsx
+
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
 import "../css/Bookappointment.css";
 
 const BookAppointment = () => {
-  const [patients, setPatients] = useState([]);
-  const [doctors, setDoctors] = useState([]);
-  const [appointmentDate, setAppointmentDate] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
-  const [doctorId, setDoctorId] = useState('');
-  const [patientId, setPatientId] = useState('');
-
+  const { id } = useParams();
   const navigate = useNavigate();
-  const { id } = useParams(); // If editing, this will exist
 
-  // Fetch patients, doctors, and appointment (if edit)
+  const [doctors, setDoctors] = useState([]);
+  const [patients, setPatients] = useState([]);
+  const [formData, setFormData] = useState({
+    patientId: '',
+    doctorId: '',
+    visitDate: '',
+    startTime: '',
+    endTime: '',
+    reason: '',
+  });
+
   useEffect(() => {
-   const fetchData = async () => {
-  try {
-    const [patientsRes, doctorsRes] = await Promise.all([
-      axiosInstance.get('/api/patients'),
-      axiosInstance.get('/api/doctors'),
-    ]);
-    console.log("👥 Patients Response:", patientsRes.data);
-    console.log("🩺 Doctors Response:", doctorsRes.data);
-
-    // ✅ Ensure responses are arrays
-    const patientList = Array.isArray(patientsRes.data) ? patientsRes.data : [];
-    const doctorList = Array.isArray(doctorsRes.data) ? doctorsRes.data : [];
-
-    setPatients(patientList);
-    setDoctors(doctorList);
-
-    if (id) {
-      const apptRes = await axiosInstance.get(`/api/appointments/${id}`);
-      const appt = apptRes.data;
-      setAppointmentDate(appt.visitDate);
-      setStartTime(appt.startTime);
-      setEndTime(appt.endTime);
-      setDoctorId(appt.doctor?.doctorId || '');
-      setPatientId(appt.patient?.patientId || '');
-    }
-  } catch (err) {
-    console.error('❌ Failed to fetch:', err);
-  }
-};
-
-    fetchData();
-  }, [id]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const appointmentData = {
-      visitDate: appointmentDate,
-      startTime,
-      endTime,
-      doctor: { doctorId },
-      patient: { patientId },
+    const fetchData = async () => {
+      try {
+        const [doctorRes, patientRes] = await Promise.all([
+          axiosInstance.get('/api/doctors'),
+          axiosInstance.get('/api/patients')
+        ]);
+        setDoctors(doctorRes.data);
+        setPatients(patientRes.data);
+      } catch (err) {
+        console.error("Error loading doctors/patients:", err);
+      }
     };
 
-    try {
-      if (id) {
-        // Update existing
-        await axiosInstance.put(`/api/appointments/${id}`, appointmentData);
-        alert("✅ Appointment updated!");
-      } else {
-        // Create new
-        await axiosInstance.post('/api/appointments', appointmentData);
-        alert("✅ Appointment booked!");
-      }
+    fetchData();
+  }, []);
 
+  const handleChange = e => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+
+    try {
+      await axiosInstance.post('/api/appointments', formData);
+      alert("✅ Appointment booked");
       navigate('/patients');
     } catch (err) {
-      console.error("❌ Error submitting:", err);
-      alert("❌ Failed to save appointment");
+      console.error("❌ Failed to book appointment:", err);
+      alert("❌ Failed to book");
     }
   };
 
   return (
-    <div className='book-appointment'>
-    <div className="container-five">
-     
-    <form className="appointmentform" onSubmit={handleSubmit}>
-      <div className="heading-2"> <h2>{id ? 'Edit Appointment' : 'Book an Appointment'}</h2> </div>
-        {/* Patient Dropdown */}
-        <div className="field-one">
-        <div className='patient' >
-          <label>Patient</label>
-        <select
-          value={String(patientId)}  // ensure it's not an object or undefined
-          onChange={(e) => setPatientId(e.target.value)}
-          required
-        >
-          <option value="">Select Patient</option>
-          {patients.map((patient) => (
-            <option key={patient.patientId} value={String(patient.patientId)}>
-              {patient.patientName}
-            </option>
-          ))}
-        </select>
-        <ul>
-  {patients.map(p => (
-    <li key={p.patientId}>{p.patientId} - {p.patientName}</li>
-  ))}
-</ul>
-        </div>
+    <div className="book-appointment">
+      <div className="container-five">
+        <div className="appointmentform">
+          <div className="heading-2"><h2>Book Appointment</h2></div>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label>Patient</label>
+              <select name="patientId" value={formData.patientId} onChange={handleChange} required className="form-select">
+                <option value="">-- Select Patient --</option>
+                {patients.map(p => (
+                  <option key={p.patientId} value={p.patientId}>
+                    {p.patientName} - {p.phoneNumber}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* Doctor Dropdown */}
-        <div >
-          <label>Doctor</label>
-          <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)} required>
-            <option value="">Select Doctor</option>
-            {doctors.map((doctor) => (
-              <option key={doctor.doctorId} value={doctor.doctorId}>
-                {doctor.doctorName} ({doctor.departmentName})
-              </option>
-            ))}
-          </select>
-        </div>
-         </div>
-        {/* Date */}
-        <div className="mb-3">
-          <label>Appointment Date</label>
-          <input type="date" value={appointmentDate} onChange={(e) => setAppointmentDate(e.target.value)} required />
-        </div>
+            <div className="mb-3">
+              <label>Doctor</label>
+              <select name="doctorId" value={formData.doctorId} onChange={handleChange} required className="form-select">
+                <option value="">-- Select Doctor --</option>
+                {doctors.map(d => (
+                  <option key={d.doctorId} value={d.doctorId}>
+                    {d.doctorName} ({d.specialization})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        {/* Time */}
-        <div className='time'>
-        <div className="patient">
-          <label>Start Time</label>
-          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} required />
+            <div className="mb-3">
+              <label>Visit Date</label>
+              <input type="date" name="visitDate" value={formData.visitDate} onChange={handleChange} required className="form-control" />
+            </div>
+
+            <div className="mb-3">
+              <label>Start Time</label>
+              <input type="time" name="startTime" value={formData.startTime} onChange={handleChange} required className="form-control" />
+            </div>
+
+            <div className="mb-3">
+              <label>End Time</label>
+              <input type="time" name="endTime" value={formData.endTime} onChange={handleChange} required className="form-control" />
+            </div>
+
+            <div className="mb-3">
+              <label>Reason</label>
+              <input type="text" name="reason" value={formData.reason} onChange={handleChange} className="form-control" placeholder="Reason for visit" />
+            </div>
+
+            <button type="submit" className="btn-blue">Book Appointment</button>
+          </form>
         </div>
-        <div className="mb-3">
-          <label>End Time</label>
-          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
-        </div>
-        </div>
-        <button className="btn-blue" type="submit">{id ? 'Update Appointment' : 'Book Appointment'}</button>
-      </form>
-    </div></div>
+      </div>
+    </div>
   );
 };
 

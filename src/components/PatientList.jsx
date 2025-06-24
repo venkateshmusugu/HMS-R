@@ -3,20 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
 import "../css/Patientlist.css";
 
-
 const PatientList = () => {
   const [appointments, setAppointments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  // const [selectedDate, setSelectedDate] = useState(
-  //   new Date().toISOString().split('T')[0]
-  // );
-  const [selectedDate, setSelectedDate] = useState('');
-
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split('T')[0]
+  );
   const navigate = useNavigate();
   const role = localStorage.getItem('role');
   const receptionist = localStorage.getItem('username') || '—';
-
-  // const receptionist = localStorage.getItem('username') || '—';
 
   const fetchAppointments = async () => {
     try {
@@ -38,7 +33,10 @@ const PatientList = () => {
   };
 
   useEffect(() => {
-    fetchAppointments();
+    const role = localStorage.getItem('role');
+    if (role === 'RECEPTIONIST' || role === 'DOCTOR') {
+      fetchAppointments();
+    }
   }, [searchTerm, selectedDate]);
 
   const handleLogout = () => {
@@ -72,15 +70,14 @@ const PatientList = () => {
           Logout
         </button>
       </div>
-      {/* Header with Receptionist name and Logout */}
+
+      {/* Appointment Section */}
       <div className="container-two">
-
-
-
         <div className="heading-1">
           <h2 className="heading-content">Appointments</h2>
         </div>
-        {/* Controls */}
+
+        {/* Search Controls */}
         <div className="search-options">
           <div className="search-name">
             <input
@@ -99,8 +96,6 @@ const PatientList = () => {
               onChange={e => setSelectedDate(e.target.value || '')}
             />
           </div>
-
-
         </div>
 
         {/* Appointment Table */}
@@ -152,11 +147,9 @@ const PatientList = () => {
               </tr>
             )}
           </tbody>
-
         </table>
       </div>
     </div>
-
   );
 };
 

@@ -7,7 +7,7 @@
  
   width: 100vw;
   overflow: hidden; 
-}
+} 
 .patient-form {
   width: 40vw; /* Form takes full width */
   background-color: lab(86.29% 1.37 0.47 / 0.671); /* Light background */

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axiosInstance from '../axiosInstance'; // Ensure this has withCredentials: true
-import "../css/Homelogin.css"
+import axiosInstance from '../axiosInstance';
+import "../css/Homelogin.css";
+
 const HomeLogin = () => {
   const [role, setRole] = useState('reception'); // default role
   const [username, setUsername] = useState('');
@@ -14,7 +15,7 @@ const HomeLogin = () => {
       case 'reception': return 'RECEPTIONIST';
       case 'doctor': return 'DOCTOR';
       case 'billing': return 'BILLING';
-      case 'surgery': return 'SURGEON';
+      case 'surgery': return 'SURGERY';
       default: return raw.toUpperCase();
     }
   };
@@ -22,41 +23,45 @@ const HomeLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.post(
-        '/api/users/login',
-        { username, password, role: mapRole(role) }
-      );
-      console.log("🔐 Login response:", response.data);
+      const response = await axiosInstance.post('/api/users/login', {
+        username,
+        password,
+        role: mapRole(role)
+      });
 
       const { accessToken, refreshToken, role: respRole, username: respUsername } = response.data;
 
-      localStorage.setItem('accessToken', accessToken); // ✅ Correct key
+      localStorage.setItem('accessToken', accessToken);
       localStorage.setItem('refreshToken', refreshToken);
       localStorage.setItem('role', respRole);
       localStorage.setItem('username', respUsername);
 
-      // ✅ Redirect based on role
+      // ✅ Role-based redirect
       if (respRole === 'DOCTOR') {
         navigate('/doctor-dashboard');
-      } else {
+      } else if (respRole === 'RECEPTIONIST') {
         navigate('/patients');
+      } else if (respRole === 'SURGERY') {
+        navigate('/surgery');
+      } else if (respRole === 'BILLING') {
+        navigate('/billing');
+      } else {
+        navigate('/');
       }
+
     } catch (err) {
       console.error("❌ Login failed:", err.response?.data || err.message);
       setError("❌ Login failed. Check credentials.");
     }
   };
 
-
   const handleRegister = () => {
-    // Redirect to the registration page if the login fails
     navigate(`/register/${role}`);
   };
 
   return (
     <div className="home-login-background">
       <div className="container-first mt-5">
-
         <h2 className="mb-4 text-center text-primary fw-bold border-bottom pb-2">Login</h2>
         <form className="form-1" onSubmit={handleLogin}>
           <div className="mb-3 text-primary fw-bold border-bottom pb-2">
@@ -91,17 +96,15 @@ const HomeLogin = () => {
               <option value="surgery">Surgery</option>
             </select>
           </div>
-          <button className="btn login-button  " type="submit">Login</button>
-
+          <button className="btn login-button" type="submit">Login</button>
           {error && <div className="alert alert-danger mt-3">{error}</div>}
-
         </form>
 
-        {/* Link to Register if login fails */}
+        {/* Link to Register */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',
-          alignItems: 'baseline',  // <-- This is the key
+          alignItems: 'baseline',
           gap: '5px',
           whiteSpace: 'nowrap'
         }}>
@@ -123,8 +126,6 @@ const HomeLogin = () => {
             Register here
           </button>
         </div>
-
-
       </div>
     </div>
   );
