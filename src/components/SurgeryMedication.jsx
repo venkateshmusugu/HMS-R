@@ -4,6 +4,9 @@ import axiosInstance from '../axiosInstance';
 
 const SurgeryMedication = () => {
   const { patientId, surgeryId } = useParams();
+  console.log("👤 Patient ID:", patientId);
+  console.log("🩺 Surgery ID:", surgeryId);
+
   const navigate = useNavigate();
 
   const [logs, setLogs] = useState([]);
@@ -28,7 +31,13 @@ const SurgeryMedication = () => {
         const [logsRes, surgeryRes] = await Promise.all([
           axiosInstance.get(`/api/surgery-logs/by-patient/${patientId}`),
           axiosInstance.get(`/api/surgeries/${surgeryId}`),
+          
         ]);
+        console.log("Fetching patient logs from: ", `/api/surgery-logs/by-patient/${patientId}`);
+console.log("Fetching surgery from: ", `/api/surgeries/${surgeryId}`);
+
+        
+
 
         setLogs(logsRes.data || []);
         const surgery = surgeryRes.data;
@@ -235,3 +244,4 @@ const SurgeryMedication = () => {
 };
 
 export default SurgeryMedication;
+  

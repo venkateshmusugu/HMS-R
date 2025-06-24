@@ -111,7 +111,8 @@ const SurgeryDashboard = () => {
                       </button>
                       <button
                         className="btn btn-info btn-sm"
-                        onClick={() => navigate(`/surgery-medication/${patient.id}/${app.id}`)}
+                       onClick={() => navigate(`/surgery-medication/${patient.patientId}/${app.id}`)}
+
                       >
                         Medications
                       </button>

@@ -83,6 +83,18 @@ textarea:focus {
 }
 
 
+.surgerybackground {
+  background-image: url('/images/surgerybackgroung.png'); /* Replace with actual path */
+  background-size: cover; /* Ensure the image covers the entire container */
+  background-position: center; /* Center the background image */
+  height: 100vh; /* Make sure it covers the full viewport height */
+  display: flex;
+  width: 100vw;
+  flex-direction: column;
+  justify-content: flex-start; /* Align items at the top */
+  /* Optional padding for spacing */
+}
+
 
 
 

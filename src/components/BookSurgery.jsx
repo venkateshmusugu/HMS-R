@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import "../css/BookAppointment.css"; // ✅ Appointment styling only
+
 
 const BookSurgery = () => {
   const [patients, setPatients] = useState([]);
@@ -28,6 +30,8 @@ const BookSurgery = () => {
     try {
       await axiosInstance.post(`/api/surgery-appointments/book/${formData.patientId}`, formData);
       alert("✅ Surgery appointment booked.");
+      console.log("📅 Booking surgery with date:", formData.surgeryDate);
+
       navigate('/surgery');
     } catch (err) {
       alert("❌ Booking failed.");

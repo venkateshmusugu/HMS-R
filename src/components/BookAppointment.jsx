@@ -1,141 +1,118 @@
+// BookAppointment.jsx
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
 import "../css/Bookappointment.css";
 
-const BookSurgery = () => {
+const BookAppointment = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [doctors, setDoctors] = useState([]);
   const [patients, setPatients] = useState([]);
   const [formData, setFormData] = useState({
     patientId: '',
-    surgeryDate: '',
-    surgeryTime: '',
-    surgeryType: '',
-    status: 'Scheduled',
+    doctorId: '',
+    visitDate: '',
+    startTime: '',
+    endTime: '',
+    reason: '',
   });
 
-  const navigate = useNavigate();
-  const { id } = useParams(); // Optional: for editing in future
-
-  // Fetch patients
   useEffect(() => {
-    const fetchPatients = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axiosInstance.get('/api/patients');
-        const data = Array.isArray(response.data) ? response.data : [];
-        setPatients(data);
+        const [doctorRes, patientRes] = await Promise.all([
+          axiosInstance.get('/api/doctors'),
+          axiosInstance.get('/api/patients')
+        ]);
+        setDoctors(doctorRes.data);
+        setPatients(patientRes.data);
       } catch (err) {
-        console.error("❌ Error fetching patients:", err);
-        alert("❌ Could not load patient list");
+        console.error("Error loading doctors/patients:", err);
       }
     };
-    fetchPatients();
+
+    fetchData();
   }, []);
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
 
     try {
-      await axiosInstance.post(
-        `/api/surgery-appointments/book/${formData.patientId}`,
-        {
-          surgeryDate: formData.surgeryDate,
-          surgeryTime: formData.surgeryTime,
-          surgeryType: formData.surgeryType,
-          status: formData.status
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-
-      alert("✅ Surgery appointment booked");
-      navigate('/surgery');
+      await axiosInstance.post('/api/appointments', formData);
+      alert("✅ Appointment booked");
+      navigate('/patients');
     } catch (err) {
-      console.error("❌ Booking failed:", err);
-      alert("❌ Failed to book surgery");
+      console.error("❌ Failed to book appointment:", err);
+      alert("❌ Failed to book");
     }
   };
 
   return (
-    <div className="container-five">
-      <div className="container mt-5">
-        <h2>Book Surgery Appointment</h2>
-        <form onSubmit={handleSubmit}>
-          {/* Patient Dropdown */}
-          <div className="mb-3">
-            <label>Patient</label>
-            <select
-              name="patientId"
-              value={formData.patientId}
-              onChange={handleChange}
-              required
-              className="form-select"
-            >
-              <option value="">-- Select Patient --</option>
-              {patients.map((p) => (
-                <option key={p.patientId} value={p.patientId}>
-                  {p.patientName} - Age: {p.age}, Phone: {p.phoneNumber}
-                </option>
-              ))}
-            </select>
-          </div>
+    <div className="book-appointment">
+      <div className="container-five">
+        <div className="appointmentform">
+          <div className="heading-2"><h2>Book Appointment</h2></div>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-3">
+              <label>Patient</label>
+              <select name="patientId" value={formData.patientId} onChange={handleChange} required className="form-select">
+                <option value="">-- Select Patient --</option>
+                {patients.map(p => (
+                  <option key={p.patientId} value={p.patientId}>
+                    {p.patientName} - {p.phoneNumber}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Surgery Date */}
-          <div className="mb-3">
-            <label>Surgery Date</label>
-            <input
-              type="date"
-              name="surgeryDate"
-              value={formData.surgeryDate}
-              onChange={handleChange}
-              required
-              className="form-control"
-            />
-          </div>
+            <div className="mb-3">
+              <label>Doctor</label>
+              <select name="doctorId" value={formData.doctorId} onChange={handleChange} required className="form-select">
+                <option value="">-- Select Doctor --</option>
+                {doctors.map(d => (
+                  <option key={d.doctorId} value={d.doctorId}>
+                    {d.doctorName} ({d.specialization})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          {/* Surgery Time */}
-          <div className="mb-3">
-            <label>Surgery Time</label>
-            <input
-              type="time"
-              name="surgeryTime"
-              value={formData.surgeryTime}
-              onChange={handleChange}
-              required
-              className="form-control"
-            />
-          </div>
+            <div className="mb-3">
+              <label>Visit Date</label>
+              <input type="date" name="visitDate" value={formData.visitDate} onChange={handleChange} required className="form-control" />
+            </div>
 
-          {/* Surgery Type */}
-          <div className="mb-3">
-            <label>Surgery Type</label>
-            <input
-              type="text"
-              name="surgeryType"
-              value={formData.surgeryType}
-              onChange={handleChange}
-              required
-              className="form-control"
-              placeholder="e.g. Appendectomy, Fracture Repair"
-            />
-          </div>
+            <div className="mb-3">
+              <label>Start Time</label>
+              <input type="time" name="startTime" value={formData.startTime} onChange={handleChange} required className="form-control" />
+            </div>
 
-          <button type="submit" className="btn btn-success">
-            Book Surgery
-          </button>
-        </form>
+            <div className="mb-3">
+              <label>End Time</label>
+              <input type="time" name="endTime" value={formData.endTime} onChange={handleChange} required className="form-control" />
+            </div>
+
+            <div className="mb-3">
+              <label>Reason</label>
+              <input type="text" name="reason" value={formData.reason} onChange={handleChange} className="form-control" placeholder="Reason for visit" />
+            </div>
+
+            <button type="submit" className="btn-blue">Book Appointment</button>
+          </form>
+        </div>
       </div>
     </div>
   );
 };
 
-export default BookSurgery;
+export default BookAppointment;
