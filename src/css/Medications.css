@@ -1,0 +1,21 @@
+ 
+.medication-background {
+  background-image: url('/images/medications.png'); /* Replace with actual path */
+  background-size: cover; /* Ensure the image covers the entire container */
+  background-position: center; /* Center the background image */
+  height: 100vh; /* Make sure it covers the full viewport height */
+  display: flex;
+  width: 100vw;
+  flex-direction: column;
+  justify-content: flex-start; /* Align items at the top */
+  /* Optional padding for spacing */
+}
+.mt-4{
+    background-color: rgba(112, 112, 112, 0.685);
+    border-radius: 10px;
+    padding:1rem;
+    background-size: cover;
+  background-position: center;
+ 
+}
+ 

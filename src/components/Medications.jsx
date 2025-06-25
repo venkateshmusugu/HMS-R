@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
-
+import "../css/Medications.css";
 const Medications = () => {
   const { patientId, apptId } = useParams();
   const navigate = useNavigate();

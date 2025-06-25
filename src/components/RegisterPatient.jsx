@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
 import "../css/RegisterPatient.css";
-
+ 
 const RegisterPatient = () => {
   const [patientName, setPatientName] = useState('');
   const [gender, setGender] = useState('');
@@ -11,10 +11,10 @@ const RegisterPatient = () => {
   const [dob, setDob] = useState('');
   const [maritalStatus, setMaritalStatus] = useState('');
   const [caseDescription, setCaseDescription] = useState('');
-
+ 
   const [context, setContext] = useState('');
   const [bookFlag, setBookFlag] = useState(false);
-
+ 
   // Appointment booking
   const [appointmentDate, setAppointmentDate] = useState('');
   const [startTime, setStartTime] = useState('');
@@ -22,25 +22,25 @@ const RegisterPatient = () => {
   const [reason, setReason] = useState('');
   const [doctorId, setDoctorId] = useState('');
   const [doctors, setDoctors] = useState([]);
-
+ 
   // Surgery booking
   const [surgeryDate, setSurgeryDate] = useState('');
   const [medication, setMedication] = useState('');
   const [surgeryReason, setSurgeryReason] = useState('');
   const [remarks, setRemarks] = useState('');
-
+ 
   const navigate = useNavigate();
   const location = useLocation();
   const [surgeryTime, setSurgeryTime] = useState('');
 const [surgeryType, setSurgeryType] = useState('');
 const [status, setStatus] = useState('Scheduled');
-
+ 
   const role = localStorage.getItem("role");
-
+ 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     let ctx = params.get("context");
-
+ 
     if (!ctx) {
       if (role === "RECEPTIONIST" || role === "DOCTOR") {
         ctx = "appointment";
@@ -48,16 +48,16 @@ const [status, setStatus] = useState('Scheduled');
         ctx = "surgery";
       }
     }
-
+ 
     setContext(ctx);
-
+ 
     if (ctx === "appointment") {
       axiosInstance.get("/api/doctors")
         .then(res => setDoctors(res.data))
         .catch(console.error);
     }
   }, [location.search, role]);
-
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -72,7 +72,7 @@ const [status, setStatus] = useState('Scheduled');
       };
       const { data } = await axiosInstance.post("/api/patients", patientPayload);
       const patientId = data.patientId;
-
+ 
       if (bookFlag) {
         if (context === "appointment") {
           await axiosInstance.post(`/api/appointments/book/${patientId}`, {
@@ -91,7 +91,7 @@ const [status, setStatus] = useState('Scheduled');
           });
         }
       }
-
+ 
       alert("✅ Patient registered successfully" + (bookFlag ? ` and ${context} booked.` : ''));
       navigate(context === "surgery" ? "/surgery" : "/patients");
     } catch (err) {
@@ -99,7 +99,7 @@ const [status, setStatus] = useState('Scheduled');
       alert("❌ Failed to register patient.");
     }
   };
-
+ 
   return (
     <div className="register-background">
       <div className="container-one">
@@ -118,7 +118,7 @@ const [status, setStatus] = useState('Scheduled');
                 <input type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required maxLength={10} />
               </div>
             </div>
-
+ 
             <div className="form-one">
               <div className="f-one">
                 <label>Age</label>
@@ -129,7 +129,7 @@ const [status, setStatus] = useState('Scheduled');
                 <input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required />
               </div>
             </div>
-
+ 
             <div className="form-one">
               <div className="f-one">
                 <label>Gender</label>
@@ -150,12 +150,12 @@ const [status, setStatus] = useState('Scheduled');
                 </select>
               </div>
             </div>
-
+ 
             <div className="f-two">
               <label>Case Description</label>
               <textarea value={caseDescription} onChange={(e) => setCaseDescription(e.target.value)} />
             </div>
-
+ 
             {context && (
               <div className="checks">
                 <input
@@ -170,7 +170,7 @@ const [status, setStatus] = useState('Scheduled');
                 </label>
               </div>
             )}
-
+ 
             {/* Appointment Booking */}
             {bookFlag && context === 'appointment' && (
               <>
@@ -184,7 +184,7 @@ const [status, setStatus] = useState('Scheduled');
                     <input type="text" value={reason} onChange={(e) => setReason(e.target.value)} required />
                   </div>
                 </div>
-
+ 
                 <div className="form-one">
                   <div className="f-one">
                     <label>Start Time</label>
@@ -195,7 +195,7 @@ const [status, setStatus] = useState('Scheduled');
                     <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} required />
                   </div>
                 </div>
-
+ 
                 <div className="f-one">
                   <label>Doctor</label>
                   <select value={doctorId} onChange={(e) => setDoctorId(e.target.value)} required>
@@ -209,7 +209,7 @@ const [status, setStatus] = useState('Scheduled');
                 </div>
               </>
             )}
-
+ 
             {/* Surgery Booking */}
             {bookFlag && context === 'surgery' && (
               <>
@@ -223,7 +223,7 @@ const [status, setStatus] = useState('Scheduled');
                   <input type="time" value={surgeryTime} onChange={(e) => setSurgeryTime(e.target.value)} required />
                 </div>
               </div>
-
+ 
               <div className="form-one">
                 <div className="f-one">
                   <label>Surgery Type</label>
@@ -238,10 +238,10 @@ const [status, setStatus] = useState('Scheduled');
                   </select>
                 </div>
               </div>
-
+ 
               </>
             )}
-
+ 
             <div className="f-one">
               <button type="submit" className="btn-end">
                 Register {bookFlag ? ` & Book ${context === 'appointment' ? 'Appointment' : 'Surgery'}` : ''}
@@ -253,5 +253,5 @@ const [status, setStatus] = useState('Scheduled');
     </div>
   );
 };
-
+ 
 export default RegisterPatient;
