@@ -16,7 +16,7 @@ import SurgeryDashboard from './components/SurgeryDashboard';
 import BookSurgery from './components/BookSurgery';
 import EditSurgery from './components/EditSurgery';
 import SurgeryMedication from './components/SurgeryMedication';
-import SurgeryHistory from './components/SuregeryHistory'
+import SurgeryHistory from './components/SurgeryHistory'
 
 // Billing
 import BillingDashboard from './components/BillingDashboard';
