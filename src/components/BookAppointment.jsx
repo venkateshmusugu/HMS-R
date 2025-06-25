@@ -1,5 +1,4 @@
 // BookAppointment.jsx
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
@@ -10,10 +9,10 @@ const BookAppointment = () => {
   const navigate = useNavigate();
 
   const [doctors, setDoctors] = useState([]);
-  const [patients, setPatients] = useState([]);
+  const [patients, setPatients] = useState([]); // ✅ must be array
   const [formData, setFormData] = useState({
-    patientId: '',
     doctorId: '',
+    patientId: '',
     visitDate: '',
     startTime: '',
     endTime: '',
@@ -27,10 +26,19 @@ const BookAppointment = () => {
           axiosInstance.get('/api/doctors'),
           axiosInstance.get('/api/patients')
         ]);
-        setDoctors(doctorRes.data);
-        setPatients(patientRes.data);
+
+        const doctorList = Array.isArray(doctorRes.data) ? doctorRes.data : [];
+        const patientList = Array.isArray(patientRes.data) ? patientRes.data : [];
+
+        console.log("✅ Doctors:", doctorList);
+        console.log("✅ Patients:", patientList);
+
+        setDoctors(doctorList);
+        setPatients(patientList);
       } catch (err) {
-        console.error("Error loading doctors/patients:", err);
+        console.error("❌ Error loading doctors/patients:", err);
+        setDoctors([]);
+        setPatients([]);
       }
     };
 
@@ -47,10 +55,21 @@ const BookAppointment = () => {
   const handleSubmit = async e => {
     e.preventDefault();
 
+    const payload = {
+      visitDate: formData.visitDate,
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      reasonForVisit: formData.reason,
+      doctor: { doctorId: parseInt(formData.doctorId) },
+      patient: { patientId: parseInt(formData.patientId) }
+    };
+
     try {
-      await axiosInstance.post('/api/appointments', formData);
+      await axiosInstance.post('/api/appointments', payload);
       alert("✅ Appointment booked");
-      navigate('/patients');
+
+      const role = localStorage.getItem('role');
+      navigate(role === 'DOCTOR' ? '/doctor-dashboard' : '/patients');
     } catch (err) {
       console.error("❌ Failed to book appointment:", err);
       alert("❌ Failed to book");
@@ -65,23 +84,29 @@ const BookAppointment = () => {
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <label>Patient</label>
-              <select name="patientId" value={formData.patientId} onChange={handleChange} required className="form-select">
-                <option value="">-- Select Patient --</option>
-                {patients.map(p => (
-                  <option key={p.patientId} value={p.patientId}>
-                    {p.patientName} - {p.phoneNumber}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <select name="patientId" value={formData.patientId} onChange={handleChange} required className="form-select">
+                      <option value="">-- Select Patient --</option>
+                      {patients.map(p => (
+                        <option key={p.patientId} value={p.patientId}>
+                          {p.patientName} - {p.phoneNumber}
+                        </option>
+                      ))}
+                    </select>
+               </div>
 
             <div className="mb-3">
               <label>Doctor</label>
-              <select name="doctorId" value={formData.doctorId} onChange={handleChange} required className="form-select">
+              <select
+                name="doctorId"
+                value={formData.doctorId}
+                onChange={handleChange}
+                required
+                className="form-select"
+              >
                 <option value="">-- Select Doctor --</option>
-                {doctors.map(d => (
+                {(doctors || []).map(d => (
                   <option key={d.doctorId} value={d.doctorId}>
-                    {d.doctorName} ({d.specialization})
+                    {d.doctorName} ({d.departmentName})
                   </option>
                 ))}
               </select>
