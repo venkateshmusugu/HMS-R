@@ -16,6 +16,7 @@ import SurgeryDashboard from './components/SurgeryDashboard';
 import BookSurgery from './components/BookSurgery';
 import EditSurgery from './components/EditSurgery';
 import SurgeryMedication from './components/SurgeryMedication';
+import SurgeryHistory from './components/SuregeryHistory'
 
 // Billing
 import BillingDashboard from './components/BillingDashboard';
@@ -43,12 +44,12 @@ function App() {
       <Route path="/book-surgery" element={<BookSurgery />} />
       <Route path="/edit-surgery/:surgeryLogId" element={<EditSurgery />} />
       <Route path="/surgery-medication/:patientId/:surgeryId" element={<SurgeryMedication />} />
-
+      <Route path="/surgery-medications/:patientId" element={<SurgeryHistory />} /> {/* ✅ Added this */}
 
       {/* Billing */}
       <Route path="/billing" element={<BillingDashboard />} />
 
-      {/* Catch-All Route */}
+      {/* Catch-All */}
       <Route path="*" element={<h2 className="text-center mt-5">404 - Page Not Found</h2>} />
     </Routes>
   );

@@ -2,25 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
 import "../css/doctordashboard.css";
-
+ 
 const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const navigate = useNavigate();
-
+ 
   const role = localStorage.getItem('role');
   const username = localStorage.getItem('username') || '—';
-
+ 
   useEffect(() => {
     fetchAppointments();
   }, [searchTerm, selectedDate]);
-
+ 
   const fetchAppointments = async () => {
     try {
       const params = { date: selectedDate };
       if (searchTerm) params.searchTerm = searchTerm;
-
+ 
       const res = await axiosInstance.get('/api/appointments/upcoming', { params });
       const fetched = Array.isArray(res.data) ? res.data : [];
       setAppointments(fetched);
@@ -29,19 +29,21 @@ const DoctorDashboard = () => {
       setAppointments([]);
     }
   };
-
+ 
   const handleLogout = () => {
     localStorage.clear();
     navigate('/');
   };
-
+ 
   return (
     <div className="doctordashboard-background">
       <div className="container-3">
         {/* Header */}
-        <div className="header-4 d-flex justify-content-between align-items-center mb-4">
-          <h4 className="gradient-receptionist">{role === 'DOCTOR' ? `Doctor: ${username}` : ''}</h4>
+        <div className="header-three">
+          <h4 className="doctor-name">{role === 'DOCTOR' ? `Doctor: ${username}` : ''}</h4>
+           </div>
           <div>
+ 
             <button className="btn-blue1 me-2" onClick={() => navigate('/register-patient')}>
               Add New Patient
             </button>
@@ -50,16 +52,16 @@ const DoctorDashboard = () => {
             </button>
             <button className="btn-red1" onClick={handleLogout}>Logout</button>
           </div>
-        </div>
-
+         </div>
+ 
         <div className='heading-app'>
           <h2 className="content">Today's Appointments</h2>
         </div>
-
+ 
         {/* Controls */}
         <div className="search mb-3">
           <div className="search-by-name me-3">
-            <input 
+            <input
               type="text"
               className="form-control"
               placeholder="Search by Name or Phone"
@@ -76,7 +78,7 @@ const DoctorDashboard = () => {
             />
           </div>
         </div>
-
+ 
         {/* Appointments Table */}
         <table className="table-custom">
           <thead className="table-light text-dark">
@@ -96,7 +98,7 @@ const DoctorDashboard = () => {
               const appointmentEnd = new Date(`${a.visitDate}T${a.endTime}`);
               const now = new Date();
               const isPast = now > appointmentEnd;
-
+ 
               return (
                 <tr key={a.visitId}>
                   <td style={{ color: 'black' }}>{a.patient?.patientName}</td>
@@ -107,7 +109,7 @@ const DoctorDashboard = () => {
                   <td>
                     <button
                       className="btn btn-info btn-sm"
-                      onClick={() => navigate(`/surgeries/${a.visitId}`)}
+                      onClick={() => navigate(`/surgery-medications/${a.patient.patientId}`)}
                     >
                       View Surgery History
                     </button>
@@ -143,9 +145,9 @@ const DoctorDashboard = () => {
             )}
           </tbody>
         </table>
-      </div>
+   
     </div>
   );
 };
-
+ 
 export default DoctorDashboard;

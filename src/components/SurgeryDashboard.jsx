@@ -41,7 +41,7 @@ const SurgeryDashboard = () => {
   };
 
   return (
-    <div className='surgerybackground'>
+    <div className='surgery-background'>
       <div className="container mt-4">
         <div className="d-flex justify-content-between align-items-center mb-4">
           <div className="w-65 p-3">
@@ -62,9 +62,6 @@ const SurgeryDashboard = () => {
         />
 
         <div className="mb-3 d-flex justify-content-end gap-2">
-          <button className="btn btn-success" onClick={() => navigate('/register?context=surgery')}>
-            Register New Patient
-          </button>
           <button className="btn btn-primary" onClick={() => navigate('/book-surgery')}>
             Book Surgery
           </button>

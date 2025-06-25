@@ -4,14 +4,12 @@ import axiosInstance from '../axiosInstance';
 
 const SurgeryMedication = () => {
   const { patientId, surgeryId } = useParams();
-  console.log("👤 Patient ID:", patientId);
-  console.log("🩺 Surgery ID:", surgeryId);
-
   const navigate = useNavigate();
 
   const [logs, setLogs] = useState([]);
-  const [expandedDate, setExpandedDate] = useState(null);
+  const [expandedIndex, setExpandedIndex] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const [formData, setFormData] = useState({
     diagnosis: '',
     reasonForSurgery: '',
@@ -29,15 +27,9 @@ const SurgeryMedication = () => {
     const fetchData = async () => {
       try {
         const [logsRes, surgeryRes] = await Promise.all([
-          axiosInstance.get(`/api/surgery-logs/by-patient/${patientId}`),
-          axiosInstance.get(`/api/surgeries/${surgeryId}`),
-          
+          axiosInstance.get(`/api/surgery-medications/by-surgery/${surgeryId}`),
+          axiosInstance.get(`/api/surgeries/${surgeryId}`)
         ]);
-        console.log("Fetching patient logs from: ", `/api/surgery-logs/by-patient/${patientId}`);
-console.log("Fetching surgery from: ", `/api/surgeries/${surgeryId}`);
-
-        
-
 
         setLogs(logsRes.data || []);
         const surgery = surgeryRes.data;
@@ -58,8 +50,8 @@ console.log("Fetching surgery from: ", `/api/surgeries/${surgeryId}`);
     fetchData();
   }, [patientId, surgeryId, navigate]);
 
-  const toggleLogs = (date) => {
-    setExpandedDate(expandedDate === date ? null : date);
+  const toggleLogs = (index) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
   };
 
   const handleChange = (e, index, field) => {
@@ -83,8 +75,22 @@ console.log("Fetching surgery from: ", `/api/surgeries/${surgeryId}`);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = { ...formData, patientId, surgeryId };
-      await axiosInstance.post(`/api/surgery-logs/by-surgery/${surgeryId}`, payload);
+      for (const med of formData.medicines) {
+        const payload = {
+          surgeryAppointmentId: surgeryId,
+          name: med.medicineName,
+          dosage: med.dosage,
+          frequency: med.duration,
+          duration: med.duration,         // ← Explicitly add
+          comments: med.comments,         // ← Now included
+          diagnosis: formData.diagnosis,
+          date: formData.followUpDate,
+        };
+        await axiosInstance.post(`/api/surgery-medications/by-surgery/${surgeryId}`, payload);
+        console.log('Sending payload:', payload);
+
+      }
+
       alert('✅ Surgery medication saved!');
       navigate(-1);
     } catch (err) {
@@ -202,15 +208,18 @@ console.log("Fetching surgery from: ", `/api/surgeries/${surgeryId}`);
                   <td>
                     <button
                       className="btn btn-sm btn-outline-primary"
-                      onClick={() => toggleLogs(log.date)}
+                      onClick={() => toggleLogs(index)}
                     >
-                      {expandedDate === log.date ? 'Hide' : 'View'}
+                      {expandedIndex === index ? 'Hide Prescription' : 'View Prescription'}
                     </button>
                   </td>
                 </tr>
-                {expandedDate === log.date && (
+                {expandedIndex === index && (
                   <tr>
                     <td colSpan="4">
+                      <div className="p-2 bg-light border rounded mb-2">
+                        <strong>Prescription Details:</strong>
+                      </div>
                       <table className="table table-sm table-striped mb-0">
                         <thead>
                           <tr>
@@ -221,7 +230,7 @@ console.log("Fetching surgery from: ", `/api/surgeries/${surgeryId}`);
                           </tr>
                         </thead>
                         <tbody>
-                          {log.medicines.map((med, idx) => (
+                          {(log.medicines || []).map((med, idx) => (
                             <tr key={idx}>
                               <td>{med.medicineName}</td>
                               <td>{med.dosage}</td>
@@ -244,4 +253,3 @@ console.log("Fetching surgery from: ", `/api/surgeries/${surgeryId}`);
 };
 
 export default SurgeryMedication;
-  

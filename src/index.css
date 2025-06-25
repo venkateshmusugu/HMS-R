@@ -1,4 +1,3 @@
-/* General root and body styling */
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: normal;
@@ -11,7 +10,7 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
+ 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #000000; /* Black background */
@@ -23,12 +22,12 @@ body {
   align-items: center; /* Align items to the center vertically */
   color: #fff; /* White text color */
 }
-
+ 
 /* Ensure container takes full width and height */
-
-
+ 
+ 
 /* Form styling */
-
+ 
 /* Form inputs should take full width */
 input,
 select,
@@ -44,15 +43,15 @@ textarea {
   color: #fff; /* White text */
   transition: border-color 0.3s ease;
 }
-
+ 
 input:focus,
 select:focus,
 textarea:focus {
   border-color: #4CAF50; /* Focus border color */
   outline: none;
 }
-
-
+ 
+ 
 /* Table styling */
 .table-responsive {
   overflow-y: auto;
@@ -66,10 +65,10 @@ textarea:focus {
   padding-left: 20px;  /* Optional: extra gap inside */
   padding-right: 20px; /* Optional: extra gap inside */
 }
-
-
+ 
+ 
 /* Fixed button at top-right */
-
+ 
 .patient-list-background {
   background-image: url('/images/patient_list.png'); /* Replace with actual path */
   background-size: cover; /* Ensure the image covers the entire container */
@@ -81,8 +80,8 @@ textarea:focus {
   justify-content: flex-start; /* Align items at the top */
   /* Optional padding for spacing */
 }
-
-
+ 
+ 
 .surgerybackground {
   background-image: url('/images/surgerybackgroung.png'); /* Replace with actual path */
   background-size: cover; /* Ensure the image covers the entire container */
@@ -94,11 +93,11 @@ textarea:focus {
   justify-content: flex-start; /* Align items at the top */
   /* Optional padding for spacing */
 }
-
-
-
-
-
+ 
+ 
+ 
+ 
+ 
 .btn-circle {
   border-radius: 50%; /* Round the button */
   width: 40px; /* Set width */
@@ -111,10 +110,10 @@ textarea:focus {
   line-height: 1; /* Align symbol properly */
   min-width: 40px; /* Ensure it stays circular even on smaller screens */
 }
-
+ 
 .custom-green-btn {
   background-color: #28a745 !important;  /* Bootstrap's green */
   color: white !important;
   border-color: #28a745 !important;
 }
-
+ 
