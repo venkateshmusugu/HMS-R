@@ -16,7 +16,7 @@ import SurgeryDashboard from './components/SurgeryDashboard';
 import BookSurgery from './components/BookSurgery';
 import EditSurgery from './components/EditSurgery';
 import SurgeryMedication from './components/SurgeryMedication';
-import SurgeryHistory from './components/SuregeryHistory'
+import SurgeryHistory from './components/SurgeryHistory'
 
 // Billing
 import BillingDashboard from './components/BillingDashboard';
@@ -44,7 +44,7 @@ function App() {
       <Route path="/book-surgery" element={<BookSurgery />} />
       <Route path="/edit-surgery/:surgeryLogId" element={<EditSurgery />} />
       <Route path="/surgery-medication/:patientId/:surgeryId" element={<SurgeryMedication />} />
-      <Route path="/surgery-medications/:patientId" element={<SurgeryHistory />} /> {/* ✅ Added this */}
+      <Route path="/surgery-medications/:patientId" element={<SurgeryHistory />} /> 
 
       {/* Billing */}
       <Route path="/billing" element={<BillingDashboard />} />
