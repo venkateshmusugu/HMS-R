@@ -13,10 +13,11 @@ align-items: center;
 /* Form styling */
 .appointmentform{
   width: 40vw; /* Form takes full width */
-  background-color: lab(86.29% 1.37 0.47 / 0.671); /* Light background */
+ 
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(172, 171, 171, 0.1);
+    background-color: rgba(134, 134, 134, 0.253);
+ box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -56,15 +57,41 @@ align-items: center;
 .time{
     display: flex;
 }
+.btn-back{
  
- 
-.btn-blue {
-  background-color: #1a73e8;
+   font-family: "Roboto",sans-serif;
+    font-weight: bold;
+    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
+   width:1%;
+   background-color: #1a73e8;
   color: #ffffff;
-  padding: 14px 32px;
+  padding: 10px 32px;
   font-size: 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: 3px;
+ 
+  height: 40px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+ 
+}
+ 
+.btn-blue {
+   font-family: "Roboto",sans-serif;
+    font-weight: bold;
+    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
+   width:fit-content;
+   background-color: #1a73e8;
+  color: #ffffff;
+  padding: 10px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 3px;
+   min-width: 140px;
+  height: 40px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   display: inline-flex;
@@ -79,6 +106,13 @@ align-items: center;
  
 .btn-blue:focus {
   outline: none;
+}
+.btncenter{
+ 
+  gap:3%;
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
 }
 .form-first{
   display:flex;
@@ -96,3 +130,4 @@ align-items: center;
 .bookapp{
   margin-left: 23%;
 }
+ 

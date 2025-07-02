@@ -31,9 +31,16 @@ const SurgeryMedication = () => {
           axiosInstance.get(`/api/surgeries/${surgeryId}`)
         ]);
 
-        setLogs(logsRes.data || []);
-        const surgery = surgeryRes.data;
+        const logsData = logsRes.data;
+        if (Array.isArray(logsData)) {
+          setLogs(logsData);
+        } else if (logsData?.logs && Array.isArray(logsData.logs)) {
+          setLogs(logsData.logs);
+        } else {
+          setLogs([]);
+        }
 
+        const surgery = surgeryRes.data;
         setFormData(prev => ({
           ...prev,
           reasonForSurgery: surgery.reason || '',
@@ -75,179 +82,180 @@ const SurgeryMedication = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      for (const med of formData.medicines) {
-        const payload = {
-          surgeryAppointmentId: surgeryId,
-          name: med.medicineName,
-          dosage: med.dosage,
-          frequency: med.duration,
-          duration: med.duration,         // ← Explicitly add
-          comments: med.comments,         // ← Now included
-          diagnosis: formData.diagnosis,
-          date: formData.followUpDate,
-        };
-        await axiosInstance.post(`/api/surgery-medications/by-surgery/${surgeryId}`, payload);
-        console.log('Sending payload:', payload);
+      const payload = formData.medicines.map(med => ({
+        medicineName: med.medicineName,
+        dosage: med.dosage,
+        durationInDays: parseInt(med.duration) || 0,
+        frequency: med.comments,
+        quantity: 1,
+        issuedQuantity: 1,
+        purpose: "SURGERY",
+        diagnosis: formData.diagnosis,
+        date: formData.followUpDate
+      }));
 
-      }
-
-      alert('✅ Surgery medication saved!');
+      await axiosInstance.post(`/api/surgery-medications/by-surgery/${surgeryId}`, payload);
+      alert('✅ Medications saved.');
       navigate(-1);
     } catch (err) {
-      console.error('❌ Error saving medication:', err);
-      alert('❌ Failed to save medication.');
+      console.error('❌ Error saving meds:', err);
+      alert('Failed to save meds.');
     }
   };
 
   if (loading) return <p className="text-center mt-5">Loading surgery details...</p>;
 
   return (
-    <div className="container mt-4">
-      <h2>Surgery Medication Prescription</h2>
+    <div className='medication-background'>
+      <div className="container mt-4">
+        <h2>Surgery Medication Prescription</h2>
 
-      <form onSubmit={handleSubmit} className="mb-4">
-        <input
-          className="form-control mb-2"
-          placeholder="Reason for Surgery"
-          value={formData.reasonForSurgery}
-          disabled
-        />
-        <input
-          type="date"
-          className="form-control mb-2"
-          value={formData.followUpDate}
-          onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
-        />
-        <input
-          className="form-control mb-2"
-          placeholder="Diagnosis"
-          value={formData.diagnosis}
-          onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
-          required
-        />
+        <form onSubmit={handleSubmit} className="mb-4">
+          <input
+            className="form-control mb-2"
+            placeholder="Reason for Surgery"
+            value={formData.reasonForSurgery}
+            disabled
+          />
+          <input
+            type="date"
+            className="form-control mb-2"
+            value={formData.followUpDate}
+            onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
+          />
+          <input
+            className="form-control mb-2"
+            placeholder="Diagnosis"
+            value={formData.diagnosis}
+            onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
+            required
+          />
 
-        {formData.medicines.map((medicine, index) => (
-          <div key={index} className="border rounded p-3 mb-3">
-            <div className="row g-2">
-              <div className="col-md-3">
-                <input
-                  className="form-control"
-                  placeholder="Medicine Name"
-                  value={medicine.medicineName}
-                  onChange={(e) => handleChange(e, index, 'medicineName')}
-                  required
-                />
-              </div>
-              <div className="col-md-2">
-                <input
-                  className="form-control"
-                  placeholder="Dosage"
-                  value={medicine.dosage}
-                  onChange={(e) => handleChange(e, index, 'dosage')}
-                  required
-                />
-              </div>
-              <div className="col-md-2">
-                <input
-                  className="form-control"
-                  placeholder="Duration"
-                  value={medicine.duration}
-                  onChange={(e) => handleChange(e, index, 'duration')}
-                  required
-                />
-              </div>
-              <div className="col-md-3">
-                <input
-                  className="form-control"
-                  placeholder="Comments"
-                  value={medicine.comments}
-                  onChange={(e) => handleChange(e, index, 'comments')}
-                />
-              </div>
-              <div className="col-md-2">
-                {formData.medicines.length > 1 && (
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={() => handleRemoveMedicine(index)}
-                  >
-                    Remove
-                  </button>
-                )}
+          {formData.medicines.map((medicine, index) => (
+            <div key={index} className="border rounded p-3 mb-3">
+              <div className="row g-2">
+                <div className="col-md-3">
+                  <input
+                    className="form-control"
+                    placeholder="Medicine Name"
+                    value={medicine.medicineName}
+                    onChange={(e) => handleChange(e, index, 'medicineName')}
+                    required
+                  />
+                </div>
+                <div className="col-md-2">
+                  <input
+                    className="form-control"
+                    placeholder="Dosage"
+                    value={medicine.dosage}
+                    onChange={(e) => handleChange(e, index, 'dosage')}
+                    required
+                  />
+                </div>
+                <div className="col-md-2">
+                  <input
+                    className="form-control"
+                    placeholder="Duration (days)"
+                    value={medicine.duration}
+                    onChange={(e) => handleChange(e, index, 'duration')}
+                    required
+                  />
+                </div>
+                <div className="col-md-3">
+                  <input
+                    className="form-control"
+                    placeholder="Frequency / Comments"
+                    value={medicine.comments}
+                    onChange={(e) => handleChange(e, index, 'comments')}
+                  />
+                </div>
+                <div className="col-md-2">
+                  {formData.medicines.length > 1 && (
+                    <button
+                      type="button"
+                      className="btn btn-danger"
+                      onClick={() => handleRemoveMedicine(index)}
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))}
 
-        <button type="button" className="btn btn-secondary me-2" onClick={handleAddMedicine}>
-          + Add Medicine
-        </button>
-        <button type="submit" className="btn btn-primary">Submit</button>
-      </form>
+          <button type="button" className="btn btn-secondary me-2" onClick={handleAddMedicine}>
+            + Add Medicine
+          </button>
+          <button type="submit" className="btn-med" disabled={formData.medicines.length === 0}>
+            Submit
+          </button>
+          <button type="button" className="btn-back" onClick={() => navigate('/surgery')}>
+            Back
+          </button>
+        </form>
 
-      <h3>Past Surgery Medication Logs</h3>
-      {logs.length === 0 ? (
-        <p>No past prescriptions available.</p>
-      ) : (
-        <table className="table table-bordered">
-          <thead className="table-light">
-            <tr>
-              <th>Date</th>
-              <th>Reason for Surgery</th>
-              <th>Diagnosis</th>
-              <th>Prescription</th>
-            </tr>
-          </thead>
-          <tbody>
-            {logs.map((log, index) => (
-              <React.Fragment key={index}>
-                <tr>
-                  <td>{log.date || 'N/A'}</td>
-                  <td>{log.reasonForSurgery || 'N/A'}</td>
-                  <td>{log.diagnosis || 'N/A'}</td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-outline-primary"
-                      onClick={() => toggleLogs(index)}
-                    >
-                      {expandedIndex === index ? 'Hide Prescription' : 'View Prescription'}
-                    </button>
-                  </td>
-                </tr>
-                {expandedIndex === index && (
+        <h3>Past Surgery Medication Logs</h3>
+        {logs.length === 0 ? (
+          <p>No past prescriptions available.</p>
+        ) : (
+          <table className="table table-bordered">
+            <thead className="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Reason for Surgery</th>
+                <th>Diagnosis</th>
+                <th>Prescription</th>
+              </tr>
+            </thead>
+            <tbody>
+              {logs.map((log, index) => (
+                <React.Fragment key={index}>
                   <tr>
-                    <td colSpan="4">
-                      <div className="p-2 bg-light border rounded mb-2">
-                        <strong>Prescription Details:</strong>
-                      </div>
-                      <table className="table table-sm table-striped mb-0">
-                        <thead>
-                          <tr>
-                            <th>Medicine Name</th>
-                            <th>Dosage</th>
-                            <th>Duration</th>
-                            <th>Comments</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(log.medicines || []).map((med, idx) => (
-                            <tr key={idx}>
-                              <td>{med.medicineName}</td>
-                              <td>{med.dosage}</td>
-                              <td>{med.duration}</td>
-                              <td>{med.comments}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                    <td>{log.date || 'N/A'}</td>
+                    <td>{log.reason || 'N/A'}</td>
+                    <td>{log.diagnosis || 'N/A'}</td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-outline-primary"
+                        onClick={() => toggleLogs(index)}
+                      >
+                        {expandedIndex === index ? 'Hide' : 'View'}
+                      </button>
                     </td>
                   </tr>
-                )}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      )}
+                  {expandedIndex === index && (
+                    <tr>
+                      <td colSpan="4">
+                        <table className="table table-sm table-striped mb-0">
+                          <thead>
+                            <tr>
+                              <th>Medicine Name</th>
+                              <th>Dosage</th>
+                              <th>Duration (days)</th>
+                              <th>Frequency</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(log.medicines || []).map((med, idx) => (
+                              <tr key={idx}>
+                                <td>{med.medicineName || '-'}</td>
+                                <td>{med.dosage || '-'}</td>
+                                <td>{med.durationInDays || '-'}</td>
+                                <td>{med.frequency || '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };

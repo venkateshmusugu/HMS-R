@@ -23,11 +23,12 @@ const HomeLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axiosInstance.post('/api/users/login', {
-        username,
-        password,
-        role: mapRole(role)
-      });
+      const response = await axiosInstance.post(
+  '/api/users/login',
+  { username, password, role: mapRole(role) },
+  { headers: { Accept: 'application/json' } }
+);
+     
 
       const { accessToken, refreshToken, role: respRole, username: respUsername } = response.data;
 

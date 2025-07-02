@@ -60,10 +60,10 @@ const PatientList = () => {
           </h4>
         </div>
 
-        <button className="btn-blue" onClick={() => navigate('/register-patient')}>
+        <button className="btn-blue-list" onClick={() => navigate('/register-patient')}>
           Add New Patient
         </button>
-        <button className="btn-blue" onClick={() => navigate('/book-appointment')}>
+        <button className="btn-blue-list" onClick={() => navigate('/book-appointment')}>
           Add New Appointment
         </button>
         <button className="btn-red" onClick={handleLogout}>
@@ -99,8 +99,8 @@ const PatientList = () => {
         </div>
 
         {/* Appointment Table */}
-        <table className="table table-bordered table-hover text-light bg-dark">
-          <thead className="table-light text-dark">
+        <table className="table table-bordered">
+          <thead >
             <tr>
               <th>Name</th>
               <th>Doctor</th>
@@ -111,42 +111,76 @@ const PatientList = () => {
             </tr>
           </thead>
           <tbody>
-            {appointments.length > 0 ? (
-              appointments.map(appt => {
-                const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
-                const now = new Date();
-                const isPast = now > appointmentEnd;
+  {appointments.length > 0 ? (
+    appointments.map(appt => {
+  const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
+  const now = new Date();
+  const isPast = now > appointmentEnd;
 
-                return (
-                  <tr key={appt.visitId}>
-                    <td>{appt.patient?.patientName || 'N/A'}</td>
-                    <td>{appt.doctor?.doctorName || 'N/A'}</td>
-                    <td>{appt.visitDate}</td>
-                    <td>{appt.startTime}</td>
-                    <td>{appt.endTime}</td>
-                    <td>
-                      {isPast ? (
-                        <button className="btn btn-secondary btn-sm" disabled>
-                          Done
-                        </button>
-                      ) : (
-                        <button
-                          className="btn btn-warning btn-sm"
-                          onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
-                        >
-                          Edit
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="6" className="text-center">No appointments found.</td>
-              </tr>
-            )}
-          </tbody>
+  const isCanceled =
+    appt.status?.toUpperCase() === 'CANCELLED' || appt.status?.toUpperCase() === 'CANCELED';
+  const isUpcoming = !isCanceled && !isPast;
+
+  let rowClass = 'row-default';
+  if (isCanceled) {
+    rowClass = 'row-cancelled';
+  } else if (isPast) {
+    rowClass = 'row-past';
+  } else if (isUpcoming) {
+    rowClass = 'row-upcoming';
+  }
+
+  return (
+    <tr key={appt.visitId} className={rowClass}>
+      <td>{appt.patient?.patientName || 'N/A'}</td>
+      <td>{appt.doctor?.doctorName || 'N/A'}</td>
+      <td>{appt.visitDate}</td>
+      <td>{appt.startTime}</td>
+      <td>{appt.endTime}</td>
+      <td>
+        {isCanceled ? (
+          <button className="btn-cancelled" disabled>Cancelled</button>
+        ) : isPast ? (
+          <button className="btn-done" disabled>Done</button>
+        ) : (
+          <>
+            <button
+              className="btn-edit"
+              onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
+            >
+              Edit
+            </button>
+            <button
+              className="btn-cancel"
+              onClick={async () => {
+                const confirm = window.confirm("❌ Cancel this appointment?");
+                if (confirm) {
+                  try {
+                    await axiosInstance.put(`/api/appointments/${appt.visitId}/cancel`);
+                    alert("❌ Appointment cancelled");
+                    fetchAppointments();
+                  } catch (err) {
+                    console.error("Error cancelling:", err);
+                    alert("❌ Failed to cancel appointment.");
+                  }
+                }
+              }}
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </td>
+    </tr>
+  );
+    })
+  ) : (
+    <tr>
+      <td colSpan="6" className="text-center">No appointments found.</td>
+    </tr>
+  )}
+</tbody>
+
         </table>
       </div>
     </div>

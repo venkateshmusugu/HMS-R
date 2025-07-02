@@ -1,6 +1,6 @@
 
 
-
+ 
 /* Form inputs should take full width */
 input,
 select,
@@ -27,10 +27,11 @@ textarea {
 }
 .form-1 {
   width: 40vw; /* Form takes full width */
-  background-color: lab(86.29% 1.37 0.47 / 0.671); /* Light background */
+   background-color: rgba(134, 134, 134, 0.253);
+ box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px, rgba(0, 0, 0, 0.3) 0px 30px 60px -30px, rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
   padding: 2rem;
   border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(172, 171, 171, 0.1);
+ 
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -50,27 +51,34 @@ textarea:focus {
   align-items: center;
   height: 20%;
   margin-right: 2%;
-  background-color: #1a73e8;
-  color: rgb(255, 255, 255);
-  padding: 14px 28px;
+   font-family: "Roboto",sans-serif;
+    font-weight: bold;
+    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
+ 
+   background-color: #1a73e8;
+  color: #ffffff;
+  padding: 10px 32px;
   font-size: 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: 3px;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
   width: auto;
   height:13%;
 }
-
+ 
 .login-button:hover {
   background-color: #0a498d;
 }
-
+ 
 .login-button:focus {
   outline: none;
 }
-
-
+ 
+ 
 /* Button styling */
 /* button {
   display: flex;
@@ -88,11 +96,11 @@ textarea:focus {
   transition: background-color 0.3s ease;
   width: auto; /* Ensure the button does not stretch to full width */
 /* }
-
+ 
 button:hover {
   background-color: #0a498d;
 }
-
+ 
 button:focus {
   outline: none;
 }  */
@@ -106,7 +114,7 @@ button:focus {
   justify-content: center;
   align-items: center; /* Vertically and horizontally center the form */
 }
-
+ 
 .btn-circle {
   border-radius: 50%; /* Round the button */
   width: 40px; /* Set width */
@@ -123,3 +131,4 @@ button:focus {
     display:flex;
     align-items: center;;
 }
+ 

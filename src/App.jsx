@@ -16,10 +16,11 @@ import SurgeryDashboard from './components/SurgeryDashboard';
 import BookSurgery from './components/BookSurgery';
 import EditSurgery from './components/EditSurgery';
 import SurgeryMedication from './components/SurgeryMedication';
-import SurgeryHistory from './components/SurgeryHistory'
 
 // Billing
 import BillingDashboard from './components/BillingDashboard';
+import AddMedicineBill from './components/AddMedicalBill.jsx';
+import ViewBillsByMobile from './components/ViewBillByMobile.jsx';
 
 function App() {
   return (
@@ -42,12 +43,13 @@ function App() {
       {/* Surgery */}
       <Route path="/surgery" element={<SurgeryDashboard />} />
       <Route path="/book-surgery" element={<BookSurgery />} />
-      <Route path="/edit-surgery/:surgeryLogId" element={<EditSurgery />} />
+      <Route path="/edit-surgery/:id" element={<EditSurgery />} />
       <Route path="/surgery-medication/:patientId/:surgeryId" element={<SurgeryMedication />} />
-      <Route path="/surgery-medications/:patientId" element={<SurgeryHistory />} /> 
 
-      {/* Billing */}
+      {/* Medical Billing */}
       <Route path="/billing" element={<BillingDashboard />} />
+      <Route path="/add-bill" element={<AddMedicineBill />} />
+      <Route path="/view-bills/:mobile" element={<ViewBillsByMobile />} />
 
       {/* Catch-All */}
       <Route path="*" element={<h2 className="text-center mt-5">404 - Page Not Found</h2>} />

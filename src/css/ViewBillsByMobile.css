@@ -1,0 +1,116 @@
+/* ViewBillsByMobile.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #111; /* subtle dark background */
+  color: #fff;
+}
+
+.view-bills-container {
+     background-image: url('/images/appointment-calender.png'); /* Replace with your image path */
+  background-size: cover; /* Ensure the image covers the entire background */
+  background-position: center; /* Center the image */
+  height: 100vh; /* Full height of the screen */
+ 
+  
+  justify-content: center;
+  align-items: center; 
+  width: 98vw;
+  max-width: 100vw;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #181818;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 255, 255, 0.05);
+}
+
+.view-bills-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.view-bills-header h2 {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.view-bills-header span {
+  color: #00e0ff;
+}
+
+.back-btn {
+  background-color: #d32f2f;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+  background-color: #b71c1c;
+}
+
+.bill-card {
+  background-color: #202020;
+  border: 1px solid #333;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+}
+
+.bill-header {
+  background-color: #2a2a2a;
+  padding: 1rem;
+  border-bottom: 1px solid #444;
+  font-size: 1.1rem;
+  color: #90caf9;
+  font-weight: bold;
+}
+
+.bill-body {
+  padding: 1rem;
+}
+
+.bill-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.bill-table th,
+.bill-table td {
+  border: 1px solid #444;
+  padding: 0.75rem;
+  text-align: center;
+}
+
+.bill-table th {
+  background-color: #333;
+  color: #eee;
+}
+
+.bill-table td {
+  background-color: #1e1e1e;
+  color: #ccc;
+}
+
+.total-amount {
+  text-align: right;
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: #00e676;
+}
+
+.no-data-msg {
+  padding: 1rem;
+  background-color: #222;
+  color: #bbb;
+  text-align: center;
+  border-radius: 6px;
+}

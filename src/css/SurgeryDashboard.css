@@ -1,0 +1,108 @@
+.surgery-background {
+  background-image: url('/images/surgerybackgroung.png'); /* Replace with actual path */
+  background-size: cover;
+   flex-direction: column;
+  justify-content: flex-start;
+  background-position: center;
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+}
+.container-four {
+ 
+  display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    width: 100%;
+    height: 20%;
+    flex-direction: row;
+    /* box-sizing: border-box; */
+    margin-bottom: 5%;
+    margin-top:3%;
+}
+.header-four{
+ 
+  background-color: #2674daaf;
+  width: fit-content;  /* better than fixed 20% */
+  padding: 10px 20px;
+ 
+  margin-right: 60%;
+ 
+}
+.heading-surgery{
+   margin-left:25%;
+ margin-bottom: 4%;
+ padding:20px 20px;
+ 
+  width:50%;
+  height:25%;
+  background-color: #2674daaf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.alert-info{
+    width:80%;
+     margin: 0 auto; /* centers horizontally */
+  text-align: center;
+}
+.table-bordered{
+    width:90%;
+    margin: 0 auto; /* centers horizontally */
+  text-align: center;
+}
+.surgery-two{
+    margin-left:35%;
+    display:flex;
+    gap:2%;
+}
+.date{
+    width:5%;
+}
+/* Add this to your CSS */
+input[type="date"].custom-date {
+    width: 200px;
+  position: relative;
+  padding-right: 40px; /* space for icon */
+  background: white url('data:image/svg+xml;utf8,<svg fill="black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/></svg>') no-repeat right 10px center;
+  background-size: 20px 20px;
+}
+ 
+.btn-red2 {
+  background-color: #e53935;
+  color: white;
+}
+ 
+.btn-red2:hover {
+  background-color: #a52725;
+}
+.btn-red2 ,.btn-blue2{
+font-family: "Roboto",sans-serif;
+    font-weight: bold;
+    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
+ 
+ 
+  padding: 10px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+ 
+  margin: 0 5px;
+}
+.btn-blue2 {
+  background-color: #1a73e8;
+  color: white;
+ 
+}
+ 
+.btn-blue2:hover {
+  background-color: #0a498d;
+}
+ 
+
+ 

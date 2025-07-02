@@ -10,24 +10,27 @@ const axiosInstance = axios.create({
 });
 
 
-// Request Interceptor
 axiosInstance.interceptors.request.use(async (config) => {
+  // ✅ Skip token for login or refresh
+  const isAuthUrl = config.url.includes('/login') || config.url.includes('/refresh-token');
+  if (isAuthUrl) {
+    return config;
+  }
+
   let token = localStorage.getItem("accessToken");
 
-  // Prevent "Bearer undefined"
-  if (token === "undefined" || !token) {
+  if (!token || token === "undefined") {
     console.warn("⚠️ No valid token found. Skipping Authorization header.");
     return config;
   }
 
+  // ✅ Handle expired token
   if (isTokenExpired(token)) {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
-
       const response = await axios.post("http://localhost:8081/api/users/refresh-token", {
-        refreshToken: refreshToken,
+        refreshToken,
       });
-
       const newToken = response.data.token;
       localStorage.setItem("accessToken", newToken);
       token = newToken;

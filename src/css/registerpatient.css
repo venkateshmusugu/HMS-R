@@ -40,8 +40,10 @@
    margin-right:2%;
    margin-left: 5%;
    height:80px;
-   
+ 
+ 
 }
+ 
 label{
     color:#000000af;
 }
@@ -78,17 +80,27 @@ textarea{
 .f-4{
     margin-right: 2%;
 }
+.f-four{
+  display:flex;
+  gap:5%;
+  margin-left:20%;
+}
 .btn-end {
  
-  background-color: #1a73e8;
-  width:100%;
-  height:50px;
-  margin-left: 50%;
+ 
+  width:fit-content;
+  height:40px;
+ 
+  font-family: "Roboto",sans-serif;
+    font-weight: bold;
+    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
+ 
+   background-color: #1a73e8;
   color: #ffffff;
-  /* padding: 10px 20px; */
+  padding: 10px 32px;
   font-size: 16px;
   border: none;
-  border-radius: 10px;
+  border-radius: 3px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   display: inline-flex;
@@ -114,3 +126,5 @@ textarea{
   flex-direction: column; /* Stack the form vertically */
   box-sizing: border-box; /* Make sure padding is included in width/height */
 }
+ 
+ 
