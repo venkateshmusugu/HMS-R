@@ -60,14 +60,31 @@
     width:5%;
 }
 /* Add this to your CSS */
-input[type="date"].custom-date {
-    width: 200px;
-  position: relative;
-  padding-right: 40px; /* space for icon */
-  background: white url('data:image/svg+xml;utf8,<svg fill="black" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z"/></svg>') no-repeat right 10px center;
+.surgery-date-dark {
+  display: block;
+  width: 200px;
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: white;
+  background-color: #1e1e1e;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-image: url("data:image/svg+xml;utf8,<svg fill='white' xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM7 11h5v5H7z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
   background-size: 20px 20px;
 }
- 
+
+/* Hide default WebKit calendar icon so it doesn’t overlap */
+.surgery-date-dark::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+}
+
+
 .btn-red2 {
   background-color: #e53935;
   color: white;
@@ -105,4 +122,56 @@ font-family: "Roboto",sans-serif;
 }
  
 
- 
+ .surgery-table {
+  width: 90%;
+  margin:20px auto;
+  border-collapse: collapse;
+  background-color: #ffffff; /* white background */
+  color: #000000;            /* black text */
+  border: 1px solid #ddd;
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.surgery-table th,
+.surgery-table td {
+  border: 1px solid #e0e0e0; /* light border between fields */
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.surgery-table thead {
+  background-color: #f4f4f4; /* light gray header */
+  font-weight: bold;
+}
+
+.surgery-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.action-buttons button {
+  background-color: #2674da;
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  margin-right: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.action-buttons button:nth-child(1) {
+  background-color: #ce8b2c; /* warning style */
+}
+
+.action-buttons button:nth-child(2) {
+  background-color: #12854f; /* info style */
+}
+
+.action-buttons button:nth-child(3) {
+  background-color: #d82d27; /* danger style */
+}
+
+.action-buttons button:hover {
+  opacity: 0.85;
+}

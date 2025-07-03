@@ -108,49 +108,49 @@ const BookSurgery = () => {
 
   return (
     <div className='surgery-book'>
-      <div className="container-seven">
-        <h2 className="heading-surgerybook">Book Surgery Appointment</h2>
+      <div className="container-se">
+        <h2 className="heading-surgerybook-one">Book Surgery Appointment</h2>
         <div className='surgeryform'>
           <form onSubmit={handleSubmit}>
-            <div className='booking-one'>
-              <div className="mb-3">
-                <label htmlFor="patientId" className="form-label">Select Patient</label>
-                <select
-                  name="patientId"
-                  className="form-select"
-                  value={formData.patientId}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">-- Select Patient --</option>
-                  {patients.map(p => (
-                    <option key={p.patientId} value={p.patientId}>{p.patientName}</option>
-                  ))}
-                </select>
-              </div>
+          <div className="booking-other">
+  <div className="nbl">
+    <label htmlFor="patientId" className="form-label">Select Patient</label>
+    <select
+      name="patientId"
+      className="dark-select-p"
+      value={formData.patientId}
+      onChange={handleChange}
+      required
+    >
+      <option value="">-- Select Patient --</option>
+      {patients.map(p => (
+        <option key={p.patientId} value={p.patientId}>{p.patientName}</option>
+      ))}
+    </select>
+  </div>
 
-              <div className="mb-3">
-                <label htmlFor="doctorId" className="form-label">Select Doctor</label>
-               <select
-                name="doctorId"
-                className="form-select"
-                value={formData.doctorId}
-                onChange={handleChange}
-                required
-              >
-                <option value="">-- Select Doctor --</option>
-                {doctors.map((d) => (
-                  <option key={d.doctorId} value={d.doctorId}>
-                    {d.doctorName} ({d.departmentName})
-                  </option>
-                ))}
-              </select>
+  <div className="nbl">
+    <label htmlFor="doctorId" className="form-label">Select Doctor</label>
+    <select
+      name="doctorId"
+      className="dark-select-p"
+      value={formData.doctorId}
+      onChange={handleChange}
+      required
+    >
+      <option value="">-- Select Doctor --</option>
+      {doctors.map((d) => (
+        <option key={d.doctorId} value={d.doctorId}>
+          {d.doctorName} ({d.departmentName})
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
 
-              </div>
-            </div>
 
-            <div className='booking-one'>
-              <div className="mb-3">
+            <div className='booking-other'>
+              <div className="nbl">
                 <label htmlFor="surgeryDate" className="form-label surgerydate">Surgery Date</label>
                 <input
                   type="date"
@@ -158,12 +158,12 @@ const BookSurgery = () => {
                   value={formData.surgeryDate}
                   onChange={handleChange}
                   required
-                  className="form-control surgerydate"
+                  className="dark-input-p"
                   min={new Date().toISOString().split("T")[0]}
                 />
               </div>
 
-              <div className="mb-3">
+              <div className="nbl">
                 <label htmlFor="surgeryTime" className="form-label">Surgery Time</label>
                 <input
                   type="time"
@@ -176,74 +176,78 @@ const BookSurgery = () => {
               </div>
             </div>
 
-            <div className="mb-3">
+            <div className="mel">
               <label htmlFor="surgeryType" className="form-label">Surgery Type</label>
               <input
                 type="text"
                 name="surgeryType"
-                className="form-control"
+                className="dark-input-text"
                 placeholder="surgery type"
                 value={formData.surgeryType}
                 onChange={handleChange}
               />
             </div>
 
-            <div className="mb-3">
+            <div className="mel">
               <label htmlFor="reason" className="form-label">Reason for Surgery</label>
               <input
                 type="text"
                 name="reason"
-                className="form-control"
+                className="dark-input-text"
                 placeholder="e.g., Appendicitis"
                 value={formData.reason}
                 onChange={handleChange}
               />
             </div>
 
-            <div className="mb-3">
+            <div className="mel">
               <label htmlFor="remarks" className="form-label">Remarks</label>
               <input
                 type="text"
                 name="remarks"
-                className="form-control"
+                className="dark-input-text"
                 placeholder="e.g., Monitor post-op recovery"
                 value={formData.remarks}
                 onChange={handleChange}
               />
             </div>
 
-            <div className="mb-3">
+            <div className="mel">
               <label htmlFor="followUpDate" className="form-label">Follow-Up Date</label>
               <input
                 type="date"
                 name="followUpDate"
-                className="form-control"
+                className="dark-input-p1"
                 value={formData.followUpDate}
                 onChange={handleChange}
                 min={new Date().toISOString().split("T")[0]}
               />
             </div>
 
-            <div >
-              <label >Notes</label>
-              <div className="tags-input-container">
-                {formData.note.map((n, idx) => (
-                  <span  key={idx}>
-                    {n}
-                    <span className="remove-tag" onClick={() => removeNote(idx)}
-                      style={{ cursor: 'pointer', marginLeft: '5px' }}>×</span>
-                  </span>
-                ))}
-                <input
-                  type="text"
-                  className="tag-input"
-                  value={noteInput}
-                  onChange={(e) => setNoteInput(e.target.value)}
-                  onKeyDown={handleNoteKeyDown}
-                  placeholder="Type and press Enter or comma"
-                />
-              </div>
-            </div>
+           <div className="notes-field">
+  <label className="label-notes">Notes</label>
+  <div className="tags-input-container">
+    {formData.note.map((n, idx) => (
+      <span key={idx} className="tag">
+        {n}
+        <span
+          className="remove-tag"
+          onClick={() => removeNote(idx)}
+        >
+          ×
+        </span>
+      </span>
+    ))}
+    <input
+      type="text"
+      className="dark-tag-input"
+      value={noteInput}
+      onChange={(e) => setNoteInput(e.target.value)}
+      onKeyDown={handleNoteKeyDown}
+      placeholder="Type and press Enter or comma"
+    />
+  </div>
+</div>
 
             <div className='btn-center'>
               <button type="button" className="btn-back" onClick={() => navigate('/surgery')}>

@@ -57,6 +57,11 @@ align-items: center;
 .time{
     display: flex;
 }
+.end-appoint{
+  gap:2px;
+  display:flex;
+  justify-content: center;
+}
 .btn-back{
  
    font-family: "Roboto",sans-serif;
@@ -65,11 +70,12 @@ align-items: center;
    width:1%;
    background-color: #1a73e8;
   color: #ffffff;
+  margin-left:2vw;
   padding: 10px 32px;
   font-size: 16px;
   border: none;
   border-radius: 3px;
- 
+  margin-right:2vw;
   height: 40px;
   cursor: pointer;
   transition: background-color 0.3s ease;
@@ -78,7 +84,69 @@ align-items: center;
   align-items: center;
  
 }
- 
+input[type="date"].enter-date {
+  background-color: #1e1e1e;
+  color: #fff;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  margin-bottom:-1%;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  /* turns black icon white */
+  cursor: pointer;
+}
+input[type="time"] {
+  background-color: #1e1e1e;
+  color: #fff;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+/* Optional: Make clock icon white in WebKit browsers */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  
+  cursor: pointer;
+}
+.data{
+  color:white;
+  background-color: #1e1e1e;
+}
+.data::placeholder {
+  color: white;
+  opacity: 0.8; /* Optional for lighter look */
+}
+
+
+
+.select-doctor{
+    --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  display: block;
+  width: 100%;
+  padding: .375rem 2.25rem .375rem .75rem;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: white;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: #1e1e1e;
+  background-image: var(--bs-form-select-bg-img), var(--bs-form-select-bg-icon, none);
+  background-repeat: no-repeat;
+  background-position: right .75rem center;
+  background-size: 16px 12px;
+  border: var(--bs-border-width) solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
 .btn-blue {
    font-family: "Roboto",sans-serif;
     font-weight: bold;

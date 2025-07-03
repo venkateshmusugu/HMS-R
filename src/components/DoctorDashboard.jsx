@@ -86,26 +86,27 @@ const DoctorDashboard = () => {
         <h2 className="content">Today's Appointments</h2>
       </div>
 
-      <div className="search mb-3">
+      <div className="searching mb-3">
         <div className="search-by-name me-3">
           <input
             type="text"
-            className="form-control"
+            className="form-control data"
             placeholder="Search by Name or Phone"
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
         </div>
-        <div className="search-by-date">
-          <input
-            type="date"
-            className="form-control"
-            value={selectedDate}
-            onChange={e => setSelectedDate(e.target.value)}
-          />
-        </div>
-      </div>
+       <div className="search-by-date">
+  <input
+    type="date"
+    className="dark-date-input"
+    value={selectedDate}
+    onChange={e => setSelectedDate(e.target.value)}
+  />
+</div>
 
+      </div>
+<div className="table-scroll-container">
       <table className="table-custom">
         <thead className="table-light text-dark">
           <tr>
@@ -189,6 +190,7 @@ const DoctorDashboard = () => {
           )}
         </tbody>
       </table>
+      </div>
     </div>
   );
 };

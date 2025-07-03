@@ -11,7 +11,8 @@ const RegisterPatient = () => {
   const [dob, setDob] = useState('');
   const [ageDisplay, setAgeDisplay] = useState('');
   const [maritalStatus, setMaritalStatus] = useState('');
-  const [caseDescription, setCaseDescription] = useState('');
+  const [address, setAddress] = useState('');
+
 
   const [context, setContext] = useState('');
   const [bookFlag, setBookFlag] = useState(false);
@@ -111,7 +112,8 @@ const RegisterPatient = () => {
         age,
         dob,
         maritalStatus,
-        caseDescription,
+        address,
+
       };
 
       const { data } = await axiosInstance.post("http://localhost:8081/api/patients", patientPayload);
@@ -209,9 +211,10 @@ const RegisterPatient = () => {
             </div>
 
             <div className="f-two">
-              <label>Case Description</label>
-              <textarea value={caseDescription} onChange={(e) => setCaseDescription(e.target.value)} />
-            </div>
+  <label>Address</label>
+  <textarea value={address} onChange={(e) => setAddress(e.target.value)} required />
+</div>
+
 
             {context && (
               <div className="checks">

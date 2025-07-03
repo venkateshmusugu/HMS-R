@@ -197,7 +197,7 @@ useEffect(() => {
               <label>Search Patient</label>
               <input
               type="text"
-              className="form-control"
+              className="form-control data"
               list="patient-suggestions"
               placeholder="Type patient name"
               value={inputValue}
@@ -219,7 +219,7 @@ useEffect(() => {
                 value={formData.doctorId}
                 onChange={handleChange}
                 required
-                className="form-select"
+                className="select-doctor"
               >
                 <option value="">-- Select Doctor --</option>
                 {(doctors || []).map(d => (
@@ -238,7 +238,7 @@ useEffect(() => {
                 value={formData.visitDate}
                 onChange={handleChange}
                 required
-                className="form-control"
+                className="enter-date"
                 min={new Date().toISOString().split("T")[0]}
               />
             </div>
@@ -251,7 +251,7 @@ useEffect(() => {
                 value={formData.startTime}
                 onChange={handleChange}
                 required
-                className="form-control"
+                className="form-control select"
               />
             </div>
 
@@ -263,7 +263,7 @@ useEffect(() => {
                 value={formData.endTime}
                 onChange={handleChange}
                 required
-                className="form-control"
+                className="form-control select"
               />
             </div>
 
@@ -274,14 +274,14 @@ useEffect(() => {
                 name="reason"
                 value={formData.reason}
                 onChange={handleChange}
-                className="form-control"
+                className="form-control data"
                 placeholder="Reason for visit"
               />
             </div>
-
+            <div className='end_appoint'>
             <button
               type="button"
-              className="btn-back"
+              className="btn-back black"
               onClick={() => {
                 const role = localStorage.getItem("role");
                 navigate(role === "DOCTOR" ? '/doctor-dashboard' : '/patients');
@@ -291,6 +291,7 @@ useEffect(() => {
             </button>
 
             <button type="submit" className="btn-blue">Book Appointment</button>
+            </div>
           </form>
         </div>
       </div>

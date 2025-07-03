@@ -1,7 +1,27 @@
 .patient-list-background{
     width:90%;
-}
+    
+  background-image: url('/images/patient_list.png'); /* Replace with actual path */
+  background-size: cover; /* Ensure the image covers the entire container */
+  background-position: center; /* Center the background image */
+  height: 100vh; /* Make sure it covers the full viewport height */
+  display: flex;
+  width: 100vw;
+  flex-direction: column;
+  justify-content: flex-start; /* Align items at the top */
+  /* Optional padding for spacing */
+
  
+ 
+}
+.search{
+  background-color: #1e1e1e;
+  color:white;
+}
+ .search::placeholder {
+  color: white;
+  opacity: 1; /* ensures full white if it's dimmed */
+}
 .container-1 {
     display: flex;
     /* justify-content: center; */
@@ -43,10 +63,13 @@
   margin-top:4%;
   justify-content: center;
   display: flex;
+  color:white;
+  
 }
 .search-name{
   width:20%;
   margin-right:2%;
+  color:white;
 }
  
 /* Blue Buttons - Common for Patient & Appointment */

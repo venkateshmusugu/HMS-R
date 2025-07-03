@@ -68,7 +68,7 @@ const SurgeryDashboard = () => {
         <h4 className="mb-3">Search Appointments by Date</h4>
         <input
           type="date"
-          className="form-control custom-date"
+          className="surgery-date-dark"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
@@ -77,69 +77,53 @@ const SurgeryDashboard = () => {
       {appointments.length === 0 ? (
         <div className="alert alert-info">No appointments for selected date.</div>
       ) : (
-        <table className="table table-bordered">
-          <thead className="table-light">
-            <tr>
-              <th>Patient Name</th>
-              <th>Mobile Number</th>
-              <th>Doctor</th>
-              <th>Surgery Type</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Status</th>
-              <th>Note</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {appointments.map(app => {
-              const patientName = app.patientName || 'N/A';
-              const phoneNumber = app.phoneNumber || 'N/A';
-              const doctorFullName = app.doctorName && app.departmentName
-                ? `${app.doctorName} (${app.departmentName})`
-                : app.doctorName || 'N/A';
+        <table className="surgery-table">
+  <thead>
+    <tr>
+      <th>Patient Name</th>
+      <th>Mobile Number</th>
+      <th>Doctor</th>
+      <th>Surgery Type</th>
+      <th>Date</th>
+      <th>Time</th>
+      <th>Status</th>
+      <th>Note</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {appointments.map(app => {
+      const patientName = app.patientName || 'N/A';
+      const phoneNumber = app.phoneNumber || 'N/A';
+      const doctorFullName = app.doctorName && app.departmentName
+        ? `${app.doctorName} (${app.departmentName})`
+        : app.doctorName || 'N/A';
 
-              return (
-                <tr key={app.id}>
-                  <td>{patientName}</td>
-                  <td>{phoneNumber}</td>
-                  <td>{doctorFullName}</td>
-                  <td>{app.surgeryType || 'N/A'}</td>
-                  <td>{app.surgeryDate || 'N/A'}</td>
-                  <td>{app.surgeryTime || 'N/A'}</td>
-                  <td>{app.status || 'Scheduled'}</td>
-                  <td>
-                    {Array.isArray(app.note) && app.note.length > 0
-                      ? app.note.join(', ')
-                      : '--'}
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => navigate(`/edit-surgery/${app.id}`)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="btn btn-info btn-sm me-2"
-                      onClick={() =>
-                        navigate(`/surgery-medication/${app.patientId}/${app.id}`)
-                      }
-                    >
-                      Medications
-                    </button>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(app.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+      return (
+        <tr key={app.id}>
+          <td>{patientName}</td>
+          <td>{phoneNumber}</td>
+          <td>{doctorFullName}</td>
+          <td>{app.surgeryType || 'N/A'}</td>
+          <td>{app.surgeryDate || 'N/A'}</td>
+          <td>{app.surgeryTime || 'N/A'}</td>
+          <td>{app.status || 'Scheduled'}</td>
+          <td>
+            {Array.isArray(app.note) && app.note.length > 0
+              ? app.note.join(', ')
+              : '--'}
+          </td>
+          <td className="action-buttons">
+            <button onClick={() => navigate(`/edit-surgery/${app.id}`)}>Edit</button>
+            <button onClick={() => navigate(`/surgery-medication/${app.patientId}/${app.id}`)}>Medications</button>
+            <button onClick={() => handleDelete(app.id)}>Delete</button>
+          </td>
+        </tr>
+      );
+    })}
+  </tbody>
+</table>
+
       )}
     </div>
   );

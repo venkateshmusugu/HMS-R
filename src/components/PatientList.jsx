@@ -82,8 +82,8 @@ const PatientList = () => {
           <div className="search-name">
             <input
               type="text"
-              className="form-control"
-              placeholder="Search by Name or Phone"
+              className="search"  style={{ color: 'white' }}
+              placeholder ="Search by Name or Phone"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -91,7 +91,7 @@ const PatientList = () => {
           <div className="search-date">
             <input
               type="date"
-              className="form-control"
+              className="search"
               value={selectedDate}
               onChange={e => setSelectedDate(e.target.value || '')}
             />
@@ -99,9 +99,9 @@ const PatientList = () => {
         </div>
 
         {/* Appointment Table */}
-        <table className="table table-bordered">
-          <thead >
-            <tr>
+        <table className="table-custom">
+          <thead className="table-light text-dark">
+            <tr color='black'>
               <th>Name</th>
               <th>Doctor</th>
               <th>Date</th>
@@ -176,7 +176,7 @@ const PatientList = () => {
     })
   ) : (
     <tr>
-      <td colSpan="6" className="text-center">No appointments found.</td>
+      <td style={{ color: 'black' }} colSpan="6" className="text-center">No appointments found.</td>
     </tr>
   )}
 </tbody>
