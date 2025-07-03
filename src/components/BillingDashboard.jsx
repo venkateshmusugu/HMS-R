@@ -11,8 +11,23 @@ const BillingDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+  const recent = localStorage.getItem("recentBillPatient");
+    
+  if (recent) {
+    const recentData = JSON.parse(recent);
+    setPatients(prev => {
+      const exists = prev.some(p => p.mobile === recentData.mobile);
+      const updatedList = exists
+        ? prev.map(p => p.mobile === recentData.mobile ? recentData : p)
+        : [recentData, ...prev];
+      return updatedList;
+    });
+    localStorage.removeItem("recentBillPatient"); // ✅ cleanup
+  } else {
     fetchPatients();
-  }, []);
+  }
+}, []);
+
 
   const fetchPatients = () => {
     axiosInstance.get('/api/medical-bills/patient-summary')

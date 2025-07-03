@@ -142,9 +142,8 @@
   max-height: 50%;          /* Set max height for scroll */
   overflow-y: auto;           /* Enable vertical scroll */
   margin-top: 1rem;
-  border: 1px solid #ccc;
   border-radius: 8px;
-  background-color: white;
+ 
 }
 
 /* Optional: Make the table head sticky inside the scroll */

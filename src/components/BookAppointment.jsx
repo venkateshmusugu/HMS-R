@@ -21,33 +21,39 @@ const BookAppointment = () => {
     reason: '',
   });
 
-  useEffect(() => {
-    axiosInstance.get('/api/doctors')
-      .then(res => setDoctors(Array.isArray(res.data) ? res.data : []))
-      .catch(err => console.error("❌ Error loading doctors:", err));
-  }, []);
+ useEffect(() => {
+  axiosInstance.get('/api/doctors')
+    .then(res => {
+      console.log("👨‍⚕️ Doctors fetched:", res.data); // ✅
+      setDoctors(Array.isArray(res.data) ? res.data : []);
+    })
+    .catch(err => console.error("❌ Error loading doctors:", err));
+}, []);
 
-  useEffect(() => {
-    if (id) {
-      axiosInstance.get(`/api/appointments/${id}`)
-        .then(res => {
-          const a = res.data;
-          setFormData({
-            doctorId: a.doctor?.doctorId || '',
-            patientId: a.patient?.patientId || '',
-            visitDate: a.visitDate || '',
-            startTime: a.startTime || '',
-            endTime: a.endTime || '',
-            reason: a.reasonForVisit || '',
-          });
-          setInputValue(`${a.patient?.patientName} - ${a.patient?.phoneNumber}`);
-        })
-        .catch(err => {
-          console.error("❌ Failed to load appointment:", err);
-          alert("Error loading appointment.");
+
+ useEffect(() => {
+  if (id) {
+    axiosInstance.get(`/api/appointments/${id}`)
+      .then(res => {
+        console.log("📅 Editing appointment data:", res.data); // ✅
+        const a = res.data;
+        setFormData({
+          doctorId: a.doctor?.doctorId || '',
+          patientId: a.patient?.patientId || '',
+          visitDate: a.visitDate || '',
+          startTime: a.startTime || '',
+          endTime: a.endTime || '',
+          reason: a.reasonForVisit || '',
         });
-    }
-  }, [id]);
+        setInputValue(`${a.patient?.patientName} - ${a.patient?.phoneNumber}`);
+      })
+      .catch(err => {
+        console.error("❌ Failed to load appointment:", err);
+        alert("Error loading appointment.");
+      });
+  }
+}, [id]);
+
 
   useEffect(() => {
     if (formData.doctorId && formData.visitDate) {
@@ -70,8 +76,9 @@ const BookAppointment = () => {
   const fetchTodayPatients = async () => {
     if (inputValue.trim() === '') {
       try {
-        const res = await axiosInstance.get('/api/patients/registered-today');
-        setSuggestions(res.data);
+          const res = await axiosInstance.get('/api/patients/registered-today');
+    setSuggestions(Array.isArray(res.data) ? res.data : []);
+    console.log(res.data);
       } catch (err) {
         console.error("❌ Error fetching today's patients:", err);
       }
@@ -85,8 +92,9 @@ const BookAppointment = () => {
 
   if (value.length >= 2) {
     try {
-      const res = await axiosInstance.get(`/api/patients/search?query=${value}`);
-      const results = res.data;
+        const res = await axiosInstance.get(`/api/patients/search?query=${value}`);
+        setSuggestions(Array.isArray(res.data) ? res.data : []);
+ 
       setSuggestions(results);
     } catch (err) {
       console.error("❌ Error searching patients:", err);
@@ -133,59 +141,66 @@ useEffect(() => {
   };
 
   const isOverlapping = () => {
-    const { startTime, endTime } = formData;
-    return existingAppointments.some(app => {
-      const aStart = app.startTime;
-      const aEnd = app.endTime;
+  const { startTime, endTime } = formData;
+  console.log("⏱️ Checking overlap with times:", startTime, endTime); // ✅
+  console.log("🗂️ Existing appointments:", existingAppointments); // ✅
 
-      return (
-        (startTime >= aStart && startTime < aEnd) ||
-        (endTime > aStart && endTime <= aEnd) ||
-        (startTime <= aStart && endTime >= aEnd)
-      );
-    });
+  return existingAppointments.some(app => {
+    const aStart = app.startTime;
+    const aEnd = app.endTime;
+
+    return (
+      (startTime >= aStart && startTime < aEnd) ||
+      (endTime > aStart && endTime <= aEnd) ||
+      (startTime <= aStart && endTime >= aEnd)
+    );
+  });
+};
+
+
+const handleSubmit = async e => {
+  e.preventDefault();
+
+  console.log("📝 Submitting formData:", formData); // ✅
+
+  if (!formData.patientId || !formData.doctorId) {
+    alert("❗ Please select both doctor and patient from the list.");
+    return;
+  }
+
+  if (isOverlapping()) {
+    alert("⚠️ Time overlaps with another appointment. Please choose a different time.");
+    return;
+  }
+
+  const payload = {
+    visitDate: formData.visitDate,
+    startTime: formData.startTime,
+    endTime: formData.endTime,
+    departmentId: formData.departmentId,
+    reasonForVisit: formData.reason,
+    doctorId: parseInt(formData.doctorId),
+    patientId: parseInt(formData.patientId)
   };
 
-  const handleSubmit = async e => {
-    e.preventDefault();
-    if (!formData.patientId || !formData.doctorId) {
-      alert("❗ Please select both doctor and patient from the list.");
-      return;
+  console.log("📦 Sending payload to API:", payload); // ✅
+
+  try {
+    if (id) {
+      await axiosInstance.put(`/api/appointments/${id}`, payload);
+      console.log("✅ Appointment updated"); // ✅
+    } else {
+      await axiosInstance.post('/api/appointments', payload);
+      console.log("✅ Appointment booked"); // ✅
     }
+    const role = localStorage.getItem('role');
+    navigate(role === 'DOCTOR' ? '/doctor-dashboard' : '/patients');
+  } catch (err) {
+    console.error("❌ Failed to save appointment:", err);
+    alert("❌ Failed to save appointment");
+  }
+};
 
-    if (isOverlapping()) {
-      alert("⚠️ Time overlaps with another appointment. Please choose a different time.");
-      return;
-    }
-
-    const payload = {
-      visitDate: formData.visitDate,
-      startTime: formData.startTime,
-      endTime: formData.endTime,
-      departmentId: formData.departmentId,
-      reasonForVisit: formData.reason,
-      doctorId: parseInt(formData.doctorId),
-      patientId: parseInt(formData.patientId)
-    };
-
-    console.log("📦 Sending payload:", payload);
-
-    try {
-      if (id) {
-        await axiosInstance.put(`/api/appointments/${id}`, payload);
-        alert("✅ Appointment updated");
-      } else {
-        await axiosInstance.post('/api/appointments', payload);
-        alert("✅ Appointment booked");
-      }
-
-      const role = localStorage.getItem('role');
-      navigate(role === 'DOCTOR' ? '/doctor-dashboard' : '/patients');
-    } catch (err) {
-      console.error("❌ Failed to save appointment:", err);
-      alert("❌ Failed to save appointment");
-    }
-  };
 
   return (
     <div className="book-appointment">
@@ -205,11 +220,12 @@ useEffect(() => {
               onChange={handleInputChange}
             />
 
-              <datalist id="patient-suggestions">
-                {suggestions.map((p, i) => (
-                  <option key={i} value={`${p.patientName} - ${p.phoneNumber}`} />
-                ))}
-              </datalist>
+             <datalist id="patient-suggestions">
+              {(Array.isArray(suggestions) ? suggestions : []).map((p, i) => (
+                <option key={i} value={`${p.patientName} - ${p.phoneNumber}`} />
+              ))}
+            </datalist>
+
             </div>
 
             <div className="mb-3">

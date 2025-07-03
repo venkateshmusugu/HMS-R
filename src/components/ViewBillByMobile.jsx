@@ -11,15 +11,17 @@ const ViewBillsByMobile = () => {
 
   useEffect(() => {
     axiosInstance.get(`/api/medical-bills/by-mobile/${mobile}`)
-      .then(res => {
-        console.log("✅ bills response:", res.data);
-        if (Array.isArray(res.data)) {
-          setBills(res.data);
-        } else {
-          setBills([]);
-          console.warn("⚠️ Unexpected response format:", res.data);
-        }
-      })
+  .then(res => {
+    console.log("✅ bills response:", res.data);
+
+    if (Array.isArray(res.data) && res.data.every(bill => bill.entries && Array.isArray(bill.entries))) {
+      setBills(res.data);
+    } else {
+      console.warn("⚠️ Unexpected response format:", res.data);
+      setBills([]);
+    }
+  })
+
       .catch(err => {
         console.error("❌ Error loading bills", err);
         setBills([]);
@@ -58,13 +60,16 @@ const ViewBillsByMobile = () => {
                       <td>{entry.medicineName}</td>
                       <td>{entry.dosage}</td>
                       <td>{entry.amount}</td>
-                      <td>{entry.quantity}</td>
-                      <td>{entry.totalAmount || entry.amount * entry.quantity}</td>
+                     <td>{entry.issuedQuantity}</td>
+                      <td>{entry.subtotal || (entry.amount * entry.issuedQuantity)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <h5 className="total-amount">Total: ₹{bill.totalAmount?.toFixed(2) || 0}</h5>
+              <h5 className="total-amount">
+                Total: ₹{(bill.entries || []).reduce((sum, e) => sum + (e.amount * e.issuedQuantity), 0).toFixed(2)}
+              </h5>
+
             </div>
           </div>
         ))

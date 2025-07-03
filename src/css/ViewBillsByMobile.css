@@ -91,12 +91,12 @@ body {
 }
 
 .bill-table th {
-  background-color: #333;
-  color: #eee;
+ 
+  color: #0a0909;
 }
 
 .bill-table td {
-  background-color: #1e1e1e;
+  
   color: #ccc;
 }
 

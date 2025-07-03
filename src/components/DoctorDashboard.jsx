@@ -35,25 +35,16 @@ const DoctorDashboard = () => {
     navigate('/');
   };
 
-  const handleViewSurgeryHistory = async (patientId) => {
-    try {
-      const res = await axiosInstance.get(`/api/surgeries/latest-by-patient/${patientId}`);
-      const latestSurgery = res.data;
+  const handleViewSurgeryHistory = (appointment) => {
+  const surgeryId = appointment.id; // assuming `id` is surgery appointment ID
+  const patientId = appointment.patientId;
 
-      if (latestSurgery?.id) {
-        navigate(`/surgery-medication/${patientId}/${latestSurgery.id}`);
-      } else {
-        alert("⚠️ No surgery found for this patient.");
-      }
-    } catch (err) {
-      if (err.response?.status === 404) {
-        alert("⚠️ No surgery record found for this patient.");
-      } else {
-        console.error("❌ Error fetching latest surgery", err);
-        alert("❌ Error loading surgery history.");
-      }
-    }
-  };
+  if (surgeryId) {
+    navigate(`/surgery-medication/${patientId}/${surgeryId}`);
+  } else {
+    alert("⚠️ No surgery found for this patient.");
+  }
+};
 
   const handleCancelAppointment = async (visitId) => {
     try {
@@ -145,9 +136,10 @@ const DoctorDashboard = () => {
                 <td>
                   <button
                     className="btn btn-info btn-sm"
-                    onClick={() => handleViewSurgeryHistory(a.patient.patientId)}>
+                    onClick={() => handleViewSurgeryHistory(a)}>
                     View Surgery History
                   </button>
+
                 </td>
                 <td>
                   <button

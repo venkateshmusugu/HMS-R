@@ -13,24 +13,28 @@ const PatientList = () => {
   const role = localStorage.getItem('role');
   const receptionist = localStorage.getItem('username') || '—';
 
-  const fetchAppointments = async () => {
-    try {
-      const params = {};
-      if (selectedDate && selectedDate.trim() !== '') {
-        params.date = selectedDate;
-      }
-      if (searchTerm) {
-        params.searchTerm = searchTerm;
-      }
+ const fetchAppointments = async () => {
+  try {
+    const response = await axiosInstance.get('/api/appointments/upcoming');
 
-      const response = await axiosInstance.get('/api/appointments/upcoming', { params });
-      const sorted = response.data.sort((a, b) => new Date(a.visitDate) - new Date(b.visitDate));
-      setAppointments(sorted);
-    } catch (err) {
-      console.error('❌ Failed to fetch appointments:', err);
-      alert('❌ Failed to fetch appointments.');
+    const data = response.data;
+
+    if (!Array.isArray(data)) {
+      console.warn("⚠️ Unexpected format from API:", data);
+      setAppointments([]);
+      return;
     }
-  };
+
+    const sorted = data.sort((a, b) => new Date(a.visitDate) - new Date(b.visitDate));
+    setAppointments(sorted);
+  } catch (err) {
+    console.error('❌ Failed to fetch appointments:', err);
+    setAppointments([]);
+  }
+};
+
+
+
 
   useEffect(() => {
     const role = localStorage.getItem('role');
