@@ -1,64 +1,62 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
+import "../css/Medications.css";
 
 const SurgeryMedication = () => {
   const { patientId, surgeryId } = useParams();
   const navigate = useNavigate();
 
   const [logs, setLogs] = useState([]);
-  const [expandedIndex, setExpandedIndex] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [expandedDate, setExpandedDate] = useState(null);
 
   const [formData, setFormData] = useState({
     diagnosis: '',
     reasonForSurgery: '',
     followUpDate: '',
-    medicines: [{ medicineName: '', dosage: '', duration: '', comments: '' }],
+    medicines: [
+      {
+        medicineName: '',
+        dosage: '',
+        durationInDays: '',
+        frequency: '',
+      },
+    ],
   });
 
   useEffect(() => {
-    if (!patientId || !surgeryId) {
-      alert('❌ Missing patient or surgery ID.');
-      navigate('/surgery');
-      return;
-    }
-
-    const fetchData = async () => {
-      try {
-        const [logsRes, surgeryRes] = await Promise.all([
-          axiosInstance.get(`/api/surgery-medications/by-surgery/${surgeryId}`),
-          axiosInstance.get(`/api/surgeries/${surgeryId}`)
-        ]);
-
-        const logsData = logsRes.data;
-        if (Array.isArray(logsData)) {
-          setLogs(logsData);
-        } else if (logsData?.logs && Array.isArray(logsData.logs)) {
-          setLogs(logsData.logs);
-        } else {
-          setLogs([]);
-        }
-
-        const surgery = surgeryRes.data;
+    // Fetch previous logs
+    axiosInstance.get(`/api/surgery-medications/by-surgery/${surgeryId}`)
+      .then(res => {
+        const data = res.data;
         setFormData(prev => ({
           ...prev,
-          reasonForSurgery: surgery.reason || '',
-          followUpDate: surgery.surgeryDate?.split('T')[0] || '',
+          diagnosis: data.diagnosis || '',
+          reasonForSurgery: data.reasonForSurgery || '',
+          followUpDate: data.date || ''
         }));
-      } catch (err) {
-        console.error('❌ Failed to fetch surgery data:', err);
-        alert('Error loading surgery information.');
-      } finally {
-        setLoading(false);
-      }
-    };
+        setLogs(data.logs || []);
+      })
+      .catch(err => console.error("❌ Failed to fetch logs:", err));
 
-    fetchData();
-  }, [patientId, surgeryId, navigate]);
+    // Optional: fetch surgery details (fallback)
+    axiosInstance.get(`/api/surgeries/${surgeryId}`)
+      .then(res => {
+        const surgery = res.data;
+        setFormData(prev => ({
+          ...prev,
+          reasonForSurgery: surgery.reasonForSurgery || '',
+          followUpDate: surgery.surgeryDate ? surgery.surgeryDate.split('T')[0] : ''
+        }));
+      })
+      .catch(err => {
+        console.error("❌ Failed to fetch surgery:", err);
+        alert("Error loading surgery details.");
+      });
+  }, [surgeryId]);
 
-  const toggleLogs = (index) => {
-    setExpandedIndex(expandedIndex === index ? null : index);
+  const toggleLogs = (date) => {
+    setExpandedDate(expandedDate === date ? null : date);
   };
 
   const handleChange = (e, index, field) => {
@@ -70,7 +68,7 @@ const SurgeryMedication = () => {
   const handleAddMedicine = () => {
     setFormData({
       ...formData,
-      medicines: [...formData.medicines, { medicineName: '', dosage: '', duration: '', comments: '' }],
+      medicines: [...formData.medicines, { medicineName: '', dosage: '', durationInDays: '', frequency: '' }],
     });
   };
 
@@ -81,29 +79,23 @@ const SurgeryMedication = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const payload = formData.medicines.map(med => ({
-        medicineName: med.medicineName,
-        dosage: med.dosage,
-        durationInDays: parseInt(med.duration) || 0,
-        frequency: med.comments,
-        quantity: 1,
-        issuedQuantity: 1,
-        purpose: "SURGERY",
-        diagnosis: formData.diagnosis,
-        date: formData.followUpDate
-      }));
 
+    const payload = formData.medicines.map((med) => ({
+      medicineName: med.medicineName,
+      dosage: med.dosage,
+      durationInDays: parseInt(med.durationInDays, 10) || 0,
+      frequency: med.frequency,
+    }));
+
+    try {
       await axiosInstance.post(`/api/surgery-medications/by-surgery/${surgeryId}`, payload);
-      alert('✅ Medications saved.');
+      alert("✅ Medications saved successfully!");
       navigate(-1);
     } catch (err) {
-      console.error('❌ Error saving meds:', err);
-      alert('Failed to save meds.');
+      console.error("❌ Error saving medications:", err);
+      alert("Failed to save medications");
     }
   };
-
-  if (loading) return <p className="text-center mt-5">Loading surgery details...</p>;
 
   return (
     <div className='medication-background'>
@@ -133,7 +125,7 @@ const SurgeryMedication = () => {
 
           {formData.medicines.map((medicine, index) => (
             <div key={index} className="border rounded p-3 mb-3">
-              <div className="row g-2">
+              <div className="row g-2 align-items-center">
                 <div className="col-md-3">
                   <input
                     className="form-control"
@@ -155,18 +147,18 @@ const SurgeryMedication = () => {
                 <div className="col-md-2">
                   <input
                     className="form-control"
-                    placeholder="Duration (days)"
-                    value={medicine.duration}
-                    onChange={(e) => handleChange(e, index, 'duration')}
+                    placeholder="Duration (in days)"
+                    value={medicine.durationInDays}
+                    onChange={(e) => handleChange(e, index, 'durationInDays')}
                     required
                   />
                 </div>
                 <div className="col-md-3">
                   <input
                     className="form-control"
-                    placeholder="Frequency / Comments"
-                    value={medicine.comments}
-                    onChange={(e) => handleChange(e, index, 'comments')}
+                    placeholder="Frequency (e.g. 1-0-1)"
+                    value={medicine.frequency}
+                    onChange={(e) => handleChange(e, index, 'frequency')}
                   />
                 </div>
                 <div className="col-md-2">
@@ -187,23 +179,21 @@ const SurgeryMedication = () => {
           <button type="button" className="btn btn-secondary me-2" onClick={handleAddMedicine}>
             + Add Medicine
           </button>
-          <button type="submit" className="btn-med" disabled={formData.medicines.length === 0}>
-            Submit
-          </button>
+          <button type="submit" className="btn-med">Submit</button>
           <button type="button" className="btn-back" onClick={() => navigate('/surgery')}>
             Back
           </button>
         </form>
 
-        <h3>Past Surgery Medication Logs</h3>
+        <h3>Past Medication Logs</h3>
         {logs.length === 0 ? (
-          <p>No past prescriptions available.</p>
+          <p>No prescriptions available.</p>
         ) : (
           <table className="table table-bordered">
             <thead className="table-light">
               <tr>
                 <th>Date</th>
-                <th>Reason for Surgery</th>
+                <th>Reason</th>
                 <th>Diagnosis</th>
                 <th>Prescription</th>
               </tr>
@@ -213,18 +203,18 @@ const SurgeryMedication = () => {
                 <React.Fragment key={index}>
                   <tr>
                     <td>{log.date || 'N/A'}</td>
-                    <td>{log.reason || 'N/A'}</td>
+                    <td>{log.reasonForSurgery || 'N/A'}</td>
                     <td>{log.diagnosis || 'N/A'}</td>
                     <td>
                       <button
                         className="btn btn-sm btn-outline-primary"
-                        onClick={() => toggleLogs(index)}
+                        onClick={() => toggleLogs(log.date)}
                       >
-                        {expandedIndex === index ? 'Hide' : 'View'}
+                        {expandedDate === log.date ? 'Hide' : 'View'}
                       </button>
                     </td>
                   </tr>
-                  {expandedIndex === index && (
+                  {expandedDate === log.date && (
                     <tr>
                       <td colSpan="4">
                         <table className="table table-sm table-striped mb-0">
@@ -232,13 +222,13 @@ const SurgeryMedication = () => {
                             <tr>
                               <th>Medicine Name</th>
                               <th>Dosage</th>
-                              <th>Duration (days)</th>
+                              <th>Duration</th>
                               <th>Frequency</th>
                             </tr>
                           </thead>
                           <tbody>
-                            {(log.medicines || []).map((med, idx) => (
-                              <tr key={idx}>
+                            {log.medicines.map((med, medIndex) => (
+                              <tr key={medIndex}>
                                 <td>{med.medicineName || '-'}</td>
                                 <td>{med.dosage || '-'}</td>
                                 <td>{med.durationInDays || '-'}</td>

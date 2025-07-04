@@ -97,52 +97,68 @@ const AddMedicineBill = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    for (let entry of medicines) {
-      if (!entry.issuedQuantity || parseInt(entry.issuedQuantity) <= 0) {
-        alert("Each medicine must have quantity > 0");
-        return;
-      }
+  // Check for duplicate medicine entries (name + dosage)
+  const seen = new Set();
+  for (let entry of medicines) {
+    const key = `${entry.medicineName?.trim().toLowerCase()}|${entry.dosage?.trim().toLowerCase()}`;
+    if (seen.has(key)) {
+      alert(`Duplicate medicine entry found: ${entry.medicineName} ${entry.dosage}`);
+      return;
     }
+    seen.add(key);
+  }
 
-    const confirmed = window.confirm("Do you really want to submit and print this bill?");
-    if (!confirmed) return;
+  // Quantity validation
+  for (let entry of medicines) {
+    if (!entry.issuedQuantity || parseInt(entry.issuedQuantity) <= 0) {
+      alert("Each medicine must have quantity > 0");
+      return;
+    }
+  }
 
-    try {
-      const bill = {
-        entries: medicines.map(m => ({
-          medicineName: m.medicineName,
+  const confirmed = window.confirm("Do you really want to submit and print this bill?");
+  if (!confirmed) return;
+
+  try {
+    const bill = {
+      entries: medicines.map(m => ({
+        medicine: {
+          name: m.medicineName,
           dosage: m.dosage,
           amount: parseFloat(m.amount),
-          quantity: 1,
-          issuedQuantity: parseInt(m.issuedQuantity),
-        })),
-      };
+        },
+        quantity: 1,
+        issuedQuantity: parseInt(m.issuedQuantity),
+      })),
+    };
 
-      const res = await axiosInstance.post(`/api/medical-bills/create?phone=${mobile}`, bill);
-      const newBill = res.data;
-      setBillId(newBill?.billId);
-      setPatientName(newBill?.patient?.patientName);
+    const res = await axiosInstance.post(`/api/medical-bills/create?phone=${mobile}`, bill);
+    const newBill = res.data;
+    setBillId(newBill?.billId);
+    setPatientName(newBill?.patient?.patientName);
 
-      localStorage.setItem("recentBillPatient", JSON.stringify({
-        name: newBill.patient?.patientName,
-        mobile: newBill.patient?.phoneNumber,
-        billCount: newBill.entries?.length || 1,
-        date: newBill.createdDate,
-        time: newBill.createdTime?.slice(0, 5) || "--"
-      }));
+    localStorage.setItem("recentBillPatient", JSON.stringify({
+      name: newBill.patient?.patientName,
+      mobile: newBill.patient?.phoneNumber,
+      billCount: newBill.entries?.length || 1,
+      date: newBill.createdDate,
+      time: newBill.createdTime?.slice(0, 5) || "--"
+    }));
 
-      setTimeout(() => {
-        handlePrint();
-        navigate('/billing');
-      }, 500);
+    setTimeout(() => {
+      handlePrint();
+      navigate('/billing');
+    }, 500);
+  } catch (err) {
+    console.error("❌ Save failed:", err);
+    alert("Save failed");
+  }
+};
 
-    } catch (err) {
-      console.error("❌ Save failed:", err);
-      alert("Save failed");
-    }
-  };
+
+
 
   const handlePrint = () => {
     const printWindow = window.open('', '_blank');

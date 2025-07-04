@@ -228,7 +228,7 @@ const Medications = () => {
                           <tbody>
                             {log.medicines.map((med, medIndex) => (
                               <tr key={medIndex}>
-                                <td>{med.name || '-'}</td> 
+                                <td>{med.name || '-'}</td>
                                 <td>{med.dosage || '-'}</td>
                                 <td>{med.durationInDays || '-'}</td>
                                 <td>{med.frequency || '-'}</td>

@@ -43,56 +43,64 @@ const BillingDashboard = () => {
     navigate('/');
   };
 
-  const handleSearch = async () => {
-    if (!searchValue.trim()) return;
+ const handleSearch = async () => {
+  if (!searchValue.trim()) return;
 
-    try {
-      const endpoint =
-        searchType === 'billId'
-          ? `/api/medical-bills/by-bill-id/${searchValue}`
-          : `/api/medical-bills/by-phone/${searchValue}`;
+  try {
+    const endpoint =
+      searchType === 'billId'
+        ? `/api/medical-bills/by-bill-id/${searchValue}`
+        : `/api/medical-bills/by-phone/${searchValue}`;
 
-      const res = await axiosInstance.get(endpoint);
-      const data = Array.isArray(res.data) ? res.data : [res.data];
+    const res = await axiosInstance.get(endpoint);
 
-      if (data.length === 0) {
-        alert("No matching bills found.");
-        return;
-      }
+    const data = Array.isArray(res.data) ? res.data : [res.data];
 
-      const bill = data[0];
-      if (searchType === 'billId') {
-        navigate(`/view-bills/${bill.entries[0]?.mobile || ''}`);
-      } else {
-        navigate(`/view-bills/${searchValue}`);
-      }
-    } catch (err) {
-      console.error('❌ Search failed:', err);
-      alert("No bill found for the given input.");
+    if (data.length === 0) {
+      alert("No matching bills found.");
+      return;
     }
-  };
+
+    const bill = data[0];
+
+    // ✅ Use bill.patient.phoneNumber if available
+    const mobile = bill?.patient?.phoneNumber;
+    if (!mobile) {
+      alert("Patient mobile number not found in bill.");
+      return;
+    }
+
+    navigate(`/view-bills/${mobile}`);
+  } catch (err) {
+    console.error('❌ Search failed:', err);
+    alert("No bill found for the given input.");
+  }
+};
+
 
   const handleDateFilter = async () => {
     try {
       const res = await axiosInstance.get(`/api/medical-bills/by-date?date=${selectedDate}`);
       const bills = res.data;
 
-      const summaries = bills.reduce((acc, bill) => {
-        bill.entries.forEach((entry) => {
-          const key = `${entry.patientName}-${entry.mobile}`;
-          if (!acc[key]) {
-            acc[key] = {
-              name: entry.patientName,
-              mobile: entry.mobile,
-              billCount: 0,
-              date: bill.createdDate || '--',
-              time: bill.createdTime ? bill.createdTime.slice(0, 5) : '--'
-            };
-          }
-          acc[key].billCount += 1;
-        });
-        return acc;
-      }, {});
+     const summaries = bills.reduce((acc, bill) => {
+  const patient = bill.patient || {};
+  const key = `${patient.patientName}-${patient.phoneNumber}`;
+
+  if (!acc[key]) {
+    acc[key] = {
+      name: patient.patientName || '--',
+      mobile: patient.phoneNumber || '--',
+      billCount: 0,
+      date: bill.createdDate || '--',
+      time: bill.createdTime ? bill.createdTime.slice(0, 5) : '--'
+    };
+  }
+  acc[key].billCount += bill.entries?.length || 0;
+
+  return acc;
+}, {});
+
 
       setPatients(Object.values(summaries));
     } catch (err) {
