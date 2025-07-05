@@ -16,11 +16,16 @@ import SurgeryDashboard from './components/SurgeryDashboard';
 import BookSurgery from './components/BookSurgery';
 import EditSurgery from './components/EditSurgery';
 import SurgeryMedication from './components/SurgeryMedication';
+import ViewSurgeryHistory from './components/ViewSurgeryHistory';
+
+
+
 
 // Billing
 import BillingDashboard from './components/BillingDashboard';
 import AddMedicineBill from './components/AddMedicalBill.jsx';
 import ViewBillsByMobile from './components/ViewBillByMobile.jsx';
+
 
 function App() {
   return (
@@ -39,12 +44,15 @@ function App() {
       <Route path="/book-appointment" element={<BookAppointment />} />
       <Route path="/book-appointment/:id" element={<BookAppointment />} />
       <Route path="/medications/:patientId/:apptId" element={<Medications />} />
-
+     
       {/* Surgery */}
       <Route path="/surgery" element={<SurgeryDashboard />} />
       <Route path="/book-surgery" element={<BookSurgery />} />
       <Route path="/edit-surgery/:id" element={<EditSurgery />} />
       <Route path="/surgery-medication/:patientId/:surgeryId" element={<SurgeryMedication />} />
+      <Route path="/surgery-history/:patientId" element={<ViewSurgeryHistory />} />
+
+     
 
       {/* Medical Billing */}
       <Route path="/billing" element={<BillingDashboard />} />

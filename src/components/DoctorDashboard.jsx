@@ -97,9 +97,9 @@ const DoctorDashboard = () => {
 </div>
 
       </div>
-<div className="table-scroll-container">
+<div className="table-scroll-wrapper">
       <table className="table-custom">
-        <thead className="table-light text-dark">
+        <thead>
           <tr>
             <th>Name</th>
             <th>Doctor</th>
@@ -128,27 +128,33 @@ const DoctorDashboard = () => {
 
             return (
               <tr key={a.visitId} style={rowStyle}>
-                <td style={{ color: 'black' }}>{a.patient?.patientName}</td>
-                <td style={{ color: 'black' }}>{a.doctor?.doctorName}</td>
-                <td style={{ color: 'black' }}>{a.visitDate}</td>
-                <td style={{ color: 'black' }}>{a.startTime}</td>
-                <td style={{ color: 'black' }}>{a.endTime}</td>
+                <td>{a.patientName}</td>
+                <td>{a.doctorName}</td>
+                <td>{a.visitDate}</td>
+                <td>{a.startTime}</td>
+                <td>{a.endTime}</td>
                 <td>
-                  <button
-                    className="btn btn-info btn-sm"
-                    onClick={() => handleViewSurgeryHistory(a)}>
-                    View Surgery History
-                  </button>
-
-                </td>
+                <button
+                  className="btn btn-info btn-sm"
+                  onClick={() => navigate(`/surgery-history/${a.patientId}`)}
+                >
+                  View Surgery History
+                </button>
+              </td>
                 <td>
-                  <button
-                    className="btn btn-info btn-sm"
-                    onClick={() => navigate(`/medications/${a.patient.patientId}/${a.visitId}`)}
-                  >
-                    View Medications
-                  </button>
-                </td>
+                <button
+                  className="btn btn-info btn-sm"
+                  onClick={() => {
+                    if (!a.patientId || !a.visitId) {
+                      alert("❌ Missing patient or appointment ID.");
+                      return;
+                    }
+                    navigate(`/medications/${a.patientId}/${a.visitId}`);
+                  }}
+                >
+                  View Medications
+                </button>
+              </td>
                 <td>
                   {isCanceled ? (
                     <span className="badge bg-danger">Cancelled</span>

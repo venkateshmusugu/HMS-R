@@ -4,135 +4,255 @@ body, html {
   height: 100%;
   font-family: 'Segoe UI', sans-serif;
   background-color: #121212;
-  color: #f8f9fa;
+  color: #10161d;
   overflow: hidden; /* Prevent full page scroll */
 }
-
+ 
 .billing-dashboard {
   background-image: url('/images/appointment-calender.png');
-  background-size: cover;
-  background-position: center;
-  height: 100vh;
-  width: 100vw;
+ background-size: cover; /* Ensure the image covers the entire container */
+  background-position: center; /* Center the background image */
+  height: 100vh; /* Make sure it covers the full viewport height */
   display: flex;
-  justify-content: center;
-  align-items: center;
+  width: 100vw;
+  flex-direction: column;
+  justify-content: flex-start;
 }
-
+ 
 .dashboard-container {
-  background-color: #eee0e098;
+ 
   border-radius: 10px;
-  padding: 2rem;
-  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+ 
+  display:flex;
   width: 100vw;
   max-width: 1200px;
-  height: 90vh; /* Fixed height to restrict overflow */
-  display: flex;
+ 
   flex-direction: column;
   overflow: hidden;
 }
-
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-  position: sticky;
-  top: 0;
-  background-color: #eee0e098;
-  z-index: 10;
+.container-billing{
+   margin-top:20px;
+    display: flex;
+    /* justify-content: center; */
+    align-items: center;
+    width: 100%;
+    height: 20%;
+    flex-direction: row;
 }
-
+.dashboard-header {
+ background-color: #2674daaf;
+  width: fit-content;  /* better than fixed 20% */
+  padding: 10px 40px 10px 20px;
+ 
+  margin-right: 70%;
+}
+.btn-green{
+  font-family: "Roboto",sans-serif;
+    font-weight: bold;
+    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
+ 
+   background-color: #0a9e54;
+  color: #ffffff;
+  padding: 10px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+ 
+  margin-right: 10px;
+}
+.btn-green:hover{
+  background-color: #025f30;
+ 
+}
+.btn-green:focus{
+  outline:none;
+}
+.heading-billing{
+   margin-left:420px;
+  width:700px;
+  height:80px;
+  background-color: #2674daaf;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+.heading-billing h2{
+   color: white;
+  font-size: 28px;
+  text-align: center;
+}
 .dashboard-header h2 {
   font-size: 2rem;
   font-weight: 600;
   margin: 0.5rem 0;
 }
-
-.dashboard-controls button {
-  margin: 0.5rem;
+.billorm{
+  width:40px;
 }
-
-.search-bar,
-.date-filter {
+.selecting{
+  width:50px;
+}
+.filter-by-date {
+  font-family: "Roboto",sans-serif;
+    font-weight: bold;
+    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
+ 
+   background-color: #1a73e8;
+  color: #ffffff;
+  padding: 10px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+  justify-content: center;
+ 
+  margin-right: 10px;
+}
+ 
+.filter-by-date:hover {
+  background-color: #0a498d; /* Darker blue on hover */
+  transform: scale(1.02);
+}
+ 
+.filter-by-date:active {
+  background-color: #0e4d72;
+  transform: scale(0.98);
+}
+ 
+ 
+ 
+.search-bar {
+  margin-left: 300px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: flex-start; /* or center if you want centered alignment */
   gap: 10px;
   margin-bottom: 1rem;
+  height: 50px; /* optional fixed height for strict alignment */
 }
-
-.search-bar input,
+ 
+.search-name-b {
+  margin-top:15px;
+    width: 20%;
+    margin-right: 2%;
+    color: white;
+}
+.search-b{
+      background-color: #1e1e1e;
+    color: white;
+}
+.search-d{
+     margin-top: 15px;
+    color: white;
+    margin-right:10px;
+}
+/* .search-bar input,
 .search-bar select,
 .date-filter input {
   padding: 0.5rem;
   min-width: 200px;
+} */
+.if-not{
+  margin-top:50px;
+  background-color: #000000;
+  color:white;
+  margin-left:300px;
+  justify-content: center;
+  padding:20px 3px 20px 400px;
 }
-
 .table-container {
-  flex: 1;
+ max-height: 400px;
   overflow-y: auto;
-  border-top: 1px solid #444;
+  width: 90%;
+  margin: 1rem auto;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
 }
-
-.table {
+.table-scroll-wrapper-one {
+  max-height: 400px;
+  overflow-y: auto;
+  width: 90%;
+  margin: 1rem auto;
+  border-radius: 8px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+ 
+.table-bordered {
   width: 100%;
   min-width: 1000px;
  
   border-collapse: collapse;
 }
-
+ 
 .table thead {
   position: sticky;
   top: 0;
   z-index: 5;
 }
-
+ 
 .table th, .table td {
   padding: 0.75rem 1rem;
   text-align: center;
 }
-
+ 
 .table th {
-  background-color: #343a40;
-  color: #ffffff;
+  background-color: #ffffff;
+  color: #000000;
 }
 
+ 
 .table td {
-  background-color: #252525;
-  color: #f1f1f1;
-  border-top: 1px solid #444;
+  background-color: #dfdfdf;
+  color: #000000;
+  
+  border-top: 1px solid #525252;
+  border-right: #000000;
 }
-
+ 
 .table td button {
   font-size: 0.85rem;
   padding: 0.3rem 0.75rem;
 }
-
+ 
 @media screen and (max-width: 768px) {
   .dashboard-container {
     padding: 1rem;
   }
-
+ 
   .dashboard-header {
     flex-direction: column;
     align-items: flex-start;
   }
-
+ 
   .search-bar, .date-filter {
     flex-direction: column;
     align-items: flex-start;
   }
-
+ 
   .search-bar input,
   .search-bar select,
   .date-filter input {
     width: 100%;
   }
-
+ 
   .table th, .table td {
     font-size: 0.85rem;
     padding: 0.5rem;
   }
 }
+ 
+ 

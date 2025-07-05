@@ -16,11 +16,12 @@ const PatientList = () => {
  const fetchAppointments = async () => {
   try {
     const response = await axiosInstance.get('/api/appointments/upcoming');
+    console.log("🔍 Raw API Response:", response);
 
     const data = response.data;
 
     if (!Array.isArray(data)) {
-      console.warn("⚠️ Unexpected format from API:", data);
+      console.warn("⚠️ Unexpected format from API:", response.data);
       setAppointments([]);
       return;
     }
@@ -32,6 +33,7 @@ const PatientList = () => {
     setAppointments([]);
   }
 };
+
 
 
 
@@ -103,8 +105,9 @@ const PatientList = () => {
         </div>
 
         {/* Appointment Table */}
+        <div className='table-scroll-wrapper'>
         <table className="table-custom">
-          <thead className="table-light text-dark">
+          <thead >
             <tr color='black'>
               <th>Name</th>
               <th>Doctor</th>
@@ -136,20 +139,20 @@ const PatientList = () => {
 
   return (
     <tr key={appt.visitId} className={rowClass}>
-      <td>{appt.patient?.patientName || 'N/A'}</td>
-      <td>{appt.doctor?.doctorName || 'N/A'}</td>
+      <td>{appt.patientName || 'N/A'}</td>
+     <td>{appt.doctorName || 'N/A'}</td>
       <td>{appt.visitDate}</td>
       <td>{appt.startTime}</td>
       <td>{appt.endTime}</td>
       <td>
         {isCanceled ? (
-          <button className="btn-cancelled" disabled>Cancelled</button>
+          <button className="btn btn-danger btn-sm" disabled>Cancelled</button>
         ) : isPast ? (
           <button className="btn-done" disabled>Done</button>
         ) : (
           <>
             <button
-              className="btn-edit"
+              className="btn btn-warning btn-sm me-1"
               onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
             >
               Edit
@@ -186,6 +189,7 @@ const PatientList = () => {
 </tbody>
 
         </table>
+        </div>
       </div>
     </div>
   );

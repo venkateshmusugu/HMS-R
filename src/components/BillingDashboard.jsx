@@ -12,6 +12,7 @@ const BillingDashboard = () => {
 
   useEffect(() => {
   const recent = localStorage.getItem("recentBillPatient");
+  
     
   if (recent) {
     const recentData = JSON.parse(recent);
@@ -28,6 +29,9 @@ const BillingDashboard = () => {
   }
 }, []);
 
+
+const role = localStorage.getItem('role');
+  const billing = localStorage.getItem('username') || '—';
 
   const fetchPatients = () => {
     axiosInstance.get('/api/medical-bills/patient-summary')
@@ -131,51 +135,66 @@ const BillingDashboard = () => {
 
   return (
     <div className="billing-dashboard">
-      <div className="dashboard-container">
+      <div className="container-billing">
         <div className="dashboard-header">
-          <h2>Medical Billing Dashboard</h2>
-          <div className="dashboard-controls">
+          <h4 className="receptionist">
+            {role === 'BILLING' ? (
+              <>
+                Billing:<br />
+                {billing}
+              </>
+            ) : ''}
+          </h4>
+          </div>
             <button className="btn btn-success me-2" onClick={() => navigate('/add-bill')}>+ Add Medicine</button>
             <button className="btn btn-outline-danger" onClick={handleLogout}>Logout</button>
           </div>
+        
+        <div className="dashboard-container">
+       <div className='heading-billing'>
+           <h2>Medical Billing Dashboard</h2>
         </div>
 
         {/* 🔍 Search by ID / Mobile */}
         <div className="search-bar">
+        <button className="filter-by-date" onClick={handleDateFilter}>Filter by Date</button>
+        <div>
           <select
-            className="form-select"
+            className="search-b"
             value={searchType}
-            onChange={(e) => setSearchType(e.target.value)}
-          >
+            onChange={(e) => setSearchType(e.target.value)}>
             <option value="billId">Bill ID</option>
             <option value="mobile">Mobile Number</option>
           </select>
+          </div>
+          <div className='search-name-b'>
           <input
             type="text"
-            className="form-control"
+            className="search-b"
             placeholder={`Search by ${searchType === 'billId' ? 'Bill ID' : 'Mobile Number'}`}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
           />
-          <button className="btn btn-primary" onClick={handleSearch}>Search</button>
-        </div>
-
-        {/* 📅 Date Filter */}
-        <div className="date-filter">
+          </div>
+          {/* <button className="btn btn-primary" onClick={handleSearch}>Search</button>
+        </div> */}
+        <div className='search-b'>
           <input
             type="date"
-            className="form-control"
+           
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
-          <button className="btn btn-secondary" onClick={handleDateFilter}>Filter by Date</button>
+          </div>
+          <button className="btn btn-primary" onClick={handleSearch}>Search</button>
+        </div>
         </div>
 
        {patients.length === 0 ? (
-          <p>No billing data available.</p>
+          <p className='ifont'>No billing data available.</p>
         ) : (
-          <div className="table-container">
-            <table className="table table-bordered shadow-sm">
+          <div className="table-scroll-wrapper-one">
+            <table className="table-custom">
               <thead className="table-dark">
                 <tr>
                   <th>Patient Name</th>
@@ -197,10 +216,9 @@ const BillingDashboard = () => {
                     <td>
                       <button
                         className="btn btn-primary btn-sm me-2"
-                        onClick={() => navigate(`/view-bills/${p.mobile}`)}
-                      >
+                        onClick={() => navigate(`/view-bills/${p.mobile}`)}>
                         View Medicines
-                      </button>
+                       </button>
                       <button
                         className="btn btn-danger btn-sm"
                         onClick={() => handleDelete(p)}
@@ -215,7 +233,6 @@ const BillingDashboard = () => {
           </div>
         )}
       </div>
-    </div>
   );
 };
 

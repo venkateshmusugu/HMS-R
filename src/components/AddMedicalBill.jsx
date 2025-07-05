@@ -178,6 +178,15 @@ const AddMedicineBill = () => {
       printWindow.close();
     }, 500);
   };
+  useEffect(() => {
+  if (billId !== null) {
+    setTimeout(() => {
+      handlePrint();
+      navigate('/billing');
+    }, 300); // Allow minimal delay for DOM update
+  }
+}, [billId]);
+
 
   return (
     <div className="add-bill-container">

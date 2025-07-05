@@ -144,7 +144,15 @@ const RegisterPatient = () => {
       }
 
       alert("✅ Patient registered successfully" + (bookFlag ? ` and ${context} booked.` : ''));
-      navigate(context === "surgery" ? "/surgery" : "/patients");
+
+if (role === "DOCTOR") {
+  navigate("/doctor-dashboard");
+} else if (context === "surgery") {
+  navigate("/surgery");
+} else {
+  navigate("/patients");
+}
+
     } catch (err) {
       console.error("❌ Error registering patient:", err);
       alert("❌ Failed to register patient.");

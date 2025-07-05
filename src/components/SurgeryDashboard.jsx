@@ -5,7 +5,7 @@ import "../css/SurgeryDashboard.css";
 
 const SurgeryDashboard = () => {
   const [appointments, setAppointments] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState('');
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
 
@@ -71,13 +71,15 @@ const SurgeryDashboard = () => {
           className="surgery-date-dark"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
+          placeholder='select date'
         />
       </div>
 
       {appointments.length === 0 ? (
         <div className="alert alert-info">No appointments for selected date.</div>
       ) : (
-        <table className="surgery-table">
+        <div className='table-scroll-wrapper'>
+        <table className="table-custom">
   <thead>
     <tr>
       <th>Patient Name</th>
@@ -123,6 +125,7 @@ const SurgeryDashboard = () => {
     })}
   </tbody>
 </table>
+</div>
 
       )}
     </div>

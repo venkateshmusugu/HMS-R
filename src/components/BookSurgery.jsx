@@ -28,21 +28,26 @@ const BookSurgery = () => {
       .catch((err) => console.error("❌ Doctor fetch failed:", err));
   }, []);
 
-  useEffect(() => {
-    axiosInstance.get('/api/patients')
-      .then((res) => {
-        if (Array.isArray(res.data)) {
-          setPatients(res.data);
-        } else {
-          console.error("❌ Expected array but got:", typeof res.data);
-          setPatients([]);
-        }
-      })
-      .catch((err) => {
-        console.error("❌ API error:", err);
+ useEffect(() => {
+  axiosInstance.get('/api/patients')
+    .then((res) => {
+      console.log("🎯 typeof res.data:", typeof res.data);
+      console.log("🧾 Actual data:", res.data);
+
+      if (Array.isArray(res.data)) {
+        setPatients(res.data);
+      } else {
+        console.error("❌ Expected array but got:", typeof res.data);
         setPatients([]);
-      });
-  }, []);
+      }
+    })
+    .catch((err) => {
+      console.error("❌ API error:", err);
+      setPatients([]);
+    });
+}, []);
+
+
 
   const handleNoteKeyDown = (e) => {
     if ((e.key === 'Enter' || e.key === ',') && noteInput.trim()) {
@@ -115,18 +120,21 @@ const BookSurgery = () => {
           <div className="booking-other">
   <div className="nbl">
     <label htmlFor="patientId" className="form-label">Select Patient</label>
-    <select
-      name="patientId"
-      className="dark-select-p"
-      value={formData.patientId}
-      onChange={handleChange}
-      required
-    >
-      <option value="">-- Select Patient --</option>
-      {patients.map(p => (
-        <option key={p.patientId} value={p.patientId}>{p.patientName}</option>
-      ))}
-    </select>
+          <select
+        name="patientId"
+        className="dark-select-p"
+        value={formData.patientId}
+        onChange={handleChange}
+        required
+      >
+        <option value="">-- Select Patient --</option>
+              {patients.map((p) => (
+            <option key={p.patientId} value={p.patientId}>
+              {p.patientName}
+            </option>
+          ))}
+      </select>
+
   </div>
 
   <div className="nbl">

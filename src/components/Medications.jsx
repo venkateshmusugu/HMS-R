@@ -216,6 +216,7 @@ const Medications = () => {
                   {expandedDate === log.date && (
                     <tr>
                       <td colSpan="4">
+                         {console.log("🧾 Prescription for:", log.date, log.medicines)}
                         <table className="table table-sm table-striped mb-0">
                           <thead>
                             <tr>
@@ -226,15 +227,15 @@ const Medications = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {log.medicines.map((med, medIndex) => (
-                              <tr key={medIndex}>
-                                <td>{med.name || '-'}</td>
-                                <td>{med.dosage || '-'}</td>
-                                <td>{med.durationInDays || '-'}</td>
-                                <td>{med.frequency || '-'}</td>
-                              </tr>
-                            ))}
-                          </tbody>
+                          {log.medicines.map((med, medIndex) => (
+                            <tr key={medIndex}>
+                              <td>{med.medicineName || '-'}</td>
+                              <td>{med.dosage || '-'}</td>
+                              <td>{med.durationInDays || '-'}</td>
+                              <td>{med.frequency || '-'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
                         </table>
                       </td>
                     </tr>

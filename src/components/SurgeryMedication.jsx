@@ -80,15 +80,22 @@ const SurgeryMedication = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const payload = formData.medicines.map((med) => ({
-      medicineName: med.medicineName,
-      dosage: med.dosage,
-      durationInDays: parseInt(med.durationInDays, 10) || 0,
-      frequency: med.frequency,
-    }));
+  const payload = {
+  diagnosis: formData.diagnosis,
+  reasonForSurgery: formData.reasonForSurgery,
+  followUpDate: formData.followUpDate,
+  medicines: formData.medicines.map((med) => ({
+    medicineName: med.medicineName,
+    dosage: med.dosage,
+    durationInDays: parseInt(med.durationInDays, 10) || 0,
+    frequency: med.frequency,
+  })),
+};
 
-    try {
-      await axiosInstance.post(`/api/surgery-medications/by-surgery/${surgeryId}`, payload);
+try {
+  await axiosInstance.post(`/api/surgery-medications/by-surgery/${surgeryId}`, payload);
+
+
       alert("✅ Medications saved successfully!");
       navigate(-1);
     } catch (err) {
