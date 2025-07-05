@@ -157,7 +157,7 @@ const role = localStorage.getItem('role');
 
         {/* 🔍 Search by ID / Mobile */}
         <div className="search-bar">
-        <button className="filter-by-date" onClick={handleDateFilter}>Filter by Date</button>
+       <button className="btn btn-primary" onClick={handleSearch}>Search</button>
         <div>
           <select
             className="search-b"
@@ -186,7 +186,8 @@ const role = localStorage.getItem('role');
             onChange={(e) => setSelectedDate(e.target.value)}
           />
           </div>
-          <button className="btn btn-primary" onClick={handleSearch}>Search</button>
+           <button className="filter-by-date" onClick={handleDateFilter}>Filter by Date</button>
+          
         </div>
         </div>
 
