@@ -1,0 +1,45 @@
+.hospital-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 10px 20px;
+  background-color: transparent; /* ✅ Transparent background */
+
+  position: sticky; /* or fixed if needed */
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  backdrop-filter: blur(6px); /* ✅ Optional modern glass effect */
+  -webkit-backdrop-filter: blur(6px); /* Safari support */
+ 
+}
+
+.hospital-logo {
+  height: 50px;
+  margin-left: 1%;
+  width: auto;
+  margin-right: 15px;
+  display: flex;
+align-items: center;
+display: block;         
+  object-fit: contain;    
+  
+}
+
+.hospital-header h2 {
+    color: rgb(10, 133, 248);
+    padding: 0px;
+    text-align: center;
+  font-size: 30px;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+   position: absolute;
+  left: 50%;
+  transform: translateX(-50%)
+}
+
+

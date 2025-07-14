@@ -24,9 +24,11 @@ body {
   background-color: #181818;
   border-radius: 12px;
   box-shadow: 0 0 12px rgba(0, 255, 255, 0.05);
+  overflow-y: auto;
 }
 
 .view-bills-header {
+  margin-top: 2%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -97,7 +99,7 @@ body {
 
 .bill-table td {
   
-  color: #ccc;
+  color: #080505;
 }
 
 .total-amount {
@@ -113,4 +115,27 @@ body {
   color: #bbb;
   text-align: center;
   border-radius: 6px;
+}
+
+.dropdown-toggle {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  color: #007bff;
+  font-weight: bold;
+}
+
+.dropdown-toggle:hover {
+  color: #0056b3;
+}
+
+.bill-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 5px;
+  background-color: #f1f1f1;
+  border-bottom: 1px solid #ccc;
 }

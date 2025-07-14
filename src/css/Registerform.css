@@ -1,15 +1,38 @@
 .background-container {
-  background-image: url('/images/registerbg.png'); /* your bg image path */
-  background-size: cover;
-  background-position: center;
+  position: relative;
+  width: 100vw;
   height: 100vh;
+  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+.background-container::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/images/registerbg.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);     /* Adjust the blur intensity as needed */
+  opacity: 0.6;          /* Optional dimming */
+  z-index: 0;
+  pointer-events: none;  /* Allow clicks through background */
+}
+
+.background-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+
 .login-form-one {
-  background-color: rgba(255, 255, 255, 0.8); /* semi-transparent white */
+  background-color: rgba(250, 250, 250, 0.8); /* semi-transparent white */
+  
   padding: 40px;
   border-radius: 15px;
   width: 400px;

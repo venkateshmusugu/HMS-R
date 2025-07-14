@@ -1,0 +1,53 @@
+/* Background and layout */
+.admin-panel-container {
+  background-image: url('../images/admin-bg.jpg'); /* ✅ Use your image path */
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  padding: 20px;
+  position: relative;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Logout Button */
+.logout-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+  background-color: #c9302c;
+}
+
+/* Content Box */
+.admin-panel-box {
+  max-width: 600px;
+  margin: 100px auto;
+  padding: 40px 30px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* Heading & Description */
+.admin-heading {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.admin-description {
+  font-size: 16px;
+  color: #666;
+}

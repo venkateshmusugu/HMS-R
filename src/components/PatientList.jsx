@@ -5,76 +5,66 @@ import "../css/Patientlist.css";
 
 const PatientList = () => {
   const [appointments, setAppointments] = useState([]);
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split('T')[0]
   );
   const navigate = useNavigate();
-  const role = localStorage.getItem('role');
+  const actualRole = localStorage.getItem('role');
+  const actingAs = localStorage.getItem('actingAs');
+  const isAdminImpersonating = actualRole === 'ADMIN' && actingAs;
+  const role = isAdminImpersonating ? 'ADMIN' : actualRole;
+  const impersonatingRole = isAdminImpersonating ? actingAs : actualRole;
   const receptionist = localStorage.getItem('username') || '—';
 
- const fetchAppointments = async () => {
-  try {
-    const response = await axiosInstance.get('/api/appointments/upcoming');
-    console.log("🔍 Raw API Response:", response);
+  const fetchAppointments = async () => {
+    try {
+      const params = { date: selectedDate };
+      if (searchTerm) params.searchTerm = searchTerm;
 
-    const data = response.data;
+      console.log("📅 Fetching with params:", params);
 
-    if (!Array.isArray(data)) {
-      console.warn("⚠️ Unexpected format from API:", response.data);
+      const res = await axiosInstance.get('/api/appointments/upcoming', { params });
+      setAppointments(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
+      console.error("❌ Error:", err);
       setAppointments([]);
-      return;
     }
-
-    const sorted = data.sort((a, b) => new Date(a.visitDate) - new Date(b.visitDate));
-    setAppointments(sorted);
-  } catch (err) {
-    console.error('❌ Failed to fetch appointments:', err);
-    setAppointments([]);
-  }
-};
-
-
-
-
+  };
 
   useEffect(() => {
-    const role = localStorage.getItem('role');
-    if (role === 'RECEPTIONIST' || role === 'DOCTOR') {
+    if (["RECEPTIONIST", "DOCTOR", "ADMIN"].includes(actualRole)) {
       fetchAppointments();
     }
-  }, [searchTerm, selectedDate]);
+  }, [searchTerm, selectedDate, actualRole]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('role');
+    localStorage.removeItem('actingAs');
     navigate('/');
   };
 
   return (
     <div className="patient-list-background">
-      <div className="container-1">
-        <div className="header-name">
-          <h4 className="receptionist">
-            {role === 'RECEPTIONIST' ? (
-              <>
-                Receptionist:<br />
-                {receptionist}
-              </>
-            ) : ''}
-          </h4>
+      <div className="receptionist-bar">
+        <div className="receptionist-name">
+          {impersonatingRole === 'RECEPTIONIST' ? `Receptionist : ${receptionist}` : ''}
         </div>
 
-        <button className="btn-blue-list" onClick={() => navigate('/register-patient')}>
-          Add New Patient
-        </button>
-        <button className="btn-blue-list" onClick={() => navigate('/book-appointment')}>
-          Add New Appointment
-        </button>
-        <button className="btn-red" onClick={handleLogout}>
-          Logout
-        </button>
+        <div className="receptionist-buttons">
+          <button className="btn-blue1" onClick={() => navigate('/register-patient')}>
+            Add New Patient
+          </button>
+          <button className="btn-blue1" onClick={() => navigate('/book-appointment')}>
+            Add New Appointment
+          </button>
+          <button className="btn-red1" onClick={handleLogout}>
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Appointment Section */}
@@ -88,8 +78,9 @@ const PatientList = () => {
           <div className="search-name">
             <input
               type="text"
-              className="search"  style={{ color: 'white' }}
-              placeholder ="Search by Name or Phone"
+              className="search"
+              style={{ color: 'white' }}
+              placeholder="Search by Name or Phone"
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
@@ -106,91 +97,130 @@ const PatientList = () => {
 
         {/* Appointment Table */}
         <div className='table-scroll-wrapper'>
-        <table className="table-custom">
-          <thead >
-            <tr color='black'>
-              <th>Name</th>
-              <th>Doctor</th>
-              <th>Date</th>
-              <th>Start Time</th>
-              <th>End Time</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-  {appointments.length > 0 ? (
-    appointments.map(appt => {
-  const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
-  const now = new Date();
-  const isPast = now > appointmentEnd;
+          <table className="table-custom">
+            <thead>
+              <tr color='black'>
+                <th>Name</th>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Start Time</th>
+                <th>End Time</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {appointments.length > 0 ? (
+                appointments.map(appt => {
+                  const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
+                  const now = new Date();
+                  const isPast = now > appointmentEnd;
 
-  const isCanceled =
-    appt.status?.toUpperCase() === 'CANCELLED' || appt.status?.toUpperCase() === 'CANCELED';
-  const isUpcoming = !isCanceled && !isPast;
+                  const isCanceled =
+                    appt.status?.toUpperCase() === 'CANCELLED' || appt.status?.toUpperCase() === 'CANCELED';
+                  const isUpcoming = !isCanceled && !isPast;
 
-  let rowClass = 'row-default';
-  if (isCanceled) {
-    rowClass = 'row-cancelled';
-  } else if (isPast) {
-    rowClass = 'row-past';
-  } else if (isUpcoming) {
-    rowClass = 'row-upcoming';
-  }
-
-  return (
-    <tr key={appt.visitId} className={rowClass}>
-      <td>{appt.patientName || 'N/A'}</td>
-     <td>{appt.doctorName || 'N/A'}</td>
-      <td>{appt.visitDate}</td>
-      <td>{appt.startTime}</td>
-      <td>{appt.endTime}</td>
-      <td>
-        {isCanceled ? (
-          <button className="btn btn-danger btn-sm" disabled>Cancelled</button>
-        ) : isPast ? (
-          <button className="btn-done" disabled>Done</button>
-        ) : (
-          <>
-            <button
-              className="btn btn-warning btn-sm me-1"
-              onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
-            >
-              Edit
-            </button>
-            <button
-              className="btn-cancel"
-              onClick={async () => {
-                const confirm = window.confirm("❌ Cancel this appointment?");
-                if (confirm) {
-                  try {
-                    await axiosInstance.put(`/api/appointments/${appt.visitId}/cancel`);
-                    alert("❌ Appointment cancelled");
-                    fetchAppointments();
-                  } catch (err) {
-                    console.error("Error cancelling:", err);
-                    alert("❌ Failed to cancel appointment.");
+                  let rowClass = 'row-default';
+                  if (isCanceled) {
+                    rowClass = 'row-cancelled';
+                  } else if (isPast) {
+                    rowClass = 'row-past';
+                  } else if (isUpcoming) {
+                    rowClass = 'row-upcoming';
                   }
-                }
-              }}
-            >
-              Cancel
-            </button>
-          </>
-        )}
-      </td>
-    </tr>
-  );
-    })
-  ) : (
-    <tr>
-      <td style={{ color: 'black' }} colSpan="6" className="text-center">No appointments found.</td>
-    </tr>
-  )}
-</tbody>
 
-        </table>
+                  return (
+                    <tr key={appt.visitId} className={rowClass}>
+                      <td>{appt.patientName || 'N/A'}</td>
+                      <td>{appt.doctorName || 'N/A'}</td>
+                      <td>{appt.visitDate}</td>
+                      <td>{appt.startTime}</td>
+                      <td>{appt.endTime}</td>
+                      <td>
+                        {/* Upcoming Actions (Edit + Cancel) */}
+                        
+                        {!isCanceled && !isPast && (
+                          <>
+                            <button
+                              className="btn btn-warning btn-sm me-1"
+                              onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="btn-cancel"
+                              onClick={async () => {
+                                const confirm = window.confirm("❌ Cancel this appointment?");
+                                if (confirm) {
+                                  try {
+                                    await axiosInstance.put(`/api/appointments/${appt.visitId}/cancel`);
+                                    alert("❌ Appointment cancelled");
+                                    fetchAppointments();
+                                  } catch (err) {
+                                    console.error("Error cancelling:", err);
+                                    alert("❌ Failed to cancel appointment.");
+                                  }
+                                }
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        )}
+
+                        {/* Status Buttons */}
+                        {isCanceled && (
+                          <button className="btn btn-danger btn-sm me-1" disabled>
+                            Cancelled
+                          </button>
+                        )}
+                        {isPast && !isCanceled && (
+                          <button className="btn-done me-1" disabled>
+                            Done
+                          </button>
+                        )}
+
+                        {/* ✅ Always visible for ADMIN */}
+                        
+                        {role === 'ADMIN' && (
+                          <button
+                            className="btn btn-danger btn-sm"
+                            onClick={async () => {
+                              const confirmDelete = window.confirm("🗑️ Delete this appointment permanently?");
+                              if (confirmDelete) {
+                                try {
+                                  await axiosInstance.delete(`/api/appointments/${appt.visitId}`);
+                                  alert("✅ Appointment deleted");
+                                  fetchAppointments();
+                                } catch (err) {
+                                  console.error("Error deleting:", err);
+                                  alert("❌ Failed to delete appointment.");
+                                }
+                              }
+                            }}
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td style={{ color: 'black' }} colSpan="6" className="text-center">No appointments found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
+      {role === 'ADMIN' && (
+                  <div className="back-button-wrapper">
+                    <button className="back-button" onClick={() => navigate('/admin-dashboard')}>
+                      ⬅ Back to Admin Dashboard
+                    </button>
+                  </div>
+                )}
     </div>
   );
 };

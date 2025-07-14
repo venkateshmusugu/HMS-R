@@ -1,16 +1,37 @@
  
 .medication-background {
-  background-image: url('/images/medications.png'); /* Replace with actual path */
-  background-size: cover; /* Ensure the image covers the entire container */
-  background-position: center; /* Center the background image */
-  height: 100vh; /* Make sure it covers the full viewport height */
-  display: flex;
+  position: relative;
   width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* Align items at the top */
-  /* Optional padding for spacing */
+  justify-content: flex-start;
 }
+
+.medication-background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/images/medications.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);     /* Adjust blur strength */
+  opacity: 0.6;          /* Optional: soften appearance */
+  z-index: 0;
+  pointer-events: none;  /* Ensure background doesn’t block clicks */
+}
+
+.medication-background > * {
+  position: relative;
+  z-index: 1;
+}
+
 .mt-4{
+  overflow-y: auto;
     background-color: rgba(112, 112, 112, 0.685);
     border-radius: 10px;
     padding:1rem;

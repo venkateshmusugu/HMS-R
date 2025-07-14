@@ -1,65 +1,132 @@
+/* Background for Surgery Dashboard */
 .surgery-background {
-  background-image: url('/images/surgerybackgroung.png'); /* Replace with actual path */
+  
   background-size: cover;
-   flex-direction: column;
+  flex-direction: column;
   justify-content: flex-start;
   background-position: center;
   min-height: 100vh;
   width: 100vw;
   display: flex;
 }
-.container-four {
+.alert1{
+  padding: 30px;
+  text-align: center;
+  background-color: #87bec7;
+  margin: 80px;
  
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+.surgery-background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/surgerybackgroung.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);
+  opacity: 0.6;
+  z-index: 0;
+  pointer-events: none;
+}
+.surgery-background > * {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* Top bar layout */
+.surgery-bar {
+  margin-top: 2%;
   display: flex;
-    /* justify-content: center; */
-    align-items: center;
-    width: 100%;
-    height: 150px;
-    flex-direction: row;
-    /* box-sizing: border-box; */
-    margin-bottom: 20px;
-   
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  width: 100%;
+  flex-wrap: wrap;
 }
-.header-four{
- 
-  background-color: #2674daaf;
-  width: fit-content;  /* better than fixed 20% */
-  padding: 10px 20px;
- 
-  margin-right: 60%;
- 
+
+.surgery-username {
+  background: linear-gradient(145deg, #151f6d, #3d4ab1);
+  color: white;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 50px;
+  white-space: nowrap;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
-.heading-surgery{
-   margin-left:30%;
- margin-bottom: 40px;
- padding:20px 20px;
- 
-  width:700px;
-  height:80px;
+
+.surgery-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-blue1,
+.btn-red1 {
+  font-family: "Roboto", sans-serif;
+  font-weight: bold;
+  box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px,
+              rgba(38, 65, 63, 0.22) 0px 10px 10px;
+  padding: 10px 32px;
+  font-size: 16px;
+  border: none;
+  border-radius: 3px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-blue1 {
+  border-radius: 50px;
+  background-color: #1a73e8;
+  color: white;
+}
+
+.btn-blue1:hover {
+  background-color: #0a498d;
+}
+
+.btn-red1 {
+  background-color: #e53935;
+  color: white;
+}
+
+.btn-red1:hover {
+  background-color: #a52725;
+}
+
+/* Page heading */
+.heading-surgery {
+  border-radius: 3px;
+  margin-left: 30%;
+  margin-bottom: 40px;
+  padding: 20px;
+  width: 700px;
+  height: 80px;
   background-color: #2674daaf;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.alert-info{
-    width:80%;
-     margin: 0 auto; /* centers horizontally */
-  text-align: center;
+
+/* Search section */
+.surgery-two {
+  margin-left: 35%;
+  display: flex;
+  gap: 2%;
 }
-.table-bordered{
-    width:90%;
-    margin: 0 auto; /* centers horizontally */
-  text-align: center;
-}
-.surgery-two{
-    margin-left:35%;
-    display:flex;
-    gap:2%;
-}
-.date{
-    width:5%;
-}
-/* Add this to your CSS */
+
 .surgery-date-dark {
   display: block;
   width: 200px;
@@ -78,100 +145,65 @@
   background-size: 20px 20px;
 }
 
-/* Hide default WebKit calendar icon so it doesn’t overlap */
 .surgery-date-dark::-webkit-calendar-picker-indicator {
   opacity: 0;
   cursor: pointer;
 }
 
-
-.btn-red2 {
-  background-color: #e53935;
-  color: white;
-}
- 
-.btn-red2:hover {
-  background-color: #a52725;
-}
-.btn-red2 ,.btn-blue2{
-font-family: "Roboto",sans-serif;
-    font-weight: bold;
-    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
- 
- 
-  padding: 10px 32px;
-  font-size: 16px;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
- 
-  margin: 0 5px;
-}
-.btn-blue2 {
-  background-color: #1a73e8;
-  color: white;
- 
-}
- 
-.btn-blue2:hover {
-  background-color: #0a498d;
-}
- 
-
- .surgery-table {
+/* Table styling */
+.table-custom {
   width: 90%;
-  margin:20px auto;
+  margin: 1rem auto;
   border-collapse: collapse;
-  background-color: #ffffff; /* white background */
-  color: #000000;            /* black text */
+  background-color: #ffffff;
+  color: #000000;
   border: 1px solid #ddd;
-  margin-top: 20px;
   font-size: 14px;
 }
 
-.surgery-table th,
-.surgery-table td {
-  border: 1px solid #e0e0e0; /* light border between fields */
+.table-custom th,
+.table-custom td {
+  border: 1px solid #e0e0e0;
   padding: 10px 12px;
-  text-align: left;
+  text-align: center;
 }
 
-.surgery-table thead {
-  background-color: #f4f4f4; /* light gray header */
+.table-custom thead {
+  background-color: #f4f4f4;
   font-weight: bold;
 }
 
-.surgery-table tbody tr:hover {
+.table-custom tbody tr:hover {
   background-color: #f9f9f9;
 }
 
-.action-buttons button {
-  background-color: #2674da;
+/* Action buttons in table */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-action {
+  border-radius: 50px !important;
+  padding: 6px 20px !important;
+  font-size: 14px;
+  background-color: #17a2b8;
   color: white;
   border: none;
-  padding: 6px 10px;
-  margin-right: 6px;
-  border-radius: 4px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   cursor: pointer;
-  font-size: 13px;
 }
 
-.action-buttons button:nth-child(1) {
-  background-color: #ce8b2c; /* warning style */
+.btn-action:hover {
+  background-color: #138496;
 }
 
-.action-buttons button:nth-child(2) {
-  background-color: #12854f; /* info style */
+.btn-delete {
+  background-color: #dc3545;
 }
 
-.action-buttons button:nth-child(3) {
-  background-color: #d82d27; /* danger style */
-}
-
-.action-buttons button:hover {
-  opacity: 0.85;
+.btn-delete:hover {
+  background-color: #c82333;
 }

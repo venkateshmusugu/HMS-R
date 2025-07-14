@@ -5,30 +5,71 @@ import "../css/SurgeryDashboard.css";
 
 const SurgeryDashboard = () => {
   const [appointments, setAppointments] = useState([]);
-  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
+  const actualRole = localStorage.getItem('role');
+    const actingAs = localStorage.getItem('actingAs');
+  const isAdminImpersonating = actualRole === 'ADMIN' && actingAs;
+const role = isAdminImpersonating ? 'ADMIN' : actualRole;
+const impersonatingRole = isAdminImpersonating ? actingAs : actualRole;
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
-    if (storedUsername) setUsername(storedUsername);
-  }, []);
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    console.warn("⚠️ No token found in localStorage");
+  } else {
+    console.log("✅ Token found:", token);
+  }
+}, []);
 
   useEffect(() => {
-    axiosInstance
-      .get(`/api/surgery-appointments/by-date?date=${selectedDate}`)
-      .then(res => {
-        console.log("🧪 Appointments data:", res.data);
-        setAppointments(res.data);
-      })
-      .catch(err => {
-        console.error("❌ Failed to fetch appointments:", err);
-        setAppointments([]);
-      });
-  }, [selectedDate]);
+  const storedUsername = localStorage.getItem('username');
+  if (storedUsername) setUsername(storedUsername);
+
+  const token = localStorage.getItem('accessToken');
+  if (token) {
+    try {
+      const decoded = JSON.parse(atob(token.split('.')[1]));
+      console.log("🔐 Decoded JWT Payload:", decoded);
+    } catch (err) {
+      console.error("❌ Failed to decode token:", err);
+    }
+  } else {
+    console.warn("⚠️ No token found in localStorage");
+  }
+}, []);
+
+
+useEffect(() => {
+  const token = localStorage.getItem("accessToken");
+  if (!token) {
+    console.warn("❌ accessToken not found in localStorage.");
+    return;
+  }
+
+  axiosInstance.get(`/api/surgery-appointments/by-date`, {
+    params: { date: selectedDate },
+    headers: {
+      Authorization: `Bearer ${token}`, // ✅ required
+    },
+  })
+    .then(res => {
+      setAppointments(res.data);
+    })
+    .catch(err => {
+      console.error("❌ Failed to fetch appointments:", err);
+    });
+}, [selectedDate]);
+
+
+
 
   const handleLogout = () => {
-    localStorage.clear();
+   localStorage.removeItem("accessToken");
+   localStorage.removeItem("refreshToken");
+   localStorage.removeItem("username");  // if needed
+
     navigate('/');
   };
 
@@ -47,18 +88,22 @@ const SurgeryDashboard = () => {
 
   return (
     <div className='surgery-background'>
-      <div className="container-four">
-        <div className="header-four">
-          <h3 className="surgery-name">Surgery Reception: {username}</h3>
-        </div>
+      <div className="surgery-bar">
+  <div className="surgery-username">
+  Surgery Reception: {actingAs ? `${actingAs} (Impersonated by ${username})` : username}
+</div>
 
-        <button className="btn-blue2" onClick={() => navigate('/book-surgery')}>
-          Book Surgery
-        </button>
-        <button className="btn-red2" onClick={handleLogout}>
-          Logout
-        </button>
-      </div>
+
+  <div className="surgery-buttons">
+    <button className="btn-blue1" onClick={() => navigate('/book-surgery')}>
+      Book Surgery
+    </button>
+    <button className="btn-red1" onClick={handleLogout}>
+      Logout
+    </button>
+  </div>
+</div>
+
 
       <div className='heading-surgery'>
         <h2>Surgery Appointment Dashboard</h2>
@@ -76,7 +121,7 @@ const SurgeryDashboard = () => {
       </div>
 
       {appointments.length === 0 ? (
-        <div className="alert alert-info">No appointments for selected date.</div>
+        <div className="alert1">No appointments for selected date.</div>
       ) : (
         <div className='table-scroll-wrapper'>
         <table className="table-custom">
@@ -115,11 +160,16 @@ const SurgeryDashboard = () => {
               ? app.note.join(', ')
               : '--'}
           </td>
-          <td className="action-buttons">
-            <button onClick={() => navigate(`/edit-surgery/${app.id}`)}>Edit</button>
-            <button onClick={() => navigate(`/surgery-medication/${app.patientId}/${app.id}`)}>Medications</button>
-            <button onClick={() => handleDelete(app.id)}>Delete</button>
-          </td>
+        <td className="action-buttons">
+          <button className="btn-action" onClick={() => navigate(`/edit-surgery/${app.id}`)}>Edit</button>
+          <button className="btn-action" onClick={() => navigate(`/surgery-medication/${app.patientId}/${app.id}`)}>Medications</button>
+          
+          {role === 'ADMIN' && (
+            <button className="btn-action btn-delete" onClick={() => handleDelete(app.id)}>Delete</button>
+          )}
+        </td>
+
+
         </tr>
       );
     })}
@@ -128,7 +178,16 @@ const SurgeryDashboard = () => {
 </div>
 
       )}
-    </div>
+      {role === 'ADMIN' && (
+                  <div className="back-button-wrapper">
+                    <button className="back-button" onClick={() => navigate('/admin-dashboard')}>
+                      ⬅ Back to Admin Dashboard
+                    </button>
+                  </div>
+                )}
+</div>
+   
+    
   );
 };
 

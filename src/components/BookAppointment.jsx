@@ -11,6 +11,8 @@ const BookAppointment = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [existingAppointments, setExistingAppointments] = useState([]);
+  const [bookedSlots, setBookedSlots] = useState([]);
+
 
   const [formData, setFormData] = useState({
     doctorId: '',

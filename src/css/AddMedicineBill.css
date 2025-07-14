@@ -1,3 +1,34 @@
+.add-medicine-page {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.add-medicine-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/appointment-calender.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(3px); /* Blur level */
+  opacity: 0.6; /* Slight transparency if needed */
+  z-index: 0;
+}
+
+.add-medicine-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+
 .add-bill-container {
   max-width: 900px;
   margin: auto;

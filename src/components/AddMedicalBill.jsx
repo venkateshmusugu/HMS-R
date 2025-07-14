@@ -7,7 +7,8 @@ import '../css/AddMedicineBill.css';
 
 const AddMedicineBill = () => {
   const navigate = useNavigate();
-  const printRef = useRef(null);
+ 
+  const [hospitalConfig, setHospitalConfig] = useState({ hospitalName: '', logoUrl: '' });
 
   const [inputName, setInputName] = useState('');
   const [patientName, setPatientName] = useState('');
@@ -21,6 +22,12 @@ const AddMedicineBill = () => {
   ]);
 
   const total = medicines.reduce((acc, m) => acc + (parseFloat(m.subtotal) || 0), 0);
+
+  useEffect(() => {
+  axiosInstance.get('/api/hospital-config')
+    .then(res => setHospitalConfig(res.data))
+    .catch(err => console.error("❌ Failed to load hospital config:", err));
+}, []);
 
  useEffect(() => {
   axiosInstance.get('/api/medical-bills/suggestions')
@@ -63,30 +70,19 @@ const AddMedicineBill = () => {
   };
 
   const updateField = (index, field, value) => {
-    const updated = [...medicines];
-    updated[index][field] = value;
+  const updated = [...medicines];
+  updated[index][field] = value;
 
-    const name = updated[index].medicineName?.trim().toLowerCase();
-    const dose = updated[index].dosage?.trim().toLowerCase();
-   const match = suggestions.find(s =>
-        s &&
-        typeof s.medicineName === 'string' &&
-        typeof s.dosage === 'string' &&
-        s.medicineName.toLowerCase() === name &&
-        s.dosage.toLowerCase() === dose
-      );
+  // Recalculate subtotal if amount or qty changed
+  const amt = parseFloat(updated[index].amount);
+  const qty = parseInt(updated[index].issuedQuantity);
+  updated[index].subtotal = (!isNaN(amt) && !isNaN(qty)) ? amt * qty : 0;
+
+  setMedicines(updated);
+};
 
 
-    if (match) {
-      updated[index].amount = match.amount;
-    }
 
-    const amt = parseFloat(updated[index].amount);
-    const qty = parseInt(updated[index].issuedQuantity);
-    updated[index].subtotal = (!isNaN(amt) && !isNaN(qty)) ? amt * qty : 0;
-
-    setMedicines(updated);
-  };
 
   const addRow = () => {
     setMedicines([...medicines, { medicineName: '', dosage: '', issuedQuantity: '', amount: '', subtotal: 0 }]);
@@ -96,10 +92,102 @@ const AddMedicineBill = () => {
     setMedicines(medicines.filter((_, i) => i !== idx));
   };
 
-  const handleSubmit = async (e) => {
+ const handleDosageBlur = async (index) => {
+  const current = medicines[index];
+  const name = current.medicineName?.trim();
+  const dose = current.dosage?.trim();
+
+  if (!name || !dose) return;
+
+  console.log("🔍 Checking for match:", name, dose);
+
+  const match = suggestions.find(
+    s =>
+      s.medicineName?.toLowerCase() === name.toLowerCase() &&
+      s.dosage?.toLowerCase() === dose.toLowerCase()
+  );
+
+  if (match) {
+    console.log("✅ Found in suggestions:", match);
+    const updated = [...medicines];
+    updated[index].amount = match.amount;
+    const amt = parseFloat(match.amount);
+    const qty = parseInt(updated[index].issuedQuantity);
+    updated[index].subtotal = (!isNaN(amt) && !isNaN(qty)) ? amt * qty : 0;
+    setMedicines(updated);
+  } else {
+    console.log("❌ Not found in suggestions, checking backend...");
+
+    try {
+      const res = await axiosInstance.get('/api/medicines/find', {
+        params: { name, dosage: dose }
+      });
+
+      if (res.data) {
+        console.log("✅ Found in backend:", res.data);
+        const updated = [...medicines];
+        updated[index].amount = res.data.amount;
+        const amt = parseFloat(res.data.amount);
+        const qty = parseInt(updated[index].issuedQuantity);
+        updated[index].subtotal = (!isNaN(amt) && !isNaN(qty)) ? amt * qty : 0;
+        setMedicines(updated);
+        return;
+      } else {
+        console.log("⚠️ Backend returned null");
+      }
+    } catch (err) {
+      console.log("❌ Backend fetch error:", err);
+    }
+
+   const confirmSave = window.confirm(`🆕 Medicine "${name} (${dose})" not found.\nDo you want to save it as a new medicine?`);
+if (confirmSave) {
+  try {
+    let amt = parseFloat(current.amount);
+    if (!amt || amt <= 0) {
+      const input = window.prompt(`Enter price per unit for "${name} (${dose})":`);
+      amt = parseFloat(input);
+      if (!amt || amt <= 0) {
+        alert("❌ Invalid amount. Cannot save medicine.");
+        return;
+      }
+    }
+
+    const res = await axiosInstance.post('/api/medicines/create', {
+      name,
+      dosage: dose,
+      amount: amt
+    });
+
+    console.log("✅ New medicine saved:", res.data);
+
+    // ⬇️⬇️ ADD THIS ⬇️⬇️
+    const updated = [...medicines];
+    updated[index].amount = res.data.amount;
+    const amtParsed = parseFloat(res.data.amount);
+    const qty = parseInt(updated[index].issuedQuantity);
+    updated[index].subtotal = (!isNaN(amtParsed) && !isNaN(qty)) ? amtParsed * qty : 0;
+    setMedicines(updated);
+    // ⬆️⬆️⬆️⬆️
+
+    setSuggestions(prev => [...prev, res.data]);
+    alert("✅ New medicine saved.");
+  } catch (err) {
+    if (err.response?.status === 409) {
+      alert("⚠️ This medicine already exists.");
+    } else {
+      alert("❌ Failed to save new medicine.");
+    }
+    console.log("❌ Save failed:", err);
+  }
+}
+  }};
+
+
+
+ const handleSubmit = async (e) => {
   e.preventDefault();
 
-  // Check for duplicate medicine entries (name + dosage)
+  // 🔍 Check for duplicate medicine entries (name + dosage)
   const seen = new Set();
   for (let entry of medicines) {
     const key = `${entry.medicineName?.trim().toLowerCase()}|${entry.dosage?.trim().toLowerCase()}`;
@@ -110,7 +198,7 @@ const AddMedicineBill = () => {
     seen.add(key);
   }
 
-  // Quantity validation
+  // ✅ Quantity validation
   for (let entry of medicines) {
     if (!entry.issuedQuantity || parseInt(entry.issuedQuantity) <= 0) {
       alert("Each medicine must have quantity > 0");
@@ -118,11 +206,12 @@ const AddMedicineBill = () => {
     }
   }
 
+  // 🚨 Confirm with user before submitting
   const confirmed = window.confirm("Do you really want to submit and print this bill?");
   if (!confirmed) return;
 
   try {
-    const bill = {
+    const billPayload = {
       entries: medicines.map(m => ({
         medicine: {
           name: m.medicineName,
@@ -134,23 +223,23 @@ const AddMedicineBill = () => {
       })),
     };
 
-    const res = await axiosInstance.post(`/api/medical-bills/create?phone=${mobile}`, bill);
-    const newBill = res.data;
-    setBillId(newBill?.billId);
-    setPatientName(newBill?.patient?.patientName);
+    const response = await axiosInstance.post(`/api/medical-bills/create?phone=${mobile}`, billPayload);
+    const newBill = response.data;
 
+    // ⬇️ Save info to local storage (if needed for prefill)
     localStorage.setItem("recentBillPatient", JSON.stringify({
       name: newBill.patient?.patientName,
       mobile: newBill.patient?.phoneNumber,
       billCount: newBill.entries?.length || 1,
       date: newBill.createdDate,
-      time: newBill.createdTime?.slice(0, 5) || "--"
+      time: newBill.createdTime?.slice(0, 5) || "--",
     }));
 
-    setTimeout(() => {
-      handlePrint();
-      navigate('/billing');
-    }, 500);
+    if (!newBill?.billId) {
+  alert("❌ Bill ID missing. Cannot navigate.");
+  return;
+}
+navigate(`/print/${newBill.billId}`);
   } catch (err) {
     console.error("❌ Save failed:", err);
     alert("Save failed");
@@ -158,37 +247,8 @@ const AddMedicineBill = () => {
 };
 
 
-
-
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Medicine Bill</title>
-          <style>@page { size: A4; margin: 30px; } body { font-family: Arial, sans-serif; }</style>
-        </head>
-        <body><div class="bill-print">${printRef.current.innerHTML}</div></body>
-      </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 500);
-  };
-  useEffect(() => {
-  if (billId !== null) {
-    setTimeout(() => {
-      handlePrint();
-      navigate('/billing');
-    }, 300); // Allow minimal delay for DOM update
-  }
-}, [billId]);
-
-
   return (
+    <div className='add-medicine-page'>
     <div className="add-bill-container">
       <h2>Add Medicine Bill</h2>
       <form onSubmit={handleSubmit}>
@@ -211,8 +271,15 @@ const AddMedicineBill = () => {
                   onChange={(e) => updateField(idx, 'medicineName', e.target.value)} required list="medicine-name-list" />
               </div>
               <div className="col-md-2">
-                <input className="form-control" placeholder="Dosage" value={m.dosage}
-                  onChange={(e) => updateField(idx, 'dosage', e.target.value)} required list="dosage-list" />
+                <input
+                className="form-control"
+                placeholder="Dosage"
+                value={m.dosage}
+                onChange={(e) => updateField(idx, 'dosage', e.target.value)}
+                onBlur={() => handleDosageBlur(idx)}
+                required
+                list="dosage-list"
+              />
               </div>
               <div className="col-md-2">
                 <input type="number" className="form-control" placeholder="Amount" value={m.amount}
@@ -235,8 +302,14 @@ const AddMedicineBill = () => {
         </div>
 
         <div className="add-bill-buttons">
-          <button type="button" className="btn btn-secondary" onClick={addRow}>+ Add More</button>
-          <button type="submit" className="btn btn-primary">Submit & Print</button>
+          <button type="button" className="btn btn-secondary mb-3" onClick={addRow}>+ Add More</button>
+           <button
+        type="button"
+        className="btn btn-secondary mb-3"
+        onClick={() => navigate('/billing')}>
+        ← Back
+      </button>
+          <button type="submit" className="btn btn-primary mb-3">Submit & Print</button>
         </div>
 
         <div className="total-section">Total: ₹{total.toFixed(2)}</div>
@@ -252,41 +325,7 @@ const AddMedicineBill = () => {
           <option key={i} value={dose} />
         ))}
       </datalist>
-
-      <div style={{ display: 'none' }}>
-        <div ref={printRef} className="bill-print">
-          <h2 style={{ textAlign: 'center' }}>Medicine Bill</h2>
-          <p><strong>Bill ID:</strong> {billId || '--'}</p>
-          <p><strong>Patient:</strong> {patientName} | <strong>Mobile:</strong> {mobile}</p>
-          <p><strong>Date:</strong> {new Date().toLocaleDateString()} | <strong>Time:</strong> {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
-
-          <table className="bill-table">
-            <thead>
-              <tr>
-                <th>Medicine</th>
-                <th>Dosage</th>
-                <th>Qty</th>
-                <th>Amount</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody>
-              {medicines.map((m, i) => (
-                <tr key={i}>
-                  <td>{m.medicineName || '--'}</td>
-                  <td>{m.dosage || '--'}</td>
-                  <td>{m.issuedQuantity || 0}</td>
-                  <td>{m.amount || 0}</td>
-                  <td>{m.subtotal || 0}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          <h5>Total: ₹{total.toFixed(2)}</h5>
-          <div className="bill-footer">Thank you for choosing SanjitTech Hospital</div>
-        </div>
-      </div>
+    </div>
     </div>
   );
 };

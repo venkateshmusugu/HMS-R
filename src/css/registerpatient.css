@@ -1,5 +1,5 @@
 .register-background {
-  background-image: url('/images/registrationpatient.png'); /* Path to the background image */
+ 
   background-size: cover; /* Ensures the image covers the entire container */
   background-position: center; /* Centers the background image */
   height: 100vh; /* Ensures the container takes full height of the viewport */
@@ -8,7 +8,31 @@
   width: 100vw;
   overflow: hidden;
 }
+
+.register-background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/images/registrationpatient.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);     /* Adjust for more or less blur */
+  opacity: 0.6;          /* Optional dimming for better contrast */
+  z-index: 0;
+  pointer-events: none;  /* Ensure background doesn't block interactions */
+}
+
+.register-background > * {
+  position: relative;
+  z-index: 1;
+}
+
+
 .patient-form {
+  margin-top: 5%;
   width: 50vw; /* Form takes full width */
   background-color: lab(86.29% 1.37 0.47 / 0.671); /* Light background */
   padding: 1rem;

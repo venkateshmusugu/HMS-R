@@ -25,35 +25,36 @@ const SurgeryMedication = () => {
   });
 
   useEffect(() => {
-    // Fetch previous logs
-    axiosInstance.get(`/api/surgery-medications/by-surgery/${surgeryId}`)
-      .then(res => {
-        const data = res.data;
-        setFormData(prev => ({
-          ...prev,
-          diagnosis: data.diagnosis || '',
-          reasonForSurgery: data.reasonForSurgery || '',
-          followUpDate: data.date || ''
-        }));
-        setLogs(data.logs || []);
-      })
-      .catch(err => console.error("❌ Failed to fetch logs:", err));
+  // Step 1: Load any existing medication logs
+  axiosInstance.get(`/api/surgery-medications/by-surgery/${surgeryId}`)
+    .then(res => {
+      const data = res.data;
+      setFormData(prev => ({
+        ...prev,
+        diagnosis: data.diagnosis || '',
+        reasonForSurgery: data.reasonForSurgery || '',
+        followUpDate: data.date || ''
+      }));
+      setLogs(data.logs || []);
+    })
+    .catch(err => console.error("❌ Failed to fetch logs:", err));
 
-    // Optional: fetch surgery details (fallback)
-    axiosInstance.get(`/api/surgeries/${surgeryId}`)
-      .then(res => {
-        const surgery = res.data;
-        setFormData(prev => ({
-          ...prev,
-          reasonForSurgery: surgery.reasonForSurgery || '',
-          followUpDate: surgery.surgeryDate ? surgery.surgeryDate.split('T')[0] : ''
-        }));
-      })
-      .catch(err => {
-        console.error("❌ Failed to fetch surgery:", err);
-        alert("Error loading surgery details.");
-      });
-  }, [surgeryId]);
+  // Step 2: Fallback load from surgery
+  axiosInstance.get(`/api/surgeries/${surgeryId}`)
+    .then(res => {
+      const surgery = res.data;
+      setFormData(prev => ({
+        ...prev,
+        reasonForSurgery: prev.reasonForSurgery || surgery.reason || '',
+        followUpDate: prev.followUpDate || (surgery.surgeryDate ? surgery.surgeryDate.split('T')[0] : '')
+      }));
+    })
+    .catch(err => {
+      console.error("❌ Failed to fetch surgery:", err);
+      alert("Error loading surgery details.");
+    });
+}, [surgeryId]);
+
 
   const toggleLogs = (date) => {
     setExpandedDate(expandedDate === date ? null : date);
@@ -80,21 +81,21 @@ const SurgeryMedication = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-  const payload = {
-  diagnosis: formData.diagnosis,
-  reasonForSurgery: formData.reasonForSurgery,
-  followUpDate: formData.followUpDate,
-  medicines: formData.medicines.map((med) => ({
-    medicineName: med.medicineName,
-    dosage: med.dosage,
-    durationInDays: parseInt(med.durationInDays, 10) || 0,
-    frequency: med.frequency,
-  })),
-};
+        const payload = {
+        diagnosis: formData.diagnosis,
+        reasonForSurgery: formData.reasonForSurgery,
+        followUpDate: formData.followUpDate,
+        medicines: formData.medicines.map((med) => ({
+        medicineName: med.medicineName,
+        dosage: med.dosage,
+        durationInDays: parseInt(med.durationInDays, 10) || 0,
+        frequency: med.frequency,
+      })),
+    };
 
 try {
   await axiosInstance.post(`/api/surgery-medications/by-surgery/${surgeryId}`, payload);
-
+  console.log("Submitting payload:", payload);
 
       alert("✅ Medications saved successfully!");
       navigate(-1);
@@ -113,9 +114,10 @@ try {
           <input
             className="form-control mb-2"
             placeholder="Reason for Surgery"
-            value={formData.reasonForSurgery}
+            value={formData.reasonForSurgery || 'Reason not specified'}
             disabled
           />
+
           <input
             type="date"
             className="form-control mb-2"

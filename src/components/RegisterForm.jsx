@@ -1,105 +1,160 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import axiosInstance from '../axiosInstance';
 import { useParams, useNavigate } from 'react-router-dom';
 import "../css/Registerform.css";
-// ✅ Helper to extract CSRF token from cookies
-const getCookie = (cookieName) => {
-  const name = cookieName + "=";
-  const decodedCookie = decodeURIComponent(document.cookie);
-  const cookies = decodedCookie.split(';');
-  for (let cookie of cookies) {
-    cookie = cookie.trim();
-    if (cookie.indexOf(name) === 0) {
-      return cookie.substring(name.length);
-    }
-  }
-  return "";
-};
 
-// ✅ Role mapping helper
-const mapRole = (rawRole) => {
-  const role = rawRole?.toLowerCase();
-  switch (role) {
+const mapRole = (raw) => {
+  switch (raw?.toLowerCase()) {
     case 'reception': return 'RECEPTIONIST';
     case 'doctor': return 'DOCTOR';
-    case 'admin': return 'ADMIN';
-    case 'nurse': return 'NURSE';
-    case 'pharmacist': return 'PHARMACIST';
-    default: return role?.toUpperCase() || '';
+    case 'surgery': return 'SURGERY';
+    case 'billing': return 'BILLING';
+    default: return '';
   }
 };
 
-// ✅ UI helper for display
-const titleCase = (text) =>
-  text?.charAt(0).toUpperCase() + text?.slice(1).toLowerCase();
-
-function RegisterForm() {
+const RegisterForm = () => {
   const { role } = useParams();
   const navigate = useNavigate();
 
+  const [step, setStep] = useState(1); // 1 = user details, 2 = enter OTP
+  const [otp, setOtp] = useState('');
+  const [roleLimitReached, setRoleLimitReached] = useState(false);
   const [form, setForm] = useState({
     username: '',
     password: '',
+    email: '',
     role: mapRole(role),
   });
-
-  useEffect(() => {
-    axiosInstance.get('/csrf', { withCredentials: true })
-      .then(() => console.log("✅ CSRF token fetched"))
-      .catch(err => console.error("❌ CSRF token load failed", err));
-  }, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleRegister = async (e) => {
+  useEffect(() => {
+    const checkRoleLimit = async () => {
+      try {
+        const res = await axios.get('http://localhost:8081/api/users/role-counts');
+        const count = res.data[form.role];
+
+        if ((form.role === 'DOCTOR' && count >= 5) ||
+            (form.role !== 'DOCTOR' && count >= 1)) {
+          setRoleLimitReached(true);
+        }
+      } catch (err) {
+        console.error("Failed to fetch role counts:", err);
+      }
+    };
+
+    if (form.role) {
+      checkRoleLimit();
+    }
+  }, [form.role]);
+
+  const sendOtp = async (e) => {
     e.preventDefault();
-    console.log("Submitting form:", form);
+    if (!form.email) {
+      alert("Please enter email.");
+      return;
+    }
 
     try {
-      // const csrfToken = getCookie('XSRF-TOKEN');
-
-      const res = await axios.post('http://localhost:8081/api/users/register', form, {
-        // headers: {
-        //   'X-XSRF-TOKEN': csrfToken,
-        //   'Content-Type': 'application/json',
-        // },
-        // withCredentials: true,
+      await axios.post('http://localhost:8081/api/users/otp/send', {
+        email: form.email
       });
-
-      alert("✅ Registered successfully");
-      console.log("Response:", res.data);
-      navigate('/');
+      alert("✅ OTP sent to your email");
+      setStep(2);
     } catch (err) {
-      console.error("❌ Registration failed:", err.response?.data || err.message);
-      alert("❌ Registration failed: " + (err.response?.data || err.message));
+      console.error("❌ Error sending OTP:", err);
+      alert("❌ Failed to send OTP");
     }
   };
 
-return (
-  <div className="background-container">
-    <div className="login-form-one">
-      <h2>Register as {titleCase(role)}</h2>
-      <form onSubmit={handleRegister}>
-        <div className="form-group">
-          <label>Username</label>
-          <input type="text" name="username" value={form.username} onChange={handleChange} required />
-        </div>
-        <div className="form-group">
-          <label>Password</label>
-          <input type="password" name="password" value={form.password} onChange={handleChange} required />
-        </div>
-        <div className="form-group">
-          <label>Role</label>
-          <input type="text" name="role" value={form.role} readOnly />
-        </div>
-        <button className='registerbtn' type="submit">Register</button>
-      </form>
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = { ...form, otp };
+      await axios.post('http://localhost:8081/api/users/otp/verify', payload);
+      alert("✅ Registered successfully");
+      navigate('/');
+    } catch (err) {
+      const message = err?.response?.data || "Unexpected error occurred";
+      console.warn("⚠️ Registration error:", message);
+
+      if (typeof message === "string") {
+        if (message.includes("Email already registered")) {
+          alert("❌ Email already registered.");
+        } else if (message.includes("Username already exists")) {
+          alert("❌ Username already exists.");
+        } else {
+          alert("❌ Registration failed: " + message);
+        }
+      } else {
+        alert("❌ Registration failed. Please try again.");
+      }
+    }
+  };
+
+  return (
+    <div className="background-container">
+      <div className="login-form-one">
+        <h2>Register as {mapRole(role)}</h2>
+
+        {roleLimitReached ? (
+          <p style={{ color: 'red', fontWeight: 'bold' }}>
+            ❌ Registration not allowed. Maximum limit reached for {form.role}.
+          </p>
+        ) : (
+          <>
+            {step === 1 && (
+              <form onSubmit={sendOtp}>
+                <div className="form-group">
+                  <label>Username</label>
+                  <input type="text" name="username" value={form.username} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                  <label>Password</label>
+                  <input type="password" name="password" value={form.password} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                  <label>Email</label>
+                  <input type="email" name="email" value={form.email} onChange={handleChange} required />
+                </div>
+                <div className="form-group">
+                  <label>Role</label>
+                  <input type="text" name="role" value={form.role} readOnly />
+                </div>
+                <button type="submit" className='registerbtn' disabled={roleLimitReached}>Send OTP</button>
+              </form>
+            )}
+
+            {step === 2 && (
+              <form onSubmit={handleRegister}>
+                <div className="form-group">
+                  <label>Username</label>
+                  <input type="text" value={form.username} readOnly />
+                </div>
+                <div className="form-group">
+                  <label>Email</label>
+                  <input type="email" value={form.email} readOnly />
+                </div>
+                <div className="form-group">
+                  <label>Enter OTP</label>
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value)}
+                    required
+                  />
+                </div>
+                <button type="submit" className='registerbtn' disabled={roleLimitReached}>Verify & Register</button>
+              </form>
+            )}
+          </>
+        )}
+      </div>
     </div>
-  </div>
-);
-}
+  );
+};
 
 export default RegisterForm;

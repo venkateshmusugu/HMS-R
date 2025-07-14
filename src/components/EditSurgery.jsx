@@ -87,7 +87,7 @@ const EditSurgery = () => {
               />
             </div>
 
-            <div>
+            <div >
               <label>Surgery Time</label>
               <input
                 type="time"
@@ -182,6 +182,9 @@ const EditSurgery = () => {
 
           <div className="btn-center">
             <button type="submit" className="bookingbtn">Update</button>
+                <button type="button" className="bookingbtnb" onClick={() => navigate('/surgery')}>
+            ← Back
+          </button>
           </div>
         </form>
       </div>

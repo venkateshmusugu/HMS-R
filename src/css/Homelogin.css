@@ -17,6 +17,7 @@ textarea {
   transition: border-color 0.3s ease;
 }
 .container-first {
+  padding-right: 70px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -105,15 +106,35 @@ button:focus {
   outline: none;
 }  */
 .home-login-background {
-  background-image: url('/images/homeloginmain.png'); /* Replace with your image path */
-  background-size: cover; /* Ensure the image covers the entire background */
-  background-position: center; /* Center the image */
-  height: 100vh; /* Full height of the screen */
+  position: relative;
   width: 100vw;
+  height: 100vh;
+  overflow: hidden;
   display: flex;
   justify-content: center;
-  align-items: center; /* Vertically and horizontally center the form */
+  align-items: center;
 }
+
+.home-login-background::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-image: url('/images/homeloginmain.png');
+  background-size: cover;
+  background-position: center;
+  filter: blur(8px);    /* Adjust for more or less blur */
+  opacity: 0.6;         /* Optional: dim background slightly */
+  z-index: 0;
+}
+
+.home-login-background > * {
+  position: relative;
+  z-index: 1;
+}
+
  
 .btn-circle {
   border-radius: 50%; /* Round the button */
@@ -131,4 +152,34 @@ button:focus {
     display:flex;
     align-items: center;;
 }
+
+.hospital-icon {
+  width: 40px;       /* or 24px / 32px depending on your layout */
+  height: 40px;
+  object-fit: contain; /* ensures the image scales correctly */
+}
+
+.hospital-title {
+  padding-left: 70px;
+  font-size: 5rem;
+  font-weight: 700;
+  color: white;
+  display: inline-block;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.icon-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px; /* small gap between "l" and icon */
+}
+
+.hospital-icon-inline {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
  
