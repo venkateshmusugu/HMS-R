@@ -1,20 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../css/AdminPanel.css"
+import "../css/AdminPanel.css";
 
 const AdminPanel = () => {
   const navigate = useNavigate();
+  const hospitalId = localStorage.getItem("hospitalId");
+
   const [users, setUsers] = useState([]);
   const [selectedRole, setSelectedRole] = useState({});
   const [loading, setLoading] = useState(true);
 
   const accessToken = localStorage.getItem("accessToken");
   const storedRole = localStorage.getItem("role");
-  const actingAs = localStorage.getItem("actingAs");
-  const effectiveRole = actingAs || storedRole;
 
-  // Redirect non-admins
+  const ROLES = ["ADMIN", "DOCTOR", "RECEPTIONIST", "BILLING", "SURGERY"];
+
   useEffect(() => {
     if (storedRole !== "ADMIN") {
       navigate("/unauthorized");
@@ -23,42 +24,82 @@ const AdminPanel = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      if (!accessToken || !hospitalId) return;
+
       try {
         const res = await axios.get("http://localhost:8081/api/admin/users", {
           headers: { Authorization: `Bearer ${accessToken}` },
           withCredentials: true,
         });
-        setUsers(res.data);
+
+        const filtered = res.data.filter(
+          (u) => String(u.hospitalId) === String(hospitalId)
+        );
+
+        setUsers(filtered);
+
         const roleMap = {};
-        res.data.forEach((user) => (roleMap[user.id] = user.role));
+        filtered.forEach((user) => {
+          roleMap[user.id] = user.role;
+        });
+
         setSelectedRole(roleMap);
         setLoading(false);
       } catch (err) {
         console.error("Error fetching users:", err);
+        if (err.response?.status === 403) {
+          navigate("/unauthorized");
+        }
       }
     };
 
     fetchUsers();
-  }, []);
+  }, [accessToken, hospitalId, navigate]);
 
   const handleRoleChange = (userId, newRole) => {
     setSelectedRole({ ...selectedRole, [userId]: newRole });
   };
 
+  const roleLimitExceeded = (newRole, userId) => {
+    const sameHospitalUsers = users.filter(
+      (u) => String(u.hospitalId) === String(hospitalId)
+    );
+    const roleCount = sameHospitalUsers.filter(
+      (u) => u.role === newRole && u.id !== userId
+    ).length;
+
+    if (newRole === "DOCTOR") {
+      return roleCount >= 5;
+    } else {
+      return roleCount >= 1;
+    }
+  };
+
   const updateRole = async (userId) => {
+    const newRole = selectedRole[userId];
+
+    if (roleLimitExceeded(newRole, userId)) {
+      alert(
+        `❌ Limit reached: Only ${
+          newRole === "DOCTOR" ? 5 : 1
+        } ${newRole.toLowerCase()}(s) allowed per hospital.`
+      );
+      return;
+    }
+
     try {
       await axios.put(
         `http://localhost:8081/api/admin/users/${userId}/role`,
-        { role: selectedRole[userId] },
+        { role: newRole },
         {
           headers: { Authorization: `Bearer ${accessToken}` },
           withCredentials: true,
         }
       );
-      alert("Role updated successfully!");
+      alert("✅ Role updated successfully!");
     } catch (err) {
       console.error("Failed to update role:", err);
-      alert("Error updating role.");
+      alert("❌ Error updating role.");
     }
   };
 
@@ -69,23 +110,19 @@ const AdminPanel = () => {
           headers: { Authorization: `Bearer ${accessToken}` },
         });
         setUsers(users.filter((user) => user.id !== userId));
-        alert("User deleted successfully");
+        alert("✅ User deleted successfully");
       } catch (err) {
         console.error("Failed to delete user:", err);
-        alert("Error deleting user");
+        alert("❌ Error deleting user");
       }
     }
-  };
-
-  const handleEditUser = (user) => {
-    navigate(`/admin/edit-user/${user.id}`);
   };
 
   const handleImpersonate = (role) => {
     localStorage.setItem("actingAs", role);
     switch (role) {
       case "RECEPTIONIST":
-        navigate("/reception-dashboard");
+        navigate("/patients");
         break;
       case "DOCTOR":
         navigate("/doctor-dashboard");
@@ -102,15 +139,13 @@ const AdminPanel = () => {
   };
 
   const handleLogout = () => {
-    // Clear auth data from localStorage
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('role');
-    localStorage.removeItem('username');
-    localStorage.removeItem('actingAs');
-
-    // Redirect to login/home
-    navigate('/');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
+    localStorage.removeItem("actingAs");
+    localStorage.removeItem("hospitalId");
+    navigate("/");
   };
 
   const clearImpersonation = () => {
@@ -122,13 +157,18 @@ const AdminPanel = () => {
 
   return (
     <div className="admin-panel-container">
-      <button className="logout-button" onClick={handleLogout}>Logout</button>
+      <button className="logout-button" onClick={handleLogout}>
+        Logout
+      </button>
 
       <div className="admin-panel-box">
         <h1 className="admin-heading">Welcome to Admin Dashboard</h1>
-        <p className="admin-description">Use the side menu or top buttons to manage users and data.</p>
+        <p className="admin-description">
+          Use the top buttons to manage roles, limits and hospital users.
+        </p>
+
         <strong>Impersonate Role:</strong>
-        {["RECEPTIONIST", "DOCTOR", "BILLING", "SURGERY"].map((r) => (
+        {ROLES.filter((r) => r !== "ADMIN").map((r) => (
           <button
             key={r}
             onClick={() => handleImpersonate(r)}
@@ -161,68 +201,81 @@ const AdminPanel = () => {
         </button>
       </div>
 
-      <table style={{ width: "100%", borderCollapse: "collapse", marginTop: "20px" }}>
+      <table
+        style={{
+          width: "100%",
+          borderCollapse: "collapse",
+          marginTop: "20px",
+        }}
+      >
         <thead>
           <tr>
             <th>ID</th>
             <th>Username</th>
             <th>Current Role</th>
+            <th>Hospital ID</th>
             <th>Change Role</th>
             <th>Update</th>
-           
             <th>Delete</th>
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td>{user.id}</td>
-              <td>{user.username}</td>
-              <td>{user.role}</td>
-              <td>
-                <select
-                  value={selectedRole[user.id]}
-                  onChange={(e) => handleRoleChange(user.id, e.target.value)}
-                >
-                  {["ADMIN", "DOCTOR", "RECEPTIONIST", "BILLING", "SURGERY"].map((role) => (
-                    <option key={role} value={role}>
-                      {role}
-                    </option>
-                  ))}
-                </select>
-              </td>
-              <td>
-                <button
-                  onClick={() => updateRole(user.id)}
-                  style={{
-                    padding: "6px 12px",
-                    backgroundColor: "#007bff",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Update
-                </button>
-              </td>
-              <td>
-                <button
-                  onClick={() => handleDeleteUser(user.id)}
-                  style={{
-                    padding: "6px 10px",
-                    backgroundColor: "red",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
+          {users.map((user) => {
+            const newRole = selectedRole[user.id];
+            const isLimitHit = roleLimitExceeded(newRole, user.id);
+
+            return (
+              <tr key={user.id}>
+                <td>{user.id}</td>
+                <td>{user.username}</td>
+                <td>{user.role}</td>
+                <td>{user.hospitalId || "N/A"}</td>
+                <td>
+                  <select
+                    value={selectedRole[user.id]}
+                    onChange={(e) => handleRoleChange(user.id, e.target.value)}
+                  >
+                    {ROLES.map((role) => (
+                      <option key={role} value={role}>
+                        {role}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td>
+                  <button
+                    onClick={() => updateRole(user.id)}
+                    disabled={isLimitHit}
+                    style={{
+                      padding: "6px 12px",
+                      backgroundColor: isLimitHit ? "#ccc" : "#007bff",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: isLimitHit ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    Update
+                  </button>
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleDeleteUser(user.id)}
+                    style={{
+                      padding: "6px 10px",
+                      backgroundColor: "red",
+                      color: "#fff",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

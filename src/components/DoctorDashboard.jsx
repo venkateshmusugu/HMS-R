@@ -8,6 +8,7 @@ Modal.setAppElement('#root');
 
 const DoctorDashboard = () => {
   const [appointments, setAppointments] = useState([]);
+  const hospitalId = localStorage.getItem("hospitalId");
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -24,6 +25,21 @@ const DoctorDashboard = () => {
   const role = isAdminImpersonating ? 'ADMIN' : actualRole;
   const impersonatingRole = isAdminImpersonating ? actingAs : actualRole;
 
+  useEffect(() => {
+    if (impersonatingRole === 'DOCTOR') {
+      fetchDoctor();
+      fetchDepartments();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (impersonatingRole === 'DOCTOR' && doctor?.doctorId) {
+      fetchAppointments();
+    } else if (impersonatingRole !== 'DOCTOR') {
+      fetchAppointments();
+    }
+  }, [searchTerm, selectedDate, doctor?.doctorId]);
+
   const fetchDepartments = async () => {
     try {
       const res = await axiosInstance.get("/api/departments");
@@ -34,63 +50,32 @@ const DoctorDashboard = () => {
   };
 
   const fetchDoctor = async () => {
-  const token = localStorage.getItem("accessToken");
-  if (!token) {
-    console.warn("⛔ No token found in localStorage");
-    return;
-  }
-
-  try {
-    const res = await axiosInstance.get("/api/doctors/me");
-    const doctorData = res.data;
-
-    setDoctor(doctorData);
-    setDoctorName(doctorData.doctorName || "");
-    setDepartmentId(doctorData.department?.departmentId || "");
-
-    // ✅ Check if department is missing
-    if (!doctorData.department || !doctorData.department.departmentId) {
+    try {
+      const res = await axiosInstance.get("/api/doctors/me");
+      const doctorData = res.data;
+      setDoctor(doctorData);
+      setDoctorName(doctorData.doctorName || "");
+      setDepartmentId(doctorData.department?.departmentId || "");
+      if (!doctorData.department?.departmentId) {
+        setIsModalOpen(true);
+      }
+    } catch (err) {
+      console.error("❌ Error fetching doctor profile:", err);
+      setDoctor(null);
       setIsModalOpen(true);
     }
+  };
 
-  } catch (err) {
-    console.error("❌ Error fetching doctor profile:", err);
-    setDoctor(null);
-    setIsModalOpen(true); // fallback for real 404
-  }
-};
-
-
-  useEffect(() => {
-    if (impersonatingRole === 'DOCTOR') {
-      fetchDoctor();
-      fetchDepartments();
-    }
-  }, []);
-
-  useEffect(() => {
-  if (impersonatingRole === 'DOCTOR' && doctor?.doctorId) {
-    fetchAppointments();
-  } else if (impersonatingRole !== 'DOCTOR') {
-    fetchAppointments();
-  }
-}, [searchTerm, selectedDate, doctor?.doctorId]);
-
-
-const fetchAppointments = async () => {
-  if (impersonatingRole === 'DOCTOR' && !doctor?.doctorId) {
-    console.warn("Doctor info not loaded yet.");
-    return; // ⛔ Avoid fetching until doctorId is ready
-  }
+  const fetchAppointments = async () => {
+  if (impersonatingRole === 'DOCTOR' && !doctor?.doctorId) return;
 
   try {
-    const params = { date: selectedDate };
+    const hospitalId = localStorage.getItem("hospitalId");
+    const params = { date: selectedDate, hospitalId };
 
     if (impersonatingRole === 'DOCTOR') {
       params.doctorId = doctor.doctorId;
-      console.log("📤 Sending doctorId to backend:", doctor.doctorId); // ✅ Watch this in DevTools
     }
-
     if (searchTerm) {
       params.searchTerm = searchTerm;
     }
@@ -104,14 +89,9 @@ const fetchAppointments = async () => {
 };
 
 
-
-
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('role');
-    localStorage.removeItem('actingAs');
-    navigate('/');
+    localStorage.clear();
+    navigate('/home-login');
   };
 
 const handleProfileSubmit = async () => {
@@ -119,29 +99,28 @@ const handleProfileSubmit = async () => {
     alert("Please fill all fields.");
     return;
   }
-
   try {
-  const doctorPayload = {
-    doctorName: doctorName.trim(),
-    departmentName: departmentName.trim(),
-  };
+    await axiosInstance.post("/api/doctors/profile", {
+      doctorName: doctorName.trim(),
+      departmentName: departmentName.trim(),
+    });
 
-  const res = await axiosInstance.post("/api/doctors/profile", doctorPayload);
-  alert("✅ Profile saved");
-  setIsModalOpen(false);
-  window.location.reload();
+    alert("✅ Profile saved");
 
-} catch (err) {
-  if (err.response?.data === "Doctor profile already exists") {
-    alert("⚠️ You already have a profile.");
+    // Re-fetch both to reflect updated state
+    await fetchDepartments();
+    await fetchDoctor();
+
     setIsModalOpen(false);
-    return;
+  } catch (err) {
+    if (err.response?.data === "Doctor profile already exists") {
+      alert("⚠️ You already have a profile.");
+      setIsModalOpen(false);
+    } else {
+      console.error("❌ Failed to save profile:", err);
+      alert("❌ Failed to save profile");
+    }
   }
-
-  console.error("❌ Failed to save profile:", err);
-  alert("❌ Failed to save profile");
-}
-
 };
 
 
@@ -160,12 +139,8 @@ const handleProfileSubmit = async () => {
     content: {
       top: '50%',
       left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
       transform: 'translate(-50%, -50%)',
       background: 'white',
-      zIndex: 2000,
       padding: '30px',
       borderRadius: '10px',
       width: '400px',
@@ -173,7 +148,6 @@ const handleProfileSubmit = async () => {
     },
     overlay: {
       backgroundColor: 'rgba(0, 0, 0, 0.6)',
-      zIndex: 1500,
     },
   };
 
@@ -182,16 +156,14 @@ const handleProfileSubmit = async () => {
       <div className="container-3">
         <div className="header-three">
           <h4 className="doctor-name">
-            {impersonatingRole === 'DOCTOR' ? `Doctor: ${doctorName} (${departments.find(d => d.departmentId === departmentId)?.departmentName || ''})` : ''}
+            {impersonatingRole === 'DOCTOR' &&
+              `Doctor: ${doctorName} (${departments.find(d => d.departmentId === departmentId)?.departmentName || ''})`}
           </h4>
         </div>
+
         <div>
-          <button className="btn-blue1 me-2" onClick={() => navigate('/register-patient')}>
-            Add New Patient
-          </button>
-          <button className="btn-blue1 me-2" onClick={() => navigate('/book-appointment')}>
-            Add New Appointment
-          </button>
+          <button className="btn-blue1 me-2" onClick={() => navigate('/register-patient')}>Add New Patient</button>
+          <button className="btn-blue1 me-2" onClick={() => navigate('/book-appointment')}>Add New Appointment</button>
           <button className="btn-red1" onClick={handleLogout}>Logout</button>
         </div>
       </div>
@@ -236,9 +208,7 @@ const handleProfileSubmit = async () => {
           </thead>
           <tbody>
             {appointments.length > 0 ? appointments.map(a => {
-              const appointmentEnd = new Date(`${a.visitDate}T${a.endTime}`);
-              const now = new Date();
-              const isPast = now > appointmentEnd;
+              const isPast = new Date(`${a.visitDate}T${a.endTime}`) < new Date();
               const isCanceled = a.status === 'CANCELLED' || a.status === 'CANCELLD';
               const isActive = a.status === 'ACTIVE';
               const rowStyle = isCanceled
@@ -255,10 +225,7 @@ const handleProfileSubmit = async () => {
                   <td>{a.startTime}</td>
                   <td>{a.endTime}</td>
                   <td>
-                    <button
-                      className="capsule-button"
-                      onClick={() => navigate(`/surgery-history/${a.patientId}`)}
-                    >
+                    <button className="capsule-button" onClick={() => navigate(`/surgery-history/${a.patientId}`)}>
                       View Surgery History
                     </button>
                   </td>
@@ -280,37 +247,24 @@ const handleProfileSubmit = async () => {
                     {isCanceled ? (
                       <span className="badge bg-danger">Cancelled</span>
                     ) : isPast ? (
-                      <button className="capsule-button capsule-secondary" disabled>
-                        Done
-                      </button>
+                      <button className="capsule-button capsule-secondary" disabled>Done</button>
                     ) : (
                       <>
-                        <button
-                          className="capsule-button capsule-warning me-2"
-                          onClick={() => navigate(`/book-appointment/${a.visitId}`)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="capsule-button capsule-danger me-2"
-                          onClick={() => handleCancelAppointment(a.visitId)}
-                        >
-                          Cancel
-                        </button>
+                        <button className="capsule-button capsule-warning me-2" onClick={() => navigate(`/book-appointment/${a.visitId}`)}>Edit</button>
+                        <button className="capsule-button capsule-danger me-2" onClick={() => handleCancelAppointment(a.visitId)}>Cancel</button>
                       </>
                     )}
                     {role === 'ADMIN' && (
                       <button
                         className="capsule-button capsule-danger"
                         onClick={async () => {
-                          const confirmDelete = window.confirm("🗑️ Delete this appointment permanently?");
-                          if (confirmDelete) {
+                          if (window.confirm("🗑️ Delete this appointment permanently?")) {
                             try {
                               await axiosInstance.delete(`/api/appointments/${a.visitId}`);
                               alert("✅ Appointment deleted");
                               fetchAppointments();
                             } catch (err) {
-                              console.error("Error deleting:", err);
+                              console.error("Delete error:", err);
                               alert("❌ Failed to delete appointment.");
                             }
                           }
@@ -355,15 +309,15 @@ const handleProfileSubmit = async () => {
             onChange={(e) => setDoctorName(e.target.value)}
           />
         </div>
-       <div className="mb-3">
-        <input
-        type="text"
-        placeholder="Department (e.g., Gynecologist)"
-        className="form-control"
-        value={departmentName}
-        onChange={(e) => setDepartmentName(e.target.value)}
-      />
-      </div>
+        <div className="mb-3">
+          <input
+            type="text"
+            placeholder="Department (e.g., Gynecologist)"
+            className="form-control"
+            value={departmentName}
+            onChange={(e) => setDepartmentName(e.target.value)}
+          />
+        </div>
         <button className="btn btn-success" onClick={handleProfileSubmit}>
           Save Profile
         </button>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axiosInstance from '../axiosInstance';
-import '../css/EditSurgery.css'; // ✅ Same CSS used in BookSurgery
+import '../css/EditSurgery.css'; // ✅ Shared with BookSurgery
 
 const EditSurgery = () => {
   const { id } = useParams();
@@ -24,33 +24,35 @@ const EditSurgery = () => {
     axiosInstance.get(`/api/surgery-appointments/by-id/${id}`)
       .then(res => {
         const data = res.data;
-        if (!Array.isArray(data.note)) {
-          data.note = [];
-        }
+        if (!Array.isArray(data.note)) data.note = [];
         setFormData(data);
       })
       .catch(() => alert("❌ Failed to load appointment"));
   }, [id]);
 
   const handleChange = (e) => {
-    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleNoteKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if ((e.key === 'Enter' || e.key === ',') && noteInput.trim()) {
       e.preventDefault();
       const newNote = noteInput.trim();
-      if (newNote && !formData.note.includes(newNote)) {
-        setFormData(prev => ({ ...prev, note: [...prev.note, newNote] }));
+      if (!formData.note.includes(newNote)) {
+        setFormData(prev => ({
+          ...prev,
+          note: [...prev.note, newNote]
+        }));
         setNoteInput('');
       }
     }
   };
 
-  const removeNote = (noteToRemove) => {
+  const removeNote = (toRemove) => {
     setFormData(prev => ({
       ...prev,
-      note: prev.note.filter(n => n !== noteToRemove)
+      note: prev.note.filter(n => n !== toRemove)
     }));
   };
 
@@ -87,7 +89,7 @@ const EditSurgery = () => {
               />
             </div>
 
-            <div >
+            <div>
               <label>Surgery Time</label>
               <input
                 type="time"
@@ -163,8 +165,8 @@ const EditSurgery = () => {
           <div className="mb-3 w-100">
             <label>Notes</label>
             <div className="tags-input-container">
-              {formData.note.map((n, index) => (
-                <div key={index} className="tag-item">
+              {formData.note.map((n, i) => (
+                <div key={i} className="tag-item">
                   {n}
                   <span className="remove-tag" onClick={() => removeNote(n)}>×</span>
                 </div>
@@ -182,9 +184,9 @@ const EditSurgery = () => {
 
           <div className="btn-center">
             <button type="submit" className="bookingbtn">Update</button>
-                <button type="button" className="bookingbtnb" onClick={() => navigate('/surgery')}>
-            ← Back
-          </button>
+            <button type="button" className="bookingbtnb" onClick={() => navigate('/surgery')}>
+              ← Back
+            </button>
           </div>
         </form>
       </div>

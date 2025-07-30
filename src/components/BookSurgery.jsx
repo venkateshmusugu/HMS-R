@@ -8,6 +8,7 @@ const BookSurgery = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [noteInput, setNoteInput] = useState('');
+  const hospitalId = localStorage.getItem("hospitalId");
 
   const [formData, setFormData] = useState({
     patientId: '',
@@ -19,16 +20,19 @@ const BookSurgery = () => {
     reasonForSurgery: '',
     remarks: '',
     note: [],
-    followUpDate: ''
+    followUpDate: '',
+    hospitalId: hospitalId  // ✅ include hospitalId directly
   });
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    axiosInstance.get('/api/doctors')
-      .then((res) => setDoctors(Array.isArray(res.data) ? res.data : []))
-      .catch((err) => console.error("❌ Doctor fetch failed:", err));
-  }, []);
+    if (hospitalId) {
+      axiosInstance.get(`/api/doctors/by-hospital/${hospitalId}`)
+        .then((res) => setDoctors(Array.isArray(res.data) ? res.data : []))
+        .catch((err) => console.error("❌ Doctor fetch failed:", err));
+    }
+  }, [hospitalId]);
 
   const fetchTodayPatients = async () => {
     if (inputValue.trim() === '') {
@@ -121,7 +125,10 @@ const BookSurgery = () => {
     }
 
     try {
-      await axiosInstance.post(`/api/surgery-appointments/book/${formData.patientId}`, formData);
+      await axiosInstance.post(`/api/surgery-appointments/book/${formData.patientId}`, {
+        ...formData,
+        hospitalId  // ✅ explicitly include if not already in formData
+      });
       alert("✅ Surgery appointment booked.");
       navigate('/surgery');
     } catch (err) {
@@ -216,17 +223,16 @@ const BookSurgery = () => {
 
             <div className="mel">
               <label className="form-label">Reason</label>
-             <input
-              type="text"
-              name="reasonForSurgery"    // ✅ correct name
-              className="dark-input-text"
-              placeholder="e.g., Gallstones"
-              value={formData.reasonForSurgery}
-              onChange={handleChange}
-            />
-
+              <input
+                type="text"
+                name="reasonForSurgery"
+                className="dark-input-text"
+                placeholder="e.g., Gallstones"
+                value={formData.reasonForSurgery}
+                onChange={handleChange}
+              />
             </div>
-                  
+
             <div className="mel">
               <label className="form-label">Remarks</label>
               <input

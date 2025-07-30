@@ -6,6 +6,7 @@ import '../css/ViewBillsByMobile.css';
 const ViewBillsByMobile = () => {
   const { mobile } = useParams();
   const navigate = useNavigate();
+
   const [bills, setBills] = useState([]);
   const [patientName, setPatientName] = useState('');
   const [expandedBillIndexes, setExpandedBillIndexes] = useState([]);
@@ -13,10 +14,11 @@ const ViewBillsByMobile = () => {
   useEffect(() => {
     axiosInstance.get(`/api/medical-bills/by-mobile/${mobile}`)
       .then(res => {
-        if (Array.isArray(res.data) && res.data.every(bill => bill.entries && Array.isArray(bill.entries))) {
-          setBills(res.data);
-          if (res.data.length > 0) {
-            const name = res.data[0]?.patient?.patientName || '';
+        const data = res.data;
+        if (Array.isArray(data)) {
+          setBills(data);
+          if (data.length > 0) {
+            const name = data[0]?.patient?.patientName || '';
             setPatientName(name);
           }
         } else {
@@ -24,21 +26,25 @@ const ViewBillsByMobile = () => {
         }
       })
       .catch(err => {
-        console.error("❌ Error loading bills", err);
+        console.error("❌ Error fetching bills:", err);
         setBills([]);
       });
   }, [mobile]);
 
   const toggleExpand = (index) => {
-    setExpandedBillIndexes(prev => 
-      prev.includes(index) ? prev.filter(i => i !== index) : [...prev, index]
+    setExpandedBillIndexes(prev =>
+      prev.includes(index)
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
     );
   };
 
   return (
     <div className="view-bills-container">
       <div className="view-bills-header">
-        <h2>Medicine Bills for: <span>{patientName}</span> ({mobile})</h2>
+        <h2>
+          Medicine Bills for: <span>{patientName}</span> ({mobile})
+        </h2>
         <button className="back-btn" onClick={() => navigate('/billing')}>← Back</button>
       </div>
 
@@ -47,10 +53,11 @@ const ViewBillsByMobile = () => {
       ) : (
         bills.map((bill, index) => {
           const isExpanded = expandedBillIndexes.includes(index);
-          const totalAmount = (bill.entries || []).reduce((sum, e) => {
-            const amt = parseFloat(e.amount || e.medicine?.amount || 0);
-            const qty = parseInt(e.issuedQuantity || 0);
-            return sum + (isNaN(amt) || isNaN(qty) ? 0 : amt * qty);
+
+          const totalAmount = (bill.entries || []).reduce((sum, entry) => {
+            const amount = parseFloat(entry.amount || entry.medicine?.amount || 0);
+            const qty = parseFloat(entry.issuedQuantity || entry.quantity || 0);
+            return sum + (isNaN(amount) || isNaN(qty) ? 0 : amount * qty);
           }, 0).toFixed(2);
 
           return (
@@ -59,10 +66,7 @@ const ViewBillsByMobile = () => {
                 <span><strong>Bill ID:</strong> {bill.billId}</span>
                 <span>&nbsp; | &nbsp;</span>
                 <span><strong>Date:</strong> {bill.billDate}</span>
-                <button 
-                  className="dropdown-toggle" 
-                  onClick={() => toggleExpand(index)}
-                >
+                <button className="dropdown-toggle" onClick={() => toggleExpand(index)}>
                   {isExpanded ? '▲ Hide' : '▼ Show'}
                 </button>
               </div>
@@ -80,15 +84,21 @@ const ViewBillsByMobile = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {(bill.entries || []).map((entry, i) => (
-                        <tr key={i}>
-                          <td>{entry.medicine?.name || '--'}</td>
-                          <td>{entry.medicine?.dosage || '--'}</td>
-                          <td>{entry.medicine?.amount || 0}</td>
-                          <td>{entry.issuedQuantity}</td>
-                          <td>{entry.subtotal || (entry.medicine?.amount || 0) * entry.issuedQuantity}</td>
-                        </tr>
-                      ))}
+                      {(bill.entries || []).map((entry, i) => {
+                        const amount = parseFloat(entry.amount || entry.medicine?.amount || 0);
+                        const qty = parseFloat(entry.issuedQuantity || entry.quantity || 0);
+                        const subtotal = (isNaN(amount) || isNaN(qty)) ? 0 : (amount * qty).toFixed(2);
+
+                        return (
+                          <tr key={i}>
+                            <td>{entry.medicine?.name || '--'}</td>
+                            <td>{entry.medicine?.dosage || '--'}</td>
+                            <td>{amount.toFixed(2)}</td>
+                            <td>{qty}</td>
+                            <td>{subtotal}</td>
+                          </tr>
+                        );
+                      })}
                     </tbody>
                   </table>
                   <h5 className="total-amount">Total: ₹{totalAmount}</h5>

@@ -18,8 +18,8 @@
   background-image: url('/images/doctorlog.png');
   background-size: cover;
   background-position: center;
-  filter: blur(3px);   /* Adjust blur intensity */
-  opacity: 0.6;        /* Optional dim effect */
+  filter: blur(3px);
+  opacity: 0.6;
   z-index: 0;
 }
 
@@ -28,31 +28,26 @@
   z-index: 1;
 }
 
- 
 .container-3 {
- 
   display: flex;
-    /* justify-content: center; */
-    align-items: center;
-    width: 100%;
-   
-    flex-direction: row;
-    /* box-sizing: border-box; */
-    margin-bottom:30px;
-    margin-top:30px;
+  align-items: center;
+  width: 100%;
+  flex-direction: row;
+  margin-bottom: 30px;
+  margin-top: 30px;
 }
+
 .header-three {
-  background: linear-gradient(to right, #3b82f6, #6366f1); /* Blue to indigo gradient */
+  background: linear-gradient(to right, #3b82f6, #6366f1);
   padding: 12px 24px;
   border-radius: 50px;
   width: fit-content;
-  margin: 20px auto; /* center horizontally */
+  margin: 20px auto;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
   display: flex;
   justify-content: center;
   align-items: center;
   animation: fadeIn 0.8s ease-in-out;
-  margin-left: revert;
 }
 
 .doctor-name {
@@ -73,43 +68,27 @@
     transform: translateY(0);
   }
 }
- 
-.header-4 {
- 
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  margin-bottom: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
- 
-.gradient-receptionist {
-  margin: 0;
-  font-size: 1.2rem;
-}
- 
+
 .heading-app {
- margin-left:620px;
- margin-bottom: 20px;
- padding:20px 20px;
-  width:300px;
-  height:70px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+  padding: 20px;
+  width: 300px;
+  height: 70px;
   background-color: #2674daaf;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 3px;
 }
- 
- 
+
 .content {
   color: white;
   font-size: 1.6rem;
   margin: 0;
 }
- 
+
 /* Search controls */
 .searching {
   display: flex;
@@ -118,40 +97,12 @@
   margin-bottom: 1rem;
   flex-wrap: wrap;
 }
- 
+
 .search-by-name,
 .search-by-date {
   min-width: 250px;
- 
 }
- /* .dark-date-input {
-  background-color: #1e1e1e;
-  color: white;
-  padding: 12px 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 14px;
-  font-family: inherit;
-  box-sizing: border-box;
-  width: 200px;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  position: relative;
-  cursor: pointer;
- 
 
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 18px;
-  padding-right: 40px;
-} */
- 
-.dark-date-input:focus {
-  border-color: #888;
-  outline: none;
-}
- 
 .searching input {
   padding: 10px;
   font-size: 1rem;
@@ -159,6 +110,10 @@
   border: 1px solid #ccc;
 }
 
+.dark-date-input:focus {
+  border-color: #888;
+  outline: none;
+}
 
 /* Table Styling */
 .table-scroll-wrapper {
@@ -168,47 +123,42 @@
   margin: 1rem auto;
   border-radius: 8px;
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-  scrollbar-width: thin;           /* Firefox */
+  scrollbar-width: thin;
   scrollbar-color: #9b9da0 transparent;
 }
- 
-/* Full table styling */
+
 .table-custom {
   width: 100%;
   border-collapse: collapse;
-  background-color: white; /* ✅ this gives white background to rows and header only */
+  background-color: white;
 }
- 
-/* Table cells */
+
 .table-custom th,
 .table-custom td {
   border: 1px solid #dee2e6;
   padding: 7px 10px;
   text-align: center;
-  color: black; /* consistent black text */
+  color: black;
 }
- 
-/* Sticky header */
+
 .table-custom thead th {
   position: sticky;
   top: 0;
-  background-color: #f8f9fa; /* soft white/gray header */
+  background-color: #f8f9fa;
   z-index: 2;
   box-shadow: 0 2px 2px rgba(0, 0, 0, 0.05);
 }
- 
-/* Remove any outer background if needed */
+
 body {
   background-color: transparent;
 }
- 
-/* Buttons */
 
-.capsule-button{
-   border-radius: 50px !important;     /* Makes it capsule-shaped */
-  padding: 6px 20px !important;       /* Comfortable padding */
+/* Buttons */
+.capsule-button {
+  border-radius: 50px !important;
+  padding: 6px 20px !important;
   font-size: 14px;
-  background-color: #17a2b8;          /* Bootstrap info color */
+  background-color: #17a2b8;
   color: white;
   border: none;
   transition: background-color 0.3s ease;
@@ -238,30 +188,22 @@ body {
 .capsule-danger:hover {
   background-color: #c82333;
 }
-.blue1,
+
+.btn-blue1,
 .btn-red1 {
-   font-family: "Roboto",sans-serif;
-    font-weight: bold;
-    box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
- 
-   
+  font-family: "Roboto", sans-serif;
+  font-weight: bold;
+  box-shadow: rgba(56, 70, 67, 0.25) 0px 14px 28px, rgba(38, 65, 63, 0.22) 0px 10px 10px;
   padding: 10px 32px;
   font-size: 16px;
   border: none;
   border-radius: 3px;
- 
   display: inline-flex;
   justify-content: center;
   align-items: center;
-  padding: 10px 20px;
- 
- 
- 
-  cursor: pointer;
-  transition: background-color 0.3s ease;
   margin: 0 5px;
 }
- 
+
 .btn-blue1 {
   background: linear-gradient(145deg, #151f6d, #3d4ab1);
   color: white;
@@ -284,54 +226,86 @@ body {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: radial-gradient(circle at center, rgba(255,255,255,0.2) 0%, transparent 60%);
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
   transform: rotate(25deg);
   pointer-events: none;
   animation: shimmer 3s infinite;
 }
-
 @keyframes shimmer {
-  0% { transform: rotate(25deg) translate(-100%, -100%); }
-  50% { transform: rotate(25deg) translate(0, 0); }
-  100% { transform: rotate(25deg) translate(100%, 100%); }
+  0% {
+    transform: rotate(25deg) translate(-100%, -100%);
+  }
+  50% {
+    transform: rotate(25deg) translate(0, 0);
+  }
+  100% {
+    transform: rotate(25deg) translate(100%, 100%);
+  }
 }
- 
 .btn-blue1:hover {
   transform: scale(1.05);
   box-shadow: 0 6px 25px rgba(93, 113, 255, 0.7);
 }
- 
+
 .btn-red1 {
   background-color: #e53935;
   color: white;
 }
- 
 .btn-red1:hover {
   background-color: #a52725;
 }
- 
+
+/* ✅ MODAL STYLING FIX */
+.ReactModal__Overlay {
+  z-index: 9998 !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+}
+
+.ReactModal__Content {
+  z-index: 9999 !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 400px !important;
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  animation: fadeInModal 0.3s ease-in-out;
+}
+
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
 /* Responsive Fixes */
 @media (max-width: 768px) {
   .header-4 {
     flex-direction: column;
     gap: 1rem;
   }
- 
+
   .search {
     flex-direction: column;
     align-items: stretch;
   }
- 
+
   .search-by-name,
   .search-by-date {
     width: 100%;
   }
- 
+
   .table-custom th,
   .table-custom td {
     font-size: 14px;
     padding: 10px;
   }
 }
- 
- 

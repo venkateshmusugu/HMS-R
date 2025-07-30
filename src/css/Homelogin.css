@@ -80,31 +80,7 @@ textarea:focus {
 }
  
  
-/* Button styling */
-/* button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height:30%;
-  margin-right: 2%;
-  background-color: #1a73e8;
-  color: rgb(255, 255, 255);
-  padding: 14px 28px;
-  font-size: 16px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  width: auto; /* Ensure the button does not stretch to full width */
-/* }
- 
-button:hover {
-  background-color: #0a498d;
-}
- 
-button:focus {
-  outline: none;
-}  */
+
 .home-login-background {
   position: relative;
   width: 100vw;
@@ -182,4 +158,45 @@ button:focus {
   vertical-align: middle;
 }
 
- 
+ .hospital-header {
+  height: 37px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 10px;
+  margin-top: 20px;
+  flex-direction: row;
+  z-index: 2;
+}
+
+.homepage-logo {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  margin-right: 20px;
+}
+
+
+.hospital-title {
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: white;
+  text-align: center;
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.icon-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hospital-icon-inline {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  vertical-align: middle;
+}

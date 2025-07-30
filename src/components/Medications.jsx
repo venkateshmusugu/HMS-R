@@ -6,6 +6,7 @@ import "../css/Medications.css";
 const Medications = () => {
   const { patientId, apptId } = useParams();
   const navigate = useNavigate();
+  const hospitalId = localStorage.getItem('hospitalId'); // ✅ pulled from storage
 
   const [logs, setLogs] = useState([]);
   const [expandedDate, setExpandedDate] = useState(null);
@@ -25,26 +26,30 @@ const Medications = () => {
   });
 
   useEffect(() => {
-    axiosInstance.get(`/api/doctor-logs/by-patient/${patientId}`)
-      .then(res => setLogs(res.data))
-      .catch(err => console.error("❌ Failed to fetch logs:", err));
+    if (hospitalId && patientId) {
+      axiosInstance
+        .get(`/api/doctor-logs/by-patient/${patientId}?hospitalId=${hospitalId}`)
+        .then((res) => setLogs(res.data))
+        .catch((err) => console.error("❌ Failed to fetch logs:", err));
+    }
 
     if (apptId) {
-      axiosInstance.get(`/api/appointments/${apptId}`)
-        .then(res => {
+      axiosInstance
+        .get(`/api/appointments/${apptId}`)
+        .then((res) => {
           const appt = res.data;
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             reasonForVisit: appt.reasonForVisit || '',
-            followUpDate: appt.visitDate ? appt.visitDate.split('T')[0] : ''
+            followUpDate: appt.visitDate ? appt.visitDate.split('T')[0] : '',
           }));
         })
-        .catch(err => {
+        .catch((err) => {
           console.error("❌ Failed to fetch appointment:", err);
           alert("Error loading appointment details.");
         });
     }
-  }, [patientId, apptId]);
+  }, [hospitalId, patientId, apptId]);
 
   const toggleLogs = (date) => {
     setExpandedDate(expandedDate === date ? null : date);
@@ -87,7 +92,10 @@ const Medications = () => {
     };
 
     try {
-      await axiosInstance.post(`/api/doctor-logs/by-appointment/${apptId}`, formattedPayload);
+      await axiosInstance.post(
+        `/api/doctor-logs/by-appointment/${apptId}?hospitalId=${hospitalId}`,
+        formattedPayload
+      );
       alert("Medications saved successfully!");
       navigate(-1);
     } catch (err) {
@@ -112,13 +120,17 @@ const Medications = () => {
             type="date"
             className="form-control mb-2"
             value={formData.followUpDate}
-            onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, followUpDate: e.target.value })
+            }
           />
           <input
             className="form-control mb-2"
             placeholder="Diagnosis"
             value={formData.diagnosis}
-            onChange={(e) => setFormData({ ...formData, diagnosis: e.target.value })}
+            onChange={(e) =>
+              setFormData({ ...formData, diagnosis: e.target.value })
+            }
             required
           />
 
@@ -175,11 +187,19 @@ const Medications = () => {
             </div>
           ))}
 
-          <button type="button" className="btn btn-secondary me-2" onClick={handleAddMedicine}>
+          <button
+            type="button"
+            className="btn btn-secondary me-2"
+            onClick={handleAddMedicine}
+          >
             + Add Medicine
           </button>
           <button type="submit" className="btn-med">Submit</button>
-          <button type="button" className="btn-back" onClick={() => navigate('/doctor-dashboard')}>
+          <button
+            type="button"
+            className="btn-back"
+            onClick={() => navigate('/doctor-dashboard')}
+          >
             Back
           </button>
         </form>
@@ -216,7 +236,6 @@ const Medications = () => {
                   {expandedDate === log.date && (
                     <tr>
                       <td colSpan="4">
-                         {console.log("🧾 Prescription for:", log.date, log.medicines)}
                         <table className="table table-sm table-striped mb-0">
                           <thead>
                             <tr>
@@ -227,15 +246,15 @@ const Medications = () => {
                             </tr>
                           </thead>
                           <tbody>
-                          {log.medicines.map((med, medIndex) => (
-                            <tr key={medIndex}>
-                              <td>{med.medicineName || '-'}</td>
-                              <td>{med.dosage || '-'}</td>
-                              <td>{med.durationInDays || '-'}</td>
-                              <td>{med.frequency || '-'}</td>
-                            </tr>
-                          ))}
-                        </tbody>
+                            {log.medicines.map((med, medIndex) => (
+                              <tr key={medIndex}>
+                                <td>{med.medicineName || '-'}</td>
+                                <td>{med.dosage || '-'}</td>
+                                <td>{med.durationInDays || '-'}</td>
+                                <td>{med.frequency || '-'}</td>
+                              </tr>
+                            ))}
+                          </tbody>
                         </table>
                       </td>
                     </tr>

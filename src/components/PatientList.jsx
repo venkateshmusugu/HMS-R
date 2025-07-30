@@ -5,11 +5,10 @@ import "../css/Patientlist.css";
 
 const PatientList = () => {
   const [appointments, setAppointments] = useState([]);
-  
+  const hospitalId = localStorage.getItem("hospitalId");
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split('T')[0]
-  );
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
   const navigate = useNavigate();
   const actualRole = localStorage.getItem('role');
   const actingAs = localStorage.getItem('actingAs');
@@ -19,19 +18,19 @@ const PatientList = () => {
   const receptionist = localStorage.getItem('username') || '—';
 
   const fetchAppointments = async () => {
-    try {
-      const params = { date: selectedDate };
-      if (searchTerm) params.searchTerm = searchTerm;
+  try {
+    const hospitalId = localStorage.getItem("hospitalId");
+    const params = { date: selectedDate, hospitalId };
 
-      console.log("📅 Fetching with params:", params);
+    if (searchTerm) params.searchTerm = searchTerm;
 
-      const res = await axiosInstance.get('/api/appointments/upcoming', { params });
-      setAppointments(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error("❌ Error:", err);
-      setAppointments([]);
-    }
-  };
+    const res = await axiosInstance.get('/api/appointments/upcoming', { params });
+    setAppointments(Array.isArray(res.data) ? res.data : []);
+  } catch (err) {
+    console.error("❌ Error fetching appointments:", err);
+    setAppointments([]);
+  }
+};
 
   useEffect(() => {
     if (["RECEPTIONIST", "DOCTOR", "ADMIN"].includes(actualRole)) {
@@ -44,11 +43,12 @@ const PatientList = () => {
     localStorage.removeItem('username');
     localStorage.removeItem('role');
     localStorage.removeItem('actingAs');
-    navigate('/');
+    navigate('/home-login');
   };
 
   return (
     <div className="patient-list-background">
+      {/* Header Bar */}
       <div className="receptionist-bar">
         <div className="receptionist-name">
           {impersonatingRole === 'RECEPTIONIST' ? `Receptionist : ${receptionist}` : ''}
@@ -67,13 +67,12 @@ const PatientList = () => {
         </div>
       </div>
 
-      {/* Appointment Section */}
+      {/* Heading & Search */}
       <div className="container-two">
         <div className="heading-1">
           <h2 className="heading-content">Appointments</h2>
         </div>
 
-        {/* Search Controls */}
         <div className="search-options">
           <div className="search-name">
             <input
@@ -99,7 +98,7 @@ const PatientList = () => {
         <div className='table-scroll-wrapper'>
           <table className="table-custom">
             <thead>
-              <tr color='black'>
+              <tr>
                 <th>Name</th>
                 <th>Doctor</th>
                 <th>Date</th>
@@ -109,118 +108,110 @@ const PatientList = () => {
               </tr>
             </thead>
             <tbody>
-              {appointments.length > 0 ? (
-                appointments.map(appt => {
-                  const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
-                  const now = new Date();
-                  const isPast = now > appointmentEnd;
+              {appointments.length > 0 ? appointments.map(appt => {
+                const appointmentEnd = new Date(`${appt.visitDate}T${appt.endTime}`);
+                const now = new Date();
+                const isPast = now > appointmentEnd;
+                const isCanceled = appt.status?.toUpperCase() === 'CANCELLED' || appt.status?.toUpperCase() === 'CANCELED';
+                const isUpcoming = !isCanceled && !isPast;
 
-                  const isCanceled =
-                    appt.status?.toUpperCase() === 'CANCELLED' || appt.status?.toUpperCase() === 'CANCELED';
-                  const isUpcoming = !isCanceled && !isPast;
+                let rowClass = 'row-default';
+                if (isCanceled) rowClass = 'row-cancelled';
+                else if (isPast) rowClass = 'row-past';
+                else if (isUpcoming) rowClass = 'row-upcoming';
 
-                  let rowClass = 'row-default';
-                  if (isCanceled) {
-                    rowClass = 'row-cancelled';
-                  } else if (isPast) {
-                    rowClass = 'row-past';
-                  } else if (isUpcoming) {
-                    rowClass = 'row-upcoming';
-                  }
-
-                  return (
-                    <tr key={appt.visitId} className={rowClass}>
-                      <td>{appt.patientName || 'N/A'}</td>
-                      <td>{appt.doctorName || 'N/A'}</td>
-                      <td>{appt.visitDate}</td>
-                      <td>{appt.startTime}</td>
-                      <td>{appt.endTime}</td>
-                      <td>
-                        {/* Upcoming Actions (Edit + Cancel) */}
-                        
-                        {!isCanceled && !isPast && (
-                          <>
-                            <button
-                              className="btn btn-warning btn-sm me-1"
-                              onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="btn-cancel"
-                              onClick={async () => {
-                                const confirm = window.confirm("❌ Cancel this appointment?");
-                                if (confirm) {
-                                  try {
-                                    await axiosInstance.put(`/api/appointments/${appt.visitId}/cancel`);
-                                    alert("❌ Appointment cancelled");
-                                    fetchAppointments();
-                                  } catch (err) {
-                                    console.error("Error cancelling:", err);
-                                    alert("❌ Failed to cancel appointment.");
-                                  }
-                                }
-                              }}
-                            >
-                              Cancel
-                            </button>
-                          </>
-                        )}
-
-                        {/* Status Buttons */}
-                        {isCanceled && (
-                          <button className="btn btn-danger btn-sm me-1" disabled>
-                            Cancelled
-                          </button>
-                        )}
-                        {isPast && !isCanceled && (
-                          <button className="btn-done me-1" disabled>
-                            Done
-                          </button>
-                        )}
-
-                        {/* ✅ Always visible for ADMIN */}
-                        
-                        {role === 'ADMIN' && (
+                return (
+                  <tr key={appt.visitId} className={rowClass}>
+                    <td>{appt.patientName || 'N/A'}</td>
+                    <td>{appt.doctorName || 'N/A'}</td>
+                    <td>{appt.visitDate}</td>
+                    <td>{appt.startTime}</td>
+                    <td>{appt.endTime}</td>
+                    <td>
+                      {/* Upcoming Actions */}
+                      {!isCanceled && !isPast && (
+                        <>
                           <button
-                            className="btn btn-danger btn-sm"
+                            className="btn btn-warning btn-sm me-1"
+                            onClick={() => navigate(`/book-appointment/${appt.visitId}`)}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="btn-cancel"
                             onClick={async () => {
-                              const confirmDelete = window.confirm("🗑️ Delete this appointment permanently?");
-                              if (confirmDelete) {
+                              if (window.confirm("❌ Cancel this appointment?")) {
                                 try {
-                                  await axiosInstance.delete(`/api/appointments/${appt.visitId}`);
-                                  alert("✅ Appointment deleted");
+                                  await axiosInstance.put(`/api/appointments/${appt.visitId}/cancel`);
+                                  alert("❌ Appointment cancelled");
                                   fetchAppointments();
                                 } catch (err) {
-                                  console.error("Error deleting:", err);
-                                  alert("❌ Failed to delete appointment.");
+                                  console.error("Cancel failed:", err);
+                                  alert("❌ Failed to cancel appointment.");
                                 }
                               }
                             }}
                           >
-                            Delete
+                            Cancel
                           </button>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
+                        </>
+                      )}
+
+                      {/* Status Badges */}
+                      {isCanceled && (
+                        <button className="btn btn-danger btn-sm me-1" disabled>
+                          Cancelled
+                        </button>
+                      )}
+                      {isPast && !isCanceled && (
+                        <button className="btn-done me-1" disabled>
+                          Done
+                        </button>
+                      )}
+
+                      {/* Admin Permanent Delete */}
+                      {role === 'ADMIN' && (
+                        <button
+                          className="btn btn-danger btn-sm"
+                          onClick={async () => {
+                            if (window.confirm("🗑️ Delete this appointment permanently?")) {
+                              try {
+                                await axiosInstance.delete(`/api/appointments/${appt.visitId}`);
+                                alert("✅ Appointment deleted");
+                                fetchAppointments();
+                              } catch (err) {
+                                console.error("Delete failed:", err);
+                                alert("❌ Failed to delete appointment.");
+                              }
+                            }
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              }) : (
                 <tr>
-                  <td style={{ color: 'black' }} colSpan="6" className="text-center">No appointments found.</td>
+                  <td style={{ color: 'black' }} colSpan="6" className="text-center">
+                    No appointments found.
+                  </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Admin-only back button */}
       {role === 'ADMIN' && (
-                  <div className="back-button-wrapper">
-                    <button className="back-button" onClick={() => navigate('/admin-dashboard')}>
-                      ⬅ Back to Admin Dashboard
-                    </button>
-                  </div>
-                )}
+        <div className="back-button-wrapper">
+          <button className="back-button" onClick={() => navigate('/admin-dashboard')}>
+            ⬅ Back to Admin Dashboard
+          </button>
+        </div>
+      )}
     </div>
   );
 };

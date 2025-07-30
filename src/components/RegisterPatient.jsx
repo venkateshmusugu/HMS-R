@@ -13,7 +13,6 @@ const RegisterPatient = () => {
   const [maritalStatus, setMaritalStatus] = useState('');
   const [address, setAddress] = useState('');
 
-
   const [context, setContext] = useState('');
   const [bookFlag, setBookFlag] = useState(false);
 
@@ -36,6 +35,7 @@ const RegisterPatient = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const role = localStorage.getItem("role");
+  const hospitalId = localStorage.getItem("hospitalId");
 
   const calculateAge = (dob) => {
     const birthDate = new Date(dob);
@@ -63,21 +63,17 @@ const RegisterPatient = () => {
     let ctx = params.get("context");
 
     if (!ctx) {
-      if (role === "RECEPTIONIST" || role === "DOCTOR") {
-        ctx = "appointment";
-      } else {
-        ctx = "surgery";
-      }
+      ctx = (role === "RECEPTIONIST" || role === "DOCTOR") ? "appointment" : "surgery";
     }
 
     setContext(ctx);
 
     if (ctx === "appointment") {
-      axiosInstance.get("/api/doctors")
+      axiosInstance.get(`/api/doctors/by-hospital/${hospitalId}`)
         .then(res => setDoctors(res.data))
         .catch(console.error);
     }
-  }, [location.search, role]);
+  }, [location.search, role, hospitalId]);
 
   useEffect(() => {
     if (doctorId && appointmentDate) {
@@ -113,10 +109,10 @@ const RegisterPatient = () => {
         dob,
         maritalStatus,
         address,
-
+        hospitalId
       };
 
-      const { data } = await axiosInstance.post("http://localhost:8081/api/patients", patientPayload);
+      const { data } = await axiosInstance.post("/api/patients", patientPayload);
       const patientId = data.patientId;
 
       if (bookFlag) {
@@ -131,27 +127,29 @@ const RegisterPatient = () => {
             startTime,
             endTime,
             reasonForVisit: reason,
-           doctorId: doctorId 
+            doctorId: doctorId,
+            hospitalId: hospitalId
           });
         } else {
           await axiosInstance.post(`/api/surgeries/book/${patientId}`, {
             surgeryDate,
             surgeryTime,
             surgeryType,
-            status
+            status,
+            hospitalId: hospitalId
           });
         }
       }
 
       alert("✅ Patient registered successfully" + (bookFlag ? ` and ${context} booked.` : ''));
 
-if (role === "DOCTOR") {
-  navigate("/doctor-dashboard");
-} else if (context === "surgery") {
-  navigate("/surgery");
-} else {
-  navigate("/patients");
-}
+      if (role === "DOCTOR") {
+        navigate("/doctor-dashboard");
+      } else if (context === "surgery") {
+        navigate("/surgery");
+      } else {
+        navigate("/patients");
+      }
 
     } catch (err) {
       console.error("❌ Error registering patient:", err);
@@ -219,10 +217,9 @@ if (role === "DOCTOR") {
             </div>
 
             <div className="f-two">
-  <label>Address</label>
-  <textarea value={address} onChange={(e) => setAddress(e.target.value)} required />
-</div>
-
+              <label>Address</label>
+              <textarea value={address} onChange={(e) => setAddress(e.target.value)} required />
+            </div>
 
             {context && (
               <div className="checks">
@@ -306,7 +303,6 @@ if (role === "DOCTOR") {
                 type="button"
                 className="btn-back"
                 onClick={() => {
-                  const role = localStorage.getItem("role");
                   navigate(role === "DOCTOR" ? '/doctor-dashboard' : '/patients');
                 }}
               >

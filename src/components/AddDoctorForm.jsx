@@ -9,23 +9,28 @@ const AddDoctorForm = () => {
   const [selectedDept, setSelectedDept] = useState('');
   const navigate = useNavigate();
 
+  const hospitalId = localStorage.getItem('hospitalId'); // ✅ required for filtering and saving
+
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await axiosInstance.get('/api/departments'); // You must expose this endpoint
-        setDepartments(res.data);
+        if (hospitalId) {
+          const res = await axiosInstance.get(`/api/departments/by-hospital/${hospitalId}`);
+          setDepartments(Array.isArray(res.data) ? res.data : []);
+        }
       } catch (err) {
-        console.error("Error fetching departments", err);
+        console.error("❌ Error fetching departments:", err);
       }
     };
 
     fetchDepartments();
-  }, []);
+  }, [hospitalId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!doctorName || !designation || !selectedDept) {
-      alert("Please fill all fields.");
+      alert("⚠️ Please fill all fields.");
       return;
     }
 
@@ -33,14 +38,15 @@ const AddDoctorForm = () => {
       await axiosInstance.post('/api/doctors/add', {
         doctorName,
         designation,
-        department: { departmentId: selectedDept }
+        department: { departmentId: selectedDept },
+        hospitalId: hospitalId // ✅ Include hospitalId in creation payload
       });
 
-      alert("Doctor added successfully!");
+      alert("✅ Doctor added successfully!");
       navigate('/doctor-dashboard');
     } catch (err) {
-      console.error("Failed to add doctor", err);
-      alert("Error adding doctor.");
+      console.error("❌ Failed to add doctor:", err);
+      alert("❌ Error adding doctor.");
     }
   };
 

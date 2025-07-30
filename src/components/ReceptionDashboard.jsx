@@ -4,17 +4,19 @@ import axios from 'axios';
 
 const ReceptionDashboard = () => {
   const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch patients from backend
   const fetchPatients = async () => {
     try {
       const response = await axios.get('http://localhost:8080/api/patients', {
-        withCredentials: true, // needed if using Spring Security + CSRF
+        withCredentials: true,
       });
-      setPatients(response.data);
+      setPatients(Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       console.error('❌ Failed to fetch patients:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -27,11 +29,11 @@ const ReceptionDashboard = () => {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Reception Dashboard</h1>
+    <div className="p-6 bg-white min-h-screen">
+      <h1 className="text-2xl font-bold mb-6 text-blue-800">Reception Dashboard</h1>
 
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Patient List</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Patient List</h2>
         <button
           onClick={handleAddPatient}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
@@ -40,31 +42,36 @@ const ReceptionDashboard = () => {
         </button>
       </div>
 
-      {patients.length === 0 ? (
+      {loading ? (
+        <p className="text-gray-500">Loading patients...</p>
+      ) : patients.length === 0 ? (
         <p className="text-gray-500">No patients registered yet.</p>
       ) : (
-        <table className="w-full border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border px-4 py-2">Name</th>
-              <th className="border px-4 py-2">Age</th>
-              <th className="border px-4 py-2">Gender</th>
-              <th className="border px-4 py-2">Contact</th>
-            </tr>
-          </thead>
-          <tbody>
-            {patients.map((patient) => (
-              <tr key={patient.id}>
-                <td className="border px-4 py-2">{patient.name}</td>
-                <td className="border px-4 py-2">{patient.age}</td>
-                <td className="border px-4 py-2">{patient.gender}</td>
-                <td className="border px-4 py-2">{patient.contactNumber}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full border border-gray-300 rounded shadow-sm">
+            <thead className="bg-gray-100 text-gray-700">
+              <tr>
+                <th className="border px-4 py-2 text-left">Name</th>
+                <th className="border px-4 py-2 text-left">Age</th>
+                <th className="border px-4 py-2 text-left">Gender</th>
+                <th className="border px-4 py-2 text-left">Contact</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {patients.map((patient) => (
+                <tr key={patient.id} className="hover:bg-gray-50">
+                  <td className="border px-4 py-2">{patient.name}</td>
+                  <td className="border px-4 py-2">{patient.age}</td>
+                  <td className="border px-4 py-2">{patient.gender}</td>
+                  <td className="border px-4 py-2">{patient.contactNumber || patient.phoneNumber || '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
 };
+
 export default ReceptionDashboard;

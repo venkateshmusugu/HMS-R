@@ -8,48 +8,58 @@ const ForgotPassword = () => {
   const [newPassword, setNewPassword] = useState('');
 
   const sendOtp = async () => {
-    if (!email) {
+    if (!email.trim()) {
       alert("Please enter your email.");
       return;
     }
     try {
-      await axios.post('http://localhost:8081/api/users/otp/send', { email }); // ✅ corrected
+      await axios.post('http://localhost:8081/api/users/otp/send', { email });
       alert("✅ OTP sent to email");
       setStep(2);
     } catch (err) {
-      alert("❌ Failed to send OTP");
+      alert("❌ Failed to send OTP. Please check the email or try again later.");
+      console.error("Send OTP error:", err);
     }
   };
 
   const resetPassword = async () => {
-    if (!otp || !newPassword) {
-      alert("Please enter OTP and new password.");
+    if (!otp.trim() || !newPassword.trim()) {
+      alert("Please enter both OTP and new password.");
       return;
     }
 
     try {
       await axios.post('http://localhost:8081/api/users/otp/reset', {
-        email, otp, newPassword
+        email,
+        otp,
+        newPassword,
       });
       alert("✅ Password reset successfully");
       window.location.href = '/';
     } catch (err) {
-      alert("❌ Password reset failed: " + (err.response?.data || err.message));
+      const message = err.response?.data || err.message;
+      alert("❌ Password reset failed: " + message);
+      console.error("Reset error:", err);
     }
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Forgot Password</h2>
+    <div className="container mt-5" style={{ maxWidth: '400px' }}>
+      <h2 className="mb-4 text-center">Forgot Password</h2>
+
       {step === 1 && (
         <>
           <input
+            type="email"
             placeholder="Enter email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             className="form-control mb-3"
+            required
           />
-          <button onClick={sendOtp} className="btn btn-primary">Send OTP</button>
+          <button onClick={sendOtp} className="btn btn-primary w-100">
+            Send OTP
+          </button>
         </>
       )}
 
@@ -58,17 +68,21 @@ const ForgotPassword = () => {
           <input
             placeholder="Enter OTP"
             value={otp}
-            onChange={e => setOtp(e.target.value)}
+            onChange={(e) => setOtp(e.target.value)}
             className="form-control mb-2"
+            required
           />
           <input
             type="password"
             placeholder="Enter New Password"
             value={newPassword}
-            onChange={e => setNewPassword(e.target.value)}
+            onChange={(e) => setNewPassword(e.target.value)}
             className="form-control mb-3"
+            required
           />
-          <button onClick={resetPassword} className="btn btn-success">Reset Password</button>
+          <button onClick={resetPassword} className="btn btn-success w-100">
+            Reset Password
+          </button>
         </>
       )}
     </div>

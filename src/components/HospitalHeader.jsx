@@ -1,40 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import axiosInstance from '../axiosInstance';
+import axios from 'axios';
 import '../css/HospitalHeader.css';
 
 const HospitalHeader = () => {
-  const [config, setConfig] = useState({ hospitalName: '', logoUrl: '' });
+  const [config, setConfig] = useState({ name: '', logoUrl: '' });
 
- useEffect(() => {
+  useEffect(() => {
   const token = localStorage.getItem('accessToken');
-  console.log('🧪 Admin Token in Header useEffect:', token);
-
   if (!token) {
     console.warn('🚫 No token found, skipping hospital config fetch');
     return;
   }
 
-  axiosInstance.get('/api/hospital-config')
+  axios.get("http://localhost:8081/api/hospitals/branding", {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
     .then(res => {
-      console.log('✅ Config fetched (Admin):', res.data);
-      setConfig(res.data);
+      setConfig(res.data || {});
     })
     .catch(err => {
-      console.error('❌ Admin config fetch error:', err);
+      console.error('❌ Failed to fetch hospital config:', err);
     });
 }, []);
-
 
   return (
     <div className="hospital-header">
       {config.logoUrl && (
         <img
-          src={`http://localhost:8081${config.logoUrl}`}
-          alt="Logo"
+          src={`http://localhost:8081${config.iconUrl}`}  
+          alt="Hospital Logo"
           className="hospital-logo"
         />
       )}
-      <h2>{config.hospitalName}</h2>
+      <h2>{config.name || 'Hospital'}</h2>
     </div>
   );
 };

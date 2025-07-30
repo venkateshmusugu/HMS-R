@@ -17,7 +17,7 @@ const RegisterForm = () => {
   const { role } = useParams();
   const navigate = useNavigate();
 
-  const [step, setStep] = useState(1); // 1 = user details, 2 = enter OTP
+  const [step, setStep] = useState(1); 
   const [otp, setOtp] = useState('');
   const [roleLimitReached, setRoleLimitReached] = useState(false);
   const [form, setForm] = useState({
@@ -26,35 +26,47 @@ const RegisterForm = () => {
     email: '',
     role: mapRole(role),
   });
+ const token = localStorage.getItem("accessToken");
+
+ useEffect(() => {
+  const checkRoleLimit = async () => {
+    if (!token) {
+      console.warn("❌ No token found. Skipping role count check.");
+      return;
+    }
+
+    try {
+      const res = await axios.get('http://localhost:8081/api/users/role-counts', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const count = res.data[form.role] || 0;
+
+      if ((form.role === 'DOCTOR' && count >= 5) ||
+          (form.role !== 'DOCTOR' && count >= 1)) {
+        setRoleLimitReached(true);
+      }
+    } catch (err) {
+      console.error("⚠️ Failed to check role limits:", err);
+    }
+  };
+
+  if (form.role) {
+    checkRoleLimit();
+  }
+}, [form.role, token]);
+
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  useEffect(() => {
-    const checkRoleLimit = async () => {
-      try {
-        const res = await axios.get('http://localhost:8081/api/users/role-counts');
-        const count = res.data[form.role];
-
-        if ((form.role === 'DOCTOR' && count >= 5) ||
-            (form.role !== 'DOCTOR' && count >= 1)) {
-          setRoleLimitReached(true);
-        }
-      } catch (err) {
-        console.error("Failed to fetch role counts:", err);
-      }
-    };
-
-    if (form.role) {
-      checkRoleLimit();
-    }
-  }, [form.role]);
-
   const sendOtp = async (e) => {
     e.preventDefault();
     if (!form.email) {
-      alert("Please enter email.");
+      alert("Please enter an email.");
       return;
     }
 
@@ -62,47 +74,80 @@ const RegisterForm = () => {
       await axios.post('http://localhost:8081/api/users/otp/send', {
         email: form.email
       });
-      alert("✅ OTP sent to your email");
+      alert("✅ OTP sent to your email.");
       setStep(2);
     } catch (err) {
       console.error("❌ Error sending OTP:", err);
-      alert("❌ Failed to send OTP");
+      alert("❌ Failed to send OTP.");
     }
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const payload = { ...form, otp };
-      await axios.post('http://localhost:8081/api/users/otp/verify', payload);
-      alert("✅ Registered successfully");
-      navigate('/');
-    } catch (err) {
-      const message = err?.response?.data || "Unexpected error occurred";
-      console.warn("⚠️ Registration error:", message);
+const handleRegister = async (e) => {
+  e.preventDefault();
 
-      if (typeof message === "string") {
-        if (message.includes("Email already registered")) {
-          alert("❌ Email already registered.");
-        } else if (message.includes("Username already exists")) {
-          alert("❌ Username already exists.");
-        } else {
-          alert("❌ Registration failed: " + message);
-        }
+  try {
+    const userData = { ...form, otp };
+
+    // Get token from either localStorage or sessionStorage
+    const token =
+      localStorage.getItem("accessToken") ||
+      sessionStorage.getItem("accessToken");
+
+    // Prepare headers conditionally
+    const headers = token
+      ? { Authorization: `Bearer ${token}` }
+      : {};
+
+    // 🔍 Debug Logs
+    console.log("🟡 Submitting registration for:");
+    console.log("   👤 Username:", form.username);
+    console.log("   📧 Email:", form.email);
+    console.log("   🔐 Password:", form.password);
+    console.log("   🎭 Role:", form.role);
+    console.log("   🔢 OTP:", otp);
+    console.log("   🪪 Token being sent:", token);
+    console.log("   📦 Headers:", headers);
+
+    const res = await axios.post(
+      'http://localhost:8081/api/users/otp/verify',
+      userData,
+      { headers }
+    );
+
+    console.log("✅ Server response:", res?.data);
+
+    alert("✅ Registration successful.");
+    navigate('/home-login');
+
+  } catch (err) {
+    const message = err?.response?.data || "Unexpected error occurred";
+    console.warn("⚠️ Registration error:", message);
+
+    if (typeof message === "string") {
+      if (message.includes("Email already registered")) {
+        alert("❌ Email already registered.");
+      } else if (message.includes("Username already exists")) {
+        alert("❌ Username already exists.");
       } else {
-        alert("❌ Registration failed. Please try again.");
+        alert("❌ Registration failed: " + message);
       }
+    } else {
+      alert("❌ Registration failed. Please try again.");
     }
-  };
+  }
+};
+
+
+
 
   return (
     <div className="background-container">
       <div className="login-form-one">
-        <h2>Register as {mapRole(role)}</h2>
+        <h2>Register as {form.role}</h2>
 
         {roleLimitReached ? (
-          <p style={{ color: 'red', fontWeight: 'bold' }}>
-            ❌ Registration not allowed. Maximum limit reached for {form.role}.
+          <p className="error-message">
+            ❌ Registration not allowed. Maximum limit reached for role <strong>{form.role}</strong>.
           </p>
         ) : (
           <>
@@ -124,7 +169,7 @@ const RegisterForm = () => {
                   <label>Role</label>
                   <input type="text" name="role" value={form.role} readOnly />
                 </div>
-                <button type="submit" className='registerbtn' disabled={roleLimitReached}>Send OTP</button>
+                <button type="submit" className="registerbtn">Send OTP</button>
               </form>
             )}
 
@@ -147,7 +192,7 @@ const RegisterForm = () => {
                     required
                   />
                 </div>
-                <button type="submit" className='registerbtn' disabled={roleLimitReached}>Verify & Register</button>
+                <button type="submit" className="registerbtn">Verify & Register</button>
               </form>
             )}
           </>

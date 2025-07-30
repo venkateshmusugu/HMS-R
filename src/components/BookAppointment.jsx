@@ -11,8 +11,6 @@ const BookAppointment = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [inputValue, setInputValue] = useState('');
   const [existingAppointments, setExistingAppointments] = useState([]);
-  const [bookedSlots, setBookedSlots] = useState([]);
-
 
   const [formData, setFormData] = useState({
     doctorId: '',
@@ -23,39 +21,38 @@ const BookAppointment = () => {
     reason: '',
   });
 
- useEffect(() => {
-  axiosInstance.get('/api/doctors')
-    .then(res => {
-      console.log("👨‍⚕️ Doctors fetched:", res.data); // ✅
-      setDoctors(Array.isArray(res.data) ? res.data : []);
-    })
-    .catch(err => console.error("❌ Error loading doctors:", err));
-}, []);
+  const hospitalId = localStorage.getItem('hospitalId');
 
-
- useEffect(() => {
-  if (id) {
-    axiosInstance.get(`/api/appointments/${id}`)
+  useEffect(() => {
+    axiosInstance.get(`/api/doctors/by-hospital/${hospitalId}`)
       .then(res => {
-        console.log("📅 Editing appointment data:", res.data); // ✅
-        const a = res.data;
-        setFormData({
-          doctorId: a.doctor?.doctorId || '',
-          patientId: a.patient?.patientId || '',
-          visitDate: a.visitDate || '',
-          startTime: a.startTime || '',
-          endTime: a.endTime || '',
-          reason: a.reasonForVisit || '',
-        });
-        setInputValue(`${a.patient?.patientName} - ${a.patient?.phoneNumber}`);
+        console.log("👨‍⚕️ Doctors fetched:", res.data);
+        setDoctors(Array.isArray(res.data) ? res.data : []);
       })
-      .catch(err => {
-        console.error("❌ Failed to load appointment:", err);
-        alert("Error loading appointment.");
-      });
-  }
-}, [id]);
+      .catch(err => console.error("❌ Error loading doctors:", err));
+  }, [hospitalId]);
 
+  useEffect(() => {
+    if (id) {
+      axiosInstance.get(`/api/appointments/${id}`)
+        .then(res => {
+          const a = res.data;
+          setFormData({
+            doctorId: a.doctor?.doctorId || '',
+            patientId: a.patient?.patientId || '',
+            visitDate: a.visitDate || '',
+            startTime: a.startTime || '',
+            endTime: a.endTime || '',
+            reason: a.reasonForVisit || '',
+          });
+          setInputValue(`${a.patient?.patientName} - ${a.patient?.phoneNumber}`);
+        })
+        .catch(err => {
+          console.error("❌ Failed to load appointment:", err);
+          alert("Error loading appointment.");
+        });
+    }
+  }, [id]);
 
   useEffect(() => {
     if (formData.doctorId && formData.visitDate) {
@@ -73,14 +70,13 @@ const BookAppointment = () => {
         setExistingAppointments([]);
       });
     }
-  }, [formData.doctorId, formData.visitDate]);
+  }, [formData.doctorId, formData.visitDate, id]);
 
   const fetchTodayPatients = async () => {
     if (inputValue.trim() === '') {
       try {
-          const res = await axiosInstance.get('/api/patients/registered-today');
-    setSuggestions(Array.isArray(res.data) ? res.data : []);
-    console.log(res.data);
+        const res = await axiosInstance.get('/api/patients/registered-today');
+        setSuggestions(Array.isArray(res.data) ? res.data : []);
       } catch (err) {
         console.error("❌ Error fetching today's patients:", err);
       }
@@ -88,35 +84,31 @@ const BookAppointment = () => {
   };
 
   const handleInputChange = async (e) => {
-    
-  const value = e.target.value;
-  setInputValue(value);
+    const value = e.target.value;
+    setInputValue(value);
 
-  if (value.length >= 2) {
-    try {
+    if (value.length >= 2) {
+      try {
         const res = await axiosInstance.get(`/api/patients/search?query=${value}`);
         setSuggestions(Array.isArray(res.data) ? res.data : []);
- 
-      setSuggestions(results);
-    } catch (err) {
-      console.error("❌ Error searching patients:", err);
+      } catch (err) {
+        console.error("❌ Error searching patients:", err);
+      }
     }
-  }
-};
+  };
 
-useEffect(() => {
-  if (inputValue && suggestions.length > 0) {
-    const matched = suggestions.find(
-      p => `${p.patientName} - ${p.phoneNumber}`.toLowerCase() === inputValue.toLowerCase()
-    );
+  useEffect(() => {
+    if (inputValue && suggestions.length > 0) {
+      const matched = suggestions.find(
+        p => `${p.patientName} - ${p.phoneNumber}`.toLowerCase() === inputValue.toLowerCase()
+      );
 
-    setFormData(prev => ({
-      ...prev,
-      patientId: matched ? matched.patientId : ''
-    }));
-  }
-}, [inputValue, suggestions]);
-
+      setFormData(prev => ({
+        ...prev,
+        patientId: matched ? matched.patientId : ''
+      }));
+    }
+  }, [inputValue, suggestions]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -143,66 +135,58 @@ useEffect(() => {
   };
 
   const isOverlapping = () => {
-  const { startTime, endTime } = formData;
-  console.log("⏱️ Checking overlap with times:", startTime, endTime); // ✅
-  console.log("🗂️ Existing appointments:", existingAppointments); // ✅
+    const { startTime, endTime } = formData;
 
-  return existingAppointments.some(app => {
-    const aStart = app.startTime;
-    const aEnd = app.endTime;
+    return existingAppointments.some(app => {
+      const aStart = app.startTime;
+      const aEnd = app.endTime;
 
-    return (
-      (startTime >= aStart && startTime < aEnd) ||
-      (endTime > aStart && endTime <= aEnd) ||
-      (startTime <= aStart && endTime >= aEnd)
-    );
-  });
-};
-
-
-const handleSubmit = async e => {
-  e.preventDefault();
-
-  console.log("📝 Submitting formData:", formData); // ✅
-
-  if (!formData.patientId || !formData.doctorId) {
-    alert("❗ Please select both doctor and patient from the list.");
-    return;
-  }
-
-  if (isOverlapping()) {
-    alert("⚠️ Time overlaps with another appointment. Please choose a different time.");
-    return;
-  }
-
-  const payload = {
-    visitDate: formData.visitDate,
-    startTime: formData.startTime,
-    endTime: formData.endTime,
-    departmentId: formData.departmentId,
-    reasonForVisit: formData.reason,
-    doctorId: parseInt(formData.doctorId),
-    patientId: parseInt(formData.patientId)
+      return (
+        (startTime >= aStart && startTime < aEnd) ||
+        (endTime > aStart && endTime <= aEnd) ||
+        (startTime <= aStart && endTime >= aEnd)
+      );
+    });
   };
 
-  console.log("📦 Sending payload to API:", payload); // ✅
+  const handleSubmit = async e => {
+    e.preventDefault();
 
-  try {
-    if (id) {
-      await axiosInstance.put(`/api/appointments/${id}`, payload);
-      console.log("✅ Appointment updated"); // ✅
-    } else {
-      await axiosInstance.post('/api/appointments', payload);
-      console.log("✅ Appointment booked"); // ✅
+    if (!formData.patientId || !formData.doctorId) {
+      alert("❗ Please select both doctor and patient from the list.");
+      return;
     }
-    const role = localStorage.getItem('role');
-    navigate(role === 'DOCTOR' ? '/doctor-dashboard' : '/patients');
-  } catch (err) {
-    console.error("❌ Failed to save appointment:", err);
-    alert("❌ Failed to save appointment");
-  }
-};
 
+    if (isOverlapping()) {
+      alert("⚠️ Time overlaps with another appointment. Please choose a different time.");
+      return;
+    }
+
+    const payload = {
+      visitDate: formData.visitDate,
+      startTime: formData.startTime,
+      endTime: formData.endTime,
+      departmentId: formData.departmentId,
+      reasonForVisit: formData.reason,
+      doctorId: parseInt(formData.doctorId),
+      patientId: parseInt(formData.patientId),
+      hospitalId: parseInt(hospitalId)
+    };
+
+    try {
+      if (id) {
+        await axiosInstance.put(`/api/appointments/${id}`, payload);
+      } else {
+        await axiosInstance.post('/api/appointments', payload);
+      }
+
+      const role = localStorage.getItem('role');
+      navigate(role === 'DOCTOR' ? '/doctor-dashboard' : '/patients');
+    } catch (err) {
+      console.error("❌ Failed to save appointment:", err);
+      alert("❌ Failed to save appointment");
+    }
+  };
 
   return (
     <div className="book-appointment">
@@ -213,21 +197,19 @@ const handleSubmit = async e => {
             <div className="mb-3">
               <label>Search Patient</label>
               <input
-              type="text"
-              className="form-control data"
-              list="patient-suggestions"
-              placeholder="Type patient name"
-              value={inputValue}
-              onClick={fetchTodayPatients}
-              onChange={handleInputChange}
-            />
-
-             <datalist id="patient-suggestions">
-              {(Array.isArray(suggestions) ? suggestions : []).map((p, i) => (
-                <option key={i} value={`${p.patientName} - ${p.phoneNumber}`} />
-              ))}
-            </datalist>
-
+                type="text"
+                className="form-control data"
+                list="patient-suggestions"
+                placeholder="Type patient name"
+                value={inputValue}
+                onClick={fetchTodayPatients}
+                onChange={handleInputChange}
+              />
+              <datalist id="patient-suggestions">
+                {(Array.isArray(suggestions) ? suggestions : []).map((p, i) => (
+                  <option key={i} value={`${p.patientName} - ${p.phoneNumber}`} />
+                ))}
+              </datalist>
             </div>
 
             <div className="mb-3">
@@ -296,19 +278,19 @@ const handleSubmit = async e => {
                 placeholder="Reason for visit"
               />
             </div>
-            <div className='end_appoint'>
-            <button
-              type="button"
-              className="btn-back black"
-              onClick={() => {
-                const role = localStorage.getItem("role");
-                navigate(role === "DOCTOR" ? '/doctor-dashboard' : '/patients');
-              }}
-            >
-              Back
-            </button>
 
-            <button type="submit" className="btn-blue">Book Appointment</button>
+            <div className='end_appoint'>
+              <button
+                type="button"
+                className="btn-back black"
+                onClick={() => {
+                  const role = localStorage.getItem("role");
+                  navigate(role === "DOCTOR" ? '/doctor-dashboard' : '/patients');
+                }}
+              >
+                Back
+              </button>
+              <button type="submit" className="btn-blue">Book Appointment</button>
             </div>
           </form>
         </div>
